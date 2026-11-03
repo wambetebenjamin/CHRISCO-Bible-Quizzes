@@ -45,7 +45,7 @@
     }
 
     /* ---------------- LOBBY ---------------- */
-    #lobby { align-items: center; justify-content: center; text-align: center; gap: clamp(14px, 3vh, 34px); }
+    #lobby { align-items: center; justify-content: center; text-align: center; gap: clamp(14px, 3vh, 34px); overflow-y: auto; }
     .pin-label { font-size: clamp(1rem, 2.2vw, 1.8rem); font-weight: 800; letter-spacing: .4em; opacity: .85; }
     .pin {
       font-size: clamp(4.5rem, 15vw, 12rem);
@@ -80,6 +80,38 @@
     }
     .chip.empty { background: rgba(255,255,255,.15); color: rgba(255,255,255,.7); box-shadow: none; font-weight: 700; }
     @keyframes pop { from { transform: scale(0); } to { transform: scale(1); } }
+
+    /* ---------------- QUIZ PACK PICKER ---------------- */
+    .pack-wrap { width: min(940px, 94vw); }
+    .pack-label { font-size: clamp(.75rem, 1.4vw, 1rem); font-weight: 900; letter-spacing: .3em; opacity: .7; margin-bottom: 10px; }
+    .packs {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 10px;
+    }
+    .pack-card {
+      background: rgba(0, 0, 0, .3);
+      border: 3px solid rgba(255, 255, 255, .18);
+      border-radius: 14px;
+      padding: 10px 12px;
+      cursor: pointer;
+      text-align: left;
+      color: #fff;
+      font-family: inherit;
+      transition: transform .1s, border-color .15s, background .15s;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .pack-card:hover { transform: translateY(-3px); border-color: rgba(255, 255, 255, .45); }
+    .pack-card.selected {
+      border-color: #ffd76e;
+      background: rgba(255, 215, 110, .18);
+      box-shadow: 0 0 0 2px rgba(255, 215, 110, .35), 0 6px 18px rgba(0, 0, 0, .3);
+    }
+    .pack-card .pack-icon { font-size: clamp(1.3rem, 2.2vw, 1.8rem); }
+    .pack-card .pack-title { font-weight: 900; font-size: clamp(.8rem, 1.4vw, 1.05rem); line-height: 1.2; }
+    .pack-card .pack-meta { font-size: clamp(.65rem, 1.1vw, .8rem); opacity: .7; font-weight: 700; }
 
     .btn-big {
       border: none;
@@ -297,10 +329,16 @@
       <div class="pin-label">GAME PIN</div>
       <div class="pin" id="pin">----</div>
       <div class="lobby-hint">Players: open <b>player.html</b> on your phone and enter this PIN</div>
+      <div class="pack-wrap">
+        <div class="pack-label">CHOOSE A QUIZ PACK</div>
+        <div class="packs" id="packs">
+          <div class="pack-card">Loading packs…</div>
+        </div>
+      </div>
       <div class="players" id="players">
         <div class="chip empty">Waiting for campers to join…</div>
       </div>
-      <button class="btn-big btn-green" id="start-btn">▶ START GAME</button>
+      <button class="btn-big btn-green" id="start-btn">▶ START QUIZ</button>
     </div>
   </section>
 
@@ -370,16 +408,29 @@
     const $ = (id) => document.getElementById(id);
     const fmt = (n) => Number(n).toLocaleString();
 
-    const QUESTIONS = [
-      { question: 'Who built the ark?', options: ['Moses', 'Noah', 'David', 'Solomon'], correct: 1 },
-      { question: 'How many plagues did God send on Egypt?', options: ['7', '12', '10', '3'], correct: 2 },
-      { question: 'How many disciples did Jesus choose?', options: ['10', '14', '12', '7'], correct: 2 },
-      { question: 'Who was thrown into the lions’ den?', options: ['Daniel', 'Samson', 'Peter', 'Job'], correct: 0 },
-      { question: 'What did Jesus multiply to feed the 5,000?', options: ['Rice and fish', 'Bread and grapes', 'Fish and fruit', 'Loaves and fishes'], correct: 3 },
-    ];
+    /* Built-in fallback pack — used if the quiz_packs tables can't be reached. */
+    const FALLBACK_PACK = {
+      slug: 'youth-camp',
+      title: 'Youth Camp Bible Quiz',
+      icon: '🏕️',
+      audience: 'youth',
+      description: 'Classic camp trivia',
+      questions: [
+        { question: 'Who built the ark?', options: ['Moses', 'Noah', 'David', 'Solomon'], correct: 1 },
+        { question: 'How many plagues did God send on Egypt?', options: ['7', '12', '10', '3'], correct: 2 },
+        { question: 'How many disciples did Jesus choose?', options: ['10', '14', '12', '7'], correct: 2 },
+        { question: 'Who was thrown into the lions’ den?', options: ['Daniel', 'Samson', 'Peter', 'Job'], correct: 0 },
+        { question: 'What did Jesus multiply to feed the 5,000?', options: ['Rice and fish', 'Bread and grapes', 'Fish and fruit', 'Loaves and fishes'], correct: 3 },
+      ],
+    };
+
+    let PACKS = [FALLBACK_PACK];       // all available quiz packs
+    let QUESTIONS = FALLBACK_PACK.questions; // questions of the selected pack
+    let packTitle = FALLBACK_PACK.title;
+    let packSlug = FALLBACK_PACK.slug;
+    let totalQuestions = QUESTIONS.length;
     const QUESTION_TIME_MS = 15000;
     const REVEAL_DELAY_MS = 800;
-    const totalQuestions = QUESTIONS.length;
 
     let sb = null;
     let channel = null;
@@ -420,12 +471,65 @@
           return;
         }
         sb = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
-        await createRoom();
+        await Promise.all([createRoom(), loadPacks()]);
       } catch (err) {
         console.error(err);
         toast('Could not connect to the game service.');
       }
     })();
+
+    // ---------- Quiz packs (loaded from Postgres, fallback built-in) ----------
+    async function loadPacks() {
+      try {
+        const [packsRes, qsRes] = await Promise.all([
+          sb.from('quiz_packs').select('slug,title,description,icon,audience').order('title'),
+          sb.from('quiz_questions').select('pack_slug,position,question,options,correct').order('position'),
+        ]);
+        if (packsRes.error) throw packsRes.error;
+        const loaded = (packsRes.data || [])
+          .map((p) => ({
+            ...p,
+            questions: (qsRes.data || [])
+              .filter((q) => q.pack_slug === p.slug)
+              .sort((a, b) => a.position - b.position)
+              .map((q) => ({ question: q.question, options: q.options, correct: q.correct })),
+          }))
+          .filter((p) => p.questions.length >= 3);
+        if (loaded.length) PACKS = loaded;
+      } catch (err) {
+        console.warn('Could not load quiz packs — using built-in fallback.', err);
+      }
+      if (!PACKS.some((p) => p.slug === FALLBACK_PACK.slug)) PACKS.unshift(FALLBACK_PACK);
+
+      // Preselect via ?pack=slug (demo links) or the first pack.
+      const wanted = new URLSearchParams(location.search).get('pack');
+      selectPack(PACKS.some((p) => p.slug === wanted) ? wanted : PACKS[0].slug);
+    }
+
+    function selectPack(slug) {
+      const pack = PACKS.find((p) => p.slug === slug) || PACKS[0];
+      packSlug = pack.slug;
+      QUESTIONS = pack.questions;
+      packTitle = pack.title;
+      totalQuestions = QUESTIONS.length;
+      renderPacks();
+    }
+
+    function renderPacks() {
+      const box = $('packs');
+      box.innerHTML = '';
+      PACKS.forEach((p) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'pack-card' + (p.slug === packSlug ? ' selected' : '');
+        btn.innerHTML = `<span class="pack-icon"></span><span class="pack-title"></span><span class="pack-meta"></span>`;
+        btn.querySelector('.pack-icon').textContent = p.icon || '❓';
+        btn.querySelector('.pack-title').textContent = p.title;
+        btn.querySelector('.pack-meta').textContent = `${p.questions.length} questions`;
+        btn.addEventListener('click', () => selectPack(p.slug));
+        box.appendChild(btn);
+      });
+    }
 
     async function createRoom() {
       // Best-effort cleanup of rooms older than a day.
@@ -553,6 +657,7 @@
       const payload = {
         questionNumber: currentIndex + 1,
         totalQuestions,
+        packTitle,
         question: q.question,
         options: q.options,
         durationMs: QUESTION_TIME_MS,
@@ -822,6 +927,7 @@
         send('question', {
           questionNumber: currentIndex + 1,
           totalQuestions,
+          packTitle,
           question: q.question,
           options: q.options,
           durationMs: QUESTION_TIME_MS,

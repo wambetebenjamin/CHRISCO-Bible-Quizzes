@@ -114,6 +114,67 @@
       font-weight: 600;
       opacity: .7;
     }
+
+    /* ---------- Quiz packs / use cases ---------- */
+    .packs-section {
+      position: relative;
+      z-index: 1;
+      padding: 10px 20px 50px;
+      text-align: center;
+    }
+    .packs-section h2 {
+      font-size: clamp(1.5rem, 4vw, 2.4rem);
+      font-weight: 900;
+      margin-bottom: 10px;
+    }
+    .packs-sub {
+      max-width: 720px;
+      margin: 0 auto 26px;
+      font-size: clamp(.9rem, 2vw, 1.1rem);
+      font-weight: 600;
+      opacity: .85;
+      line-height: 1.5;
+    }
+    .use-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 18px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .use-card {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 7px;
+      text-align: left;
+      text-decoration: none;
+      color: #fff;
+      background: rgba(0, 0, 0, .32);
+      border: 3px solid rgba(255, 255, 255, .16);
+      border-radius: 20px;
+      padding: 20px 20px 16px;
+      transition: transform .12s ease, border-color .12s ease, box-shadow .12s ease;
+      box-shadow: 0 8px 0 rgba(0, 0, 0, .25);
+    }
+    .use-card:hover {
+      transform: translateY(-6px);
+      border-color: #ffd76e;
+      box-shadow: 0 14px 0 rgba(0, 0, 0, .25), 0 22px 40px rgba(0, 0, 0, .35);
+    }
+    .use-card:active { transform: translateY(0); }
+    .use-icon { font-size: 2.4rem; line-height: 1; }
+    .use-title { font-size: 1.2rem; font-weight: 900; letter-spacing: .4px; }
+    .use-desc { font-size: .92rem; font-weight: 600; opacity: .8; line-height: 1.4; flex: 1; }
+    .use-cta {
+      margin-top: 6px;
+      font-size: .95rem;
+      font-weight: 900;
+      color: #ffd76e;
+      letter-spacing: .4px;
+    }
+    .use-card-alt { background: rgba(38, 137, 12, .35); border-color: rgba(255, 255, 255, .3); }
+    .use-card-alt .use-cta { color: #b9ffab; }
   </style>
 </head>
 <body>
@@ -153,6 +214,49 @@
       <div class="step"><b>3.</b> Answer fast, score big!</div>
     </div>
   </main>
+
+  <section class="packs-section">
+    <h2>Quiz packs for every occasion</h2>
+    <p class="packs-sub">Pick a demo below — it opens the host screen pre-loaded with that quiz. Teachers &amp; facilitators: you can create your own packs too (see <b>CREATE-A-QUIZ.md</b>).</p>
+    <div class="use-grid">
+      <a class="use-card" href="host.html?pack=youth-camp">
+        <span class="use-icon">🏕️</span>
+        <span class="use-title">Youth Camp Bible Quiz</span>
+        <span class="use-desc">Classic camp trivia for projector + phones</span>
+        <span class="use-cta">Host demo →</span>
+      </a>
+      <a class="use-card" href="host.html?pack=sunday-school">
+        <span class="use-icon">⛪</span>
+        <span class="use-title">Children’s Sunday School</span>
+        <span class="use-desc">Gentle Bible-story questions for younger kids</span>
+        <span class="use-cta">Host demo →</span>
+      </a>
+      <a class="use-card" href="host.html?pack=school-quest">
+        <span class="use-icon">🏫</span>
+        <span class="use-title">School &amp; General Knowledge</span>
+        <span class="use-desc">Maths, science &amp; geography for class competitions</span>
+        <span class="use-cta">Host demo →</span>
+      </a>
+      <a class="use-card" href="host.html?pack=business-brain">
+        <span class="use-icon">💼</span>
+        <span class="use-title">Business Trivia</span>
+        <span class="use-desc">Team-building energizer for offices &amp; conferences</span>
+        <span class="use-cta">Host demo →</span>
+      </a>
+      <a class="use-card" href="host.html?pack=bible-scholars">
+        <span class="use-icon">📖</span>
+        <span class="use-title">Bible Scholars</span>
+        <span class="use-desc">Harder Bible knowledge for teens &amp; adults</span>
+        <span class="use-cta">Host demo →</span>
+      </a>
+      <a class="use-card use-card-alt" href="host.html">
+        <span class="use-icon">➕</span>
+        <span class="use-title">Create your own</span>
+        <span class="use-desc">Build a custom pack for your class, church or team</span>
+        <span class="use-cta">Open host →</span>
+      </a>
+    </div>
+  </section>
 
   <footer>Youth Camp Edition • “I can do all things through Christ” — Philippians 4:13</footer>
 </body>
