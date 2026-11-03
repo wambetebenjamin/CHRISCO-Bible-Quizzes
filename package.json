@@ -1,0 +1,17 @@
+{
+  "name": "chrisco-bible-quizzes",
+  "version": "2.0.0",
+  "description": "Kahoot-style real-time Bible trivia for church youth camps (Supabase Realtime + Vercel)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "@supabase/supabase-js": "^2.49.0"
+  }
+}

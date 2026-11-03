@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Host • CHRISCO Bible Quizzes</title>
+  <link rel="icon" href="data:," />
+  <style>
+    :root {
+      --red: #e21b3c;
+      --blue: #1368ce;
+      --yellow: #d89e00;
+      --green: #26890c;
+      --purple: #46178f;
+      --panel: #36225c;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body {
+      font-family: ui-rounded, "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: radial-gradient(1100px 700px at 50% -15%, #6a2ec9 0%, var(--purple) 50%, var(--dark, #2b0b4a) 100%);
+      background-color: var(--purple);
+      color: #fff;
+      overflow: hidden;
+    }
+    .screen {
+      display: none;
+      height: 100vh;
+      flex-direction: column;
+      padding: clamp(14px, 2.5vw, 38px);
+    }
+    .screen.active { display: flex; }
+
+    header { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+    .brand { font-weight: 900; font-size: clamp(.95rem, 1.8vw, 1.5rem); letter-spacing: .5px; }
+    .brand em { color: #ffd76e; font-style: normal; }
+    .pill {
+      background: rgba(255, 255, 255, .15);
+      border: 2px solid rgba(255, 255, 255, .3);
+      border-radius: 999px;
+      padding: .4em 1.1em;
+      font-weight: 800;
+      font-size: clamp(.85rem, 1.6vw, 1.25rem);
+      white-space: nowrap;
+    }
+
+    /* ---------------- LOBBY ---------------- */
+    #lobby { align-items: center; justify-content: center; text-align: center; gap: clamp(14px, 3vh, 34px); }
+    .pin-label { font-size: clamp(1rem, 2.2vw, 1.8rem); font-weight: 800; letter-spacing: .4em; opacity: .85; }
+    .pin {
+      font-size: clamp(4.5rem, 15vw, 12rem);
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: .1em;
+      background: linear-gradient(180deg, #ffffff 20%, #ffd76e 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      filter: drop-shadow(0 8px 30px rgba(255, 215, 110, .35));
+    }
+    .lobby-hint { font-size: clamp(.95rem, 2vw, 1.4rem); font-weight: 700; opacity: .8; }
+    .players {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      max-width: min(900px, 92vw);
+      min-height: 52px;
+      align-content: flex-start;
+    }
+    .chip {
+      background: #fff;
+      color: var(--purple);
+      font-weight: 900;
+      font-size: clamp(.95rem, 1.9vw, 1.4rem);
+      padding: .45em 1.1em;
+      border-radius: 999px;
+      animation: pop .35s cubic-bezier(.2, 1.6, .4, 1);
+      box-shadow: 0 4px 0 rgba(0, 0, 0, .25);
+    }
+    .chip.empty { background: rgba(255,255,255,.15); color: rgba(255,255,255,.7); box-shadow: none; font-weight: 700; }
+    @keyframes pop { from { transform: scale(0); } to { transform: scale(1); } }
+
+    .btn-big {
+      border: none;
+      border-radius: 18px;
+      font-family: inherit;
+      font-weight: 900;
+      font-size: clamp(1.3rem, 3vw, 2.3rem);
+      padding: .7em 2.2em;
+      color: #fff;
+      cursor: pointer;
+      box-shadow: 0 8px 0 rgba(0, 0, 0, .3);
+      transition: transform .1s;
+      letter-spacing: 1px;
+    }
+    .btn-big:active { transform: translateY(5px); box-shadow: 0 3px 0 rgba(0,0,0,.3); }
+    .btn-green { background: var(--green); }
+    .btn-blue { background: var(--blue); }
+
+    /* ---------------- QUESTION / RESULTS ---------------- */
+    .q-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: clamp(8px, 2vh, 22px);
+    }
+    .timer {
+      --p: 100;
+      --ring: #26890c;
+      position: relative;
+      width: clamp(64px, 9vw, 124px);
+      aspect-ratio: 1;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: conic-gradient(var(--ring) calc(var(--p) * 1%), rgba(255, 255, 255, .18) 0);
+      flex: none;
+    }
+    .timer::before {
+      content: "";
+      position: absolute;
+      inset: 9px;
+      border-radius: 50%;
+      background: var(--panel);
+    }
+    .timer span {
+      position: relative;
+      z-index: 1;
+      font-size: clamp(1.5rem, 3.6vw, 3rem);
+      font-weight: 900;
+    }
+    .qtext {
+      font-size: clamp(1.7rem, 4.4vw, 4.2rem);
+      font-weight: 900;
+      text-align: center;
+      max-width: 1150px;
+      margin: 0 auto clamp(10px, 2.5vh, 30px);
+      line-height: 1.2;
+      flex: none;
+    }
+    .answers {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(10px, 1.6vw, 24px);
+      flex: 1;
+      min-height: 0;
+    }
+    .ans {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: .6em;
+      padding: clamp(12px, 2.4vh, 30px);
+      border-radius: 18px;
+      font-size: clamp(1.05rem, 2.5vw, 2.5rem);
+      font-weight: 900;
+      min-height: clamp(84px, 15vh, 200px);
+      box-shadow: inset 0 -7px 0 rgba(0, 0, 0, .28);
+      transition: opacity .3s, outline-color .3s;
+      overflow: hidden;
+    }
+    .ans.red { background: var(--red); }
+    .ans.blue { background: var(--blue); }
+    .ans.yellow { background: var(--yellow); }
+    .ans.green { background: var(--green); }
+
+    .shape { width: clamp(26px, 3.4vw, 56px); height: clamp(26px, 3.4vw, 56px); background: #fff; flex: none; }
+    .shape.triangle { clip-path: polygon(50% 0, 0 100%, 100% 100%); }
+    .shape.diamond { transform: rotate(45deg); border-radius: 6px; }
+    .shape.circle { border-radius: 50%; }
+    .shape.square { border-radius: 6px; }
+
+    .pct {
+      position: absolute;
+      right: 14px;
+      bottom: 10px;
+      font-size: clamp(.9rem, 1.7vw, 1.5rem);
+      font-weight: 900;
+      opacity: 0;
+      transition: opacity .3s;
+      background: rgba(0, 0, 0, .35);
+      padding: .15em .6em;
+      border-radius: 999px;
+    }
+    .answers.revealed .ans { opacity: .32; }
+    .answers.revealed .ans.correct { opacity: 1; outline: 6px solid #fff; }
+    .answers.revealed .pct { opacity: 1; }
+
+    .reveal-banner {
+      text-align: center;
+      font-size: clamp(1.1rem, 2.4vw, 2rem);
+      font-weight: 900;
+      margin-top: clamp(8px, 2vh, 20px);
+      color: #ffd76e;
+      min-height: 1.4em;
+    }
+    .q-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-top: clamp(8px, 2vh, 22px);
+      flex-wrap: wrap;
+    }
+    .q-footer .spacer { flex: 1; }
+
+    /* ---------------- LEADERBOARD ---------------- */
+    #leaderboard, #final { align-items: center; justify-content: center; text-align: center; gap: clamp(12px, 2.5vh, 26px); }
+    .lb-title { font-size: clamp(1.8rem, 5vw, 4rem); font-weight: 900; letter-spacing: 2px; }
+    .lb-sub { font-size: clamp(1rem, 2vw, 1.5rem); font-weight: 700; opacity: .8; }
+    .lb-list { display: flex; flex-direction: column; gap: 10px; width: min(950px, 94vw); }
+    .lb-row {
+      display: flex;
+      align-items: center;
+      gap: clamp(10px, 1.6vw, 20px);
+      background: rgba(0, 0, 0, .3);
+      border: 2px solid rgba(255, 255, 255, .14);
+      border-radius: 14px;
+      padding: .55em 1em;
+      font-size: clamp(1rem, 2.2vw, 1.8rem);
+      font-weight: 900;
+      text-align: left;
+      animation: slideIn .4s ease both;
+    }
+    .lb-row:nth-child(1) { animation-delay: .05s; }
+    .lb-row:nth-child(2) { animation-delay: .15s; }
+    .lb-row:nth-child(3) { animation-delay: .25s; }
+    .lb-row:nth-child(4) { animation-delay: .35s; }
+    .lb-row:nth-child(5) { animation-delay: .45s; }
+    @keyframes slideIn { from { opacity: 0; transform: translateX(-30px); } to { opacity: 1; transform: none; } }
+    .lb-rank { width: 1.6em; flex: none; color: #ffd76e; }
+    .lb-name { flex: none; max-width: 40%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .lb-bar-wrap { flex: 1; height: .72em; background: rgba(255, 255, 255, .15); border-radius: 99px; overflow: hidden; }
+    .lb-bar { height: 100%; background: linear-gradient(90deg, #ffd76e, #ff9f1a); border-radius: 99px; transition: width .6s ease; }
+    .lb-score { flex: none; min-width: 3.2em; text-align: right; color: #ffd76e; }
+
+    /* ---------------- FINAL PODIUM ---------------- */
+    .podium { display: flex; align-items: flex-end; justify-content: center; gap: clamp(10px, 2vw, 24px); }
+    .pod {
+      width: clamp(88px, 16vw, 220px);
+      background: rgba(255, 255, 255, .16);
+      border: 3px solid rgba(255, 255, 255, .3);
+      border-bottom: none;
+      border-radius: 16px 16px 0 0;
+      padding: 14px 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      animation: rise .5s ease both;
+    }
+    @keyframes rise { from { transform: translateY(60px); opacity: 0; } to { transform: none; opacity: 1; } }
+    .pod .medal { font-size: clamp(1.8rem, 4vw, 3.4rem); }
+    .pod .who { font-weight: 900; font-size: clamp(.95rem, 1.9vw, 1.5rem); word-break: break-word; }
+    .pod .pts { color: #ffd76e; font-weight: 900; font-size: clamp(.9rem, 1.7vw, 1.4rem); }
+    .pod.first { height: clamp(170px, 34vh, 340px); background: linear-gradient(180deg, rgba(255,215,110,.4), rgba(255,215,110,.12)); order: 2; }
+    .pod.second { height: clamp(130px, 26vh, 260px); order: 1; }
+    .pod.third { height: clamp(100px, 20vh, 200px); order: 3; }
+
+    .toast {
+      position: fixed;
+      top: 18px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-80px);
+      background: #111;
+      border: 2px solid var(--red);
+      color: #fff;
+      font-weight: 800;
+      padding: .7em 1.4em;
+      border-radius: 12px;
+      opacity: 0;
+      transition: .3s;
+      z-index: 50;
+      max-width: 90vw;
+      text-align: center;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+    @media (max-width: 640px) {
+      .ans { min-height: 96px; }
+      .q-footer { justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+  <div class="toast" id="toast"></div>
+
+  <!-- ============ LOBBY ============ -->
+  <section class="screen active" id="lobby">
+    <header>
+      <div class="brand">✝️ CHRISCO <em>Bible Quizzes</em></div>
+      <div class="pill" id="player-count">0 players</div>
+    </header>
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(14px,3vh,34px);">
+      <div class="pin-label">GAME PIN</div>
+      <div class="pin" id="pin">----</div>
+      <div class="lobby-hint">Players: open <b>player.html</b> on your phone and enter this PIN</div>
+      <div class="players" id="players">
+        <div class="chip empty">Waiting for campers to join…</div>
+      </div>
+      <button class="btn-big btn-green" id="start-btn">▶ START GAME</button>
+    </div>
+  </section>
+
+  <!-- ============ QUESTION / RESULTS ============ -->
+  <section class="screen" id="game">
+    <div class="q-top">
+      <div class="pill" id="q-counter">Question 1 of 5</div>
+      <div class="pill" id="answered-pill">0 / 0 answered</div>
+      <div class="timer" id="timer"><span id="timer-num">15</span></div>
+    </div>
+
+    <div class="qtext" id="qtext">Question goes here…</div>
+
+    <div class="answers" id="answers">
+      <div class="ans red" data-i="0"><span class="shape triangle"></span><span class="txt"></span><span class="pct"></span></div>
+      <div class="ans blue" data-i="1"><span class="shape diamond"></span><span class="txt"></span><span class="pct"></span></div>
+      <div class="ans yellow" data-i="2"><span class="shape circle"></span><span class="txt"></span><span class="pct"></span></div>
+      <div class="ans green" data-i="3"><span class="shape square"></span><span class="txt"></span><span class="pct"></span></div>
+    </div>
+
+    <div class="reveal-banner" id="reveal-banner"></div>
+
+    <div class="q-footer">
+      <div class="pill" id="speed-pill"></div>
+      <div class="spacer"></div>
+      <button class="btn-big btn-blue" id="next-btn" style="display:none;">LEADERBOARD ➜</button>
+    </div>
+  </section>
+
+  <!-- ============ LEADERBOARD ============ -->
+  <section class="screen" id="leaderboard">
+    <header>
+      <div class="brand">✝️ CHRISCO <em>Bible Quizzes</em></div>
+      <div class="pill" id="lb-qcount"></div>
+    </header>
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(12px,2.5vh,26px);">
+      <div class="lb-title">🏆 LEADERBOARD</div>
+      <div class="lb-sub" id="lb-sub">Top scores after this question</div>
+      <div class="lb-list" id="lb-list"></div>
+      <button class="btn-big btn-green" id="continue-btn">NEXT QUESTION ➜</button>
+    </div>
+  </section>
+
+  <!-- ============ FINAL ============ -->
+  <section class="screen" id="final">
+    <header>
+      <div class="brand">✝️ CHRISCO <em>Bible Quizzes</em></div>
+      <div class="pill">FINAL RESULTS</div>
+    </header>
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(14px,3vh,30px);">
+      <div class="lb-title">🎉 GAME OVER 🎉</div>
+      <div class="podium" id="podium"></div>
+      <div class="lb-list" id="final-list" style="max-height:24vh;overflow:auto;"></div>
+      <button class="btn-big btn-blue" id="again-btn">HOST A NEW GAME</button>
+    </div>
+  </section>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js"></script>
+  <script>
+    if (!window.supabase) document.write('<script src="/vendor/supabase.js"><\/script>');
+    /* ============================================================
+       CHRISCO HOST — Supabase Realtime (Broadcast + Presence)
+       The host browser is the source of truth: it runs the clock,
+       validates answers, scores players and broadcasts every event.
+       Postgres (rooms/players) stores the PIN + roster + scores.
+       ============================================================ */
+    const $ = (id) => document.getElementById(id);
+    const fmt = (n) => Number(n).toLocaleString();
+
+    const QUESTIONS = [
+      { question: 'Who built the ark?', options: ['Moses', 'Noah', 'David', 'Solomon'], correct: 1 },
+      { question: 'How many plagues did God send on Egypt?', options: ['7', '12', '10', '3'], correct: 2 },
+      { question: 'How many disciples did Jesus choose?', options: ['10', '14', '12', '7'], correct: 2 },
+      { question: 'Who was thrown into the lions’ den?', options: ['Daniel', 'Samson', 'Peter', 'Job'], correct: 0 },
+      { question: 'What did Jesus multiply to feed the 5,000?', options: ['Rice and fish', 'Bread and grapes', 'Fish and fruit', 'Loaves and fishes'], correct: 3 },
+    ];
+    const QUESTION_TIME_MS = 15000;
+    const REVEAL_DELAY_MS = 800;
+    const totalQuestions = QUESTIONS.length;
+
+    let sb = null;
+    let channel = null;
+    let pin = '';
+    let state = 'boot';           // boot | lobby | question | results | finished
+    let currentIndex = -1;
+    let answerCounts = [0, 0, 0, 0];
+    let questionEndsAt = 0;
+    let timerInterval = null;
+    let earlyTimer = null;
+    let lastResults = null;
+    // token -> { name, score, answered, answerIndex, lastPoints }
+    const players = new Map();
+
+    function show(screenId) {
+      document.querySelectorAll('.screen').forEach((el) => {
+        el.classList.toggle('active', el.id === screenId);
+      });
+    }
+
+    function toast(msg) {
+      const t = $('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      clearTimeout(toast._t);
+      toast._t = setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+    const send = (event, payload) =>
+      channel ? channel.send({ type: 'broadcast', event, payload }) : Promise.resolve();
+
+    // ---------- Boot: config → create room → join channel ----------
+    (async function init() {
+      try {
+        const cfg = await fetch('/api/config').then((r) => r.json());
+        if (!cfg.supabaseUrl || !cfg.supabaseAnonKey) {
+          toast('Server config missing (SUPABASE_URL / SUPABASE_ANON_KEY).');
+          return;
+        }
+        sb = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
+        await createRoom();
+      } catch (err) {
+        console.error(err);
+        toast('Could not connect to the game service.');
+      }
+    })();
+
+    async function createRoom() {
+      // Best-effort cleanup of rooms older than a day.
+      sb.from('rooms')
+        .delete()
+        .lt('created_at', new Date(Date.now() - 864e5).toISOString())
+        .then(() => {})
+        .catch(() => {});
+
+      for (let attempt = 0; attempt < 8; attempt++) {
+        const candidate = String(Math.floor(1000 + Math.random() * 9000));
+        const { data, error } = await sb
+          .from('rooms')
+          .insert({ pin: candidate, status: 'lobby', current_index: -1 })
+          .select()
+          .single();
+        if (!error && data) {
+          pin = data.pin;
+          $('pin').textContent = pin;
+          await joinChannel();
+          return;
+        }
+        if (error && error.code !== '23505') {
+          console.error(error);
+          toast('Could not create a game room.');
+          return;
+        }
+        // 23505 = PIN collision → retry
+      }
+      toast('Could not allocate a PIN — please reload.');
+    }
+
+    async function joinChannel() {
+      channel = sb.channel(`room:${pin}`, {
+        config: { broadcast: { self: false }, presence: { key: 'host' } },
+      });
+
+      channel
+        .on('broadcast', { event: 'answer' }, ({ payload }) => onAnswer(payload))
+        .on('broadcast', { event: 'sync_request' }, ({ payload }) => sendState(payload && payload.token))
+        .on('presence', { event: 'sync' }, renderLobby)
+        .on('presence', { event: 'join' }, renderLobby)
+        .on('presence', { event: 'leave' }, renderLobby);
+
+      const status = await channel.subscribe();
+      if (status !== 'SUBSCRIBED') {
+        toast('Realtime connection failed — check your network.');
+        return;
+      }
+      await channel.track({ role: 'host', name: 'Host' });
+      state = 'lobby';
+      show('lobby');
+    }
+
+    // ---------- Lobby roster via Presence ----------
+    function presencePlayers() {
+      const out = [];
+      const st = channel ? channel.presenceState() : {};
+      const seen = new Set();
+      for (const metas of Object.values(st)) {
+        for (const m of metas) {
+          if (m && m.role === 'player' && m.token && !seen.has(m.token)) {
+            seen.add(m.token);
+            out.push(m);
+          }
+        }
+      }
+      return out;
+    }
+
+    function renderLobby() {
+      if (state !== 'lobby') return;
+      const list = presencePlayers();
+      // Keep the scoring map in sync with who is present.
+      for (const p of list) {
+        if (!players.has(p.token)) {
+          players.set(p.token, { name: p.name, score: 0, answered: false, answerIndex: null, lastPoints: 0 });
+        }
+      }
+      const box = $('players');
+      $('player-count').textContent = list.length + (list.length === 1 ? ' player' : ' players');
+      if (!list.length) {
+        box.innerHTML = '<div class="chip empty">Waiting for campers to join…</div>';
+        return;
+      }
+      box.innerHTML = '';
+      list.forEach((p) => {
+        const chip = document.createElement('div');
+        chip.className = 'chip';
+        chip.textContent = p.name;
+        box.appendChild(chip);
+      });
+    }
+
+    // ---------- Start / advance questions ----------
+    $('start-btn').addEventListener('click', () => {
+      if (state !== 'lobby') return;
+      // Adopt everyone currently in the lobby into the scoring map.
+      for (const p of presencePlayers()) {
+        if (!players.has(p.token)) {
+          players.set(p.token, { name: p.name, score: 0, answered: false, answerIndex: null, lastPoints: 0 });
+        }
+      }
+      startQuestion(0);
+    });
+
+    function startQuestion(index) {
+      clearTimeout(earlyTimer);
+      earlyTimer = null;
+      stopTimer();
+
+      currentIndex = index;
+      state = 'question';
+      answerCounts = [0, 0, 0, 0];
+      lastResults = null;
+      questionEndsAt = Date.now() + QUESTION_TIME_MS;
+
+      for (const p of players.values()) {
+        p.answered = false;
+        p.answerIndex = null;
+        p.lastPoints = 0;
+      }
+
+      const q = QUESTIONS[currentIndex];
+      const payload = {
+        questionNumber: currentIndex + 1,
+        totalQuestions,
+        question: q.question,
+        options: q.options,
+        durationMs: QUESTION_TIME_MS,
+      };
+      send('question', payload);
+      sb.from('rooms')
+        .update({ status: 'question', current_index: currentIndex, question_ends_at: new Date(questionEndsAt).toISOString() })
+        .eq('pin', pin)
+        .then(() => {});
+
+      show('game');
+      $('q-counter').textContent = `Question ${payload.questionNumber} of ${payload.totalQuestions}`;
+      $('qtext').textContent = q.question;
+      $('reveal-banner').textContent = '';
+      $('next-btn').style.display = 'none';
+      $('next-btn').textContent =
+        payload.questionNumber < payload.totalQuestions ? 'LEADERBOARD ➜' : 'FINAL RESULTS ➜';
+      $('speed-pill').textContent = '';
+      $('answered-pill').textContent = `0 / ${players.size} answered`;
+
+      const answers = $('answers');
+      answers.classList.remove('revealed');
+      answers.querySelectorAll('.ans').forEach((el, i) => {
+        el.querySelector('.txt').textContent = q.options[i];
+        el.querySelector('.pct').textContent = '';
+        el.classList.remove('correct');
+      });
+
+      startTimer(QUESTION_TIME_MS);
+    }
+
+    // ---------- Host timer ----------
+    function startTimer(ms) {
+      stopTimer();
+      const endsAt = Date.now() + ms;
+      const timer = $('timer');
+      const num = $('timer-num');
+      const tick = () => {
+        const left = Math.max(0, endsAt - Date.now());
+        num.textContent = Math.ceil(left / 1000);
+        timer.style.setProperty('--p', (left / ms) * 100);
+        const secs = Math.ceil(left / 1000);
+        timer.style.setProperty('--ring', secs > 8 ? '#26890c' : secs > 4 ? '#d89e00' : '#e21b3c');
+        if (left <= 0) stopTimer();
+      };
+      tick();
+      timerInterval = setInterval(tick, 100);
+    }
+
+    function stopTimer() {
+      if (timerInterval) clearInterval(timerInterval);
+      timerInterval = null;
+    }
+
+    // ---------- Answers (host validates + scores) ----------
+    function onAnswer({ token, answerIndex }) {
+      if (state !== 'question') {
+        return send('answer_error', { token, error: 'There is no active question.' });
+      }
+      const player = players.get(token);
+      if (!player) {
+        return send('answer_error', { token, error: 'You are not in this game.' });
+      }
+      if (player.answered) {
+        return send('answer_error', { token, error: 'You already answered this question.' });
+      }
+      const idx = Number(answerIndex);
+      if (!Number.isInteger(idx) || idx < 0 || idx > 3) {
+        return send('answer_error', { token, error: 'Invalid answer.' });
+      }
+      const timeLeft = questionEndsAt - Date.now();
+      if (timeLeft <= 0) {
+        return send('answer_error', { token, error: 'Time is up!' });
+      }
+
+      const q = QUESTIONS[currentIndex];
+      const correct = idx === q.correct;
+      // Speed + correctness: up to 1000 pts (min 100) for correct, 0 for wrong.
+      const points = correct ? Math.max(100, Math.round(1000 * (timeLeft / QUESTION_TIME_MS))) : 0;
+
+      player.answered = true;
+      player.answerIndex = idx;
+      player.lastPoints = points;
+      player.score += points;
+      answerCounts[idx] += 1;
+
+      const answered = [...players.values()].filter((p) => p.answered).length;
+      send('progress', { answered, total: players.size });
+
+      if (players.size > 0 && answered === players.size && !earlyTimer) {
+        earlyTimer = setTimeout(() => {
+          earlyTimer = null;
+          endQuestion();
+        }, REVEAL_DELAY_MS);
+      }
+    }
+
+    // ---------- Reveal ----------
+    function endQuestion() {
+      if (state !== 'question') return;
+      clearTimeout(earlyTimer);
+      earlyTimer = null;
+      stopTimer();
+      state = 'results';
+
+      const q = QUESTIONS[currentIndex];
+      const board = [...players.entries()]
+        .map(([token, p]) => ({ token, name: p.name, score: p.score }))
+        .sort((a, b) => b.score - a.score);
+
+      const results = {
+        questionNumber: currentIndex + 1,
+        totalQuestions,
+        correctIndex: q.correct,
+        correctText: q.options[q.correct],
+        answerCounts: answerCounts.slice(),
+        leaderboard: board.map(({ name, score }) => ({ name, score })),
+        results: {},
+      };
+      board.forEach((entry, i) => {
+        const p = players.get(entry.token);
+        const correct = p.answered && p.answerIndex === q.correct;
+        results.results[entry.token] = {
+          answered: p.answered,
+          correct,
+          points: p.answered ? p.lastPoints : 0,
+          score: p.score,
+          rank: i + 1,
+        };
+      });
+
+      lastResults = results;
+      send('reveal', results);
+      persistScores();
+      sb.from('rooms').update({ status: 'results' }).eq('pin', pin).then(() => {});
+      renderReveal(results);
+    }
+
+    function persistScores() {
+      const rows = [...players.entries()].map(([token, p]) => ({
+        room_pin: pin,
+        token,
+        name: p.name,
+        score: p.score,
+      }));
+      if (!rows.length) return;
+      // Refresh roster names/scores; players already have rows from join.
+      sb.from('players')
+        .upsert(rows, { onConflict: 'room_pin,token' })
+        .then(() => {});
+    }
+
+    function renderReveal(r) {
+      stopTimer();
+      $('timer-num').textContent = '0';
+
+      const total = r.answerCounts.reduce((a, b) => a + b, 0);
+      const answers = $('answers');
+      answers.classList.add('revealed');
+      answers.querySelectorAll('.ans').forEach((el, i) => {
+        const pct = total ? Math.round((r.answerCounts[i] / total) * 100) : 0;
+        el.querySelector('.pct').textContent = total ? pct + '%' : '';
+        if (i === r.correctIndex) el.classList.add('correct');
+      });
+
+      $('reveal-banner').textContent = '✔ Correct answer: ' + r.correctText;
+      $('answered-pill').textContent = `${total} answered`;
+      $('speed-pill').textContent =
+        r.questionNumber < r.totalQuestions
+          ? 'Review the answers, then show the leaderboard'
+          : 'Last question — see who won!';
+      $('next-btn').style.display = '';
+    }
+
+    // ---------- Leaderboard / next / final ----------
+    $('next-btn').addEventListener('click', () => {
+      if (!lastResults) return;
+      renderLeaderboard(lastResults);
+      show('leaderboard');
+      if (lastResults.questionNumber >= totalQuestions) {
+        $('continue-btn').textContent = 'SHOW FINAL RESULTS 🏆';
+        $('continue-btn').dataset.mode = 'final';
+      } else {
+        $('continue-btn').textContent = 'NEXT QUESTION ➜';
+        $('continue-btn').dataset.mode = 'next';
+      }
+    });
+
+    $('continue-btn').addEventListener('click', () => {
+      if ($('continue-btn').dataset.mode === 'final') finishGame();
+      else startQuestion(currentIndex + 1);
+    });
+
+    function renderLeaderboard(r) {
+      $('lb-qcount').textContent = `After Q${r.questionNumber} / ${r.totalQuestions}`;
+      $('lb-sub').textContent =
+        r.questionNumber < r.totalQuestions ? 'Top scores — next question coming up' : 'Final standings';
+      const list = $('lb-list');
+      list.innerHTML = '';
+      const top = r.leaderboard.slice(0, 5);
+      const best = top.length ? top[0].score : 1;
+      if (!top.length) {
+        list.innerHTML = '<div class="lb-row"><span class="lb-name">No players yet</span></div>';
+        return;
+      }
+      top.forEach((p, i) => {
+        const row = document.createElement('div');
+        row.className = 'lb-row';
+        row.innerHTML = `
+          <span class="lb-rank">${i + 1}.</span>
+          <span class="lb-name"></span>
+          <span class="lb-bar-wrap"><span class="lb-bar" style="width:${best ? Math.max(6, (p.score / best) * 100) : 0}%"></span></span>
+          <span class="lb-score">${fmt(p.score)}</span>`;
+        row.querySelector('.lb-name').textContent = p.name;
+        list.appendChild(row);
+      });
+    }
+
+    function finishGame() {
+      state = 'finished';
+      const board = [...players.values()]
+        .map((p) => ({ name: p.name, score: p.score }))
+        .sort((a, b) => b.score - a.score);
+      const final = { totalQuestions, podium: board.slice(0, 3), players: board };
+      send('final', final);
+      sb.from('rooms').update({ status: 'finished' }).eq('pin', pin).then(() => {});
+      renderFinal(final);
+    }
+
+    function renderFinal({ podium, players: all }) {
+      show('final');
+      const medals = ['🥇', '🥈', '🥉'];
+      const classes = ['first', 'second', 'third'];
+      const order = [podium[1], podium[0], podium[2]]; // visual: 2nd, 1st, 3rd
+      const box = $('podium');
+      box.innerHTML = '';
+      order.forEach((p, idx) => {
+        const place = [1, 0, 2][idx];
+        const div = document.createElement('div');
+        div.className = 'pod ' + classes[place];
+        div.style.animationDelay = idx * 0.15 + 's';
+        if (p) {
+          div.innerHTML = `<div class="medal">${medals[place]}</div><div class="who"></div><div class="pts"></div>`;
+          div.querySelector('.who').textContent = p.name;
+          div.querySelector('.pts').textContent = fmt(p.score) + ' pts';
+        } else {
+          div.innerHTML = `<div class="medal">${medals[place]}</div><div class="who">—</div>`;
+        }
+        box.appendChild(div);
+      });
+
+      const list = $('final-list');
+      list.innerHTML = '';
+      all.forEach((p, i) => {
+        const row = document.createElement('div');
+        row.className = 'lb-row';
+        row.innerHTML = `<span class="lb-rank">${i + 1}.</span><span class="lb-name"></span><span class="lb-score">${fmt(p.score)}</span>`;
+        row.querySelector('.lb-name').textContent = p.name;
+        list.appendChild(row);
+      });
+    }
+
+    // ---------- State sync for (re)joining players ----------
+    function sendState(forToken) {
+      if (state === 'question') {
+        const q = QUESTIONS[currentIndex];
+        send('question', {
+          questionNumber: currentIndex + 1,
+          totalQuestions,
+          question: q.question,
+          options: q.options,
+          durationMs: QUESTION_TIME_MS,
+          msLeft: Math.max(0, questionEndsAt - Date.now()),
+          forToken,
+        });
+      } else if (state === 'results' && lastResults) {
+        send('reveal', { ...lastResults, forToken });
+      } else if (state === 'finished') {
+        const board = [...players.values()].map((p) => ({ name: p.name, score: p.score })).sort((a, b) => b.score - a.score);
+        send('final', { totalQuestions, podium: board.slice(0, 3), players: board, forToken });
+      }
+    }
+
+    $('again-btn').addEventListener('click', () => location.reload());
+  </script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "installCommand": "",
+  "buildCommand": "mkdir -p dist && cp -r public/. dist/",
+  "outputDirectory": "dist",
+  "framework": null,
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "headers": [
+    {
+      "source": "/vendor/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=86400" }
+      ]
+    }
+  ]
+}
