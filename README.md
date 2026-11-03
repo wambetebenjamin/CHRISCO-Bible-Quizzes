@@ -1,19 +1,28 @@
-# CHRISCO Bible Quizzes 🎮✝️
+# CHRISCO Bible Quizzes
 
 Kahoot-style **real-time multiplayer quiz** for church youth camps, Sunday
 school, classrooms, offices — any group with phones and a screen.
 
-**▶ Live demo: https://chrisco-bible-quizzes.vercel.app**
+**Live site: https://chrisco-bible-quizzes.vercel.app**
 
 ## Demo packs (ready to play)
 
-| Use case | Link |
-|---|---|
-| 🏕️ Youth Camp Bible Quiz | [Host demo](https://chrisco-bible-quizzes.vercel.app/host.html?pack=youth-camp) |
-| ⛪ Children’s Sunday School | [Host demo](https://chrisco-bible-quizzes.vercel.app/host.html?pack=sunday-school) |
-| 🏫 School & General Knowledge | [Host demo](https://chrisco-bible-quizzes.vercel.app/host.html?pack=school-quest) |
-| 💼 Business Trivia | [Host demo](https://chrisco-bible-quizzes.vercel.app/host.html?pack=business-brain) |
-| 📖 Bible Scholars (advanced) | [Host demo](https://chrisco-bible-quizzes.vercel.app/host.html?pack=bible-scholars) |
+Every demo has two modes: **watch it run itself** (simulated players — great
+for explaining the concept, nobody needs to join) or **host it live** with
+real players.
+
+| Use case | Self-running demo (no players needed) | Host live (real players) |
+|---|---|---|
+| Youth Camp Bible Quiz | [Watch demo](https://chrisco-bible-quizzes.vercel.app/host.html?pack=youth-camp&demo=1) | [Host](https://chrisco-bible-quizzes.vercel.app/host.html?pack=youth-camp) |
+| Children’s Sunday School | [Watch demo](https://chrisco-bible-quizzes.vercel.app/host.html?pack=sunday-school&demo=1) | [Host](https://chrisco-bible-quizzes.vercel.app/host.html?pack=sunday-school) |
+| School & General Knowledge | [Watch demo](https://chrisco-bible-quizzes.vercel.app/host.html?pack=school-quest&demo=1) | [Host](https://chrisco-bible-quizzes.vercel.app/host.html?pack=school-quest) |
+| Business Trivia | [Watch demo](https://chrisco-bible-quizzes.vercel.app/host.html?pack=business-brain&demo=1) | [Host](https://chrisco-bible-quizzes.vercel.app/host.html?pack=business-brain) |
+| Bible Scholars (advanced) | [Watch demo](https://chrisco-bible-quizzes.vercel.app/host.html?pack=bible-scholars&demo=1) | [Host](https://chrisco-bible-quizzes.vercel.app/host.html?pack=bible-scholars) |
+
+**Demo mode** plays the whole game by itself: five simulated players answer,
+the reveal, leaderboard and podium run automatically (a gold DEMO badge shows
+on screen). You can also start it from the lobby button
+**DEMO — NO PLAYERS NEEDED**.
 
 Players join at **[player.html](https://chrisco-bible-quizzes.vercel.app/player.html)**
 with the 4-digit PIN shown on the host screen.
@@ -22,16 +31,17 @@ with the 4-digit PIN shown on the host screen.
 
 1. Open a host link above (projector → full screen).
 2. Share the **PIN**; campers open `player.html` and join.
-3. Pick a quiz pack in the lobby → **▶ START QUIZ**.
+3. Pick a quiz pack in the lobby → **START QUIZ**.
 4. 15 seconds per question — fastest correct answers score up to 1000 points.
-5. Reveal → Leaderboard → next question → final podium 🥇🥈🥉.
+5. Reveal → Leaderboard → next question → final podium.
 
 ## Create your own quizzes
 
 Packs live in Supabase Postgres — **no coding, no redeploy**. Copy-paste a
 short SQL template, and your quiz appears in the host lobby immediately.
 
-📖 Full step-by-step procedures (SQL templates, editing, use-case playbooks):
+Full step-by-step procedures (demo links, SQL templates, editing/retiring
+packs, use-case playbooks, icon & photo notes):
 **[CREATE-A-QUIZ.md](./CREATE-A-QUIZ.md)**
 
 ## Architecture
@@ -41,6 +51,9 @@ short SQL template, and your quiz appears in the host lobby immediately.
   **Presence** (lobby roster, host-online detection)
 - **Data:** Postgres tables `rooms`, `players`, `quiz_packs`, `quiz_questions`
   (host browser is the source of truth for the clock and scoring)
+- **Icons:** [Lucide](https://lucide.dev) premium line icons, vendored at
+  `public/vendor/lucide.min.js`
+- **Photos:** free stock imagery from [Pexels](https://www.pexels.com), in `public/img/`
 - **Hosting:** Vercel static files + `api/config.js` serverless function
   (`SUPABASE_URL`, `SUPABASE_ANON_KEY` env vars) — **no long-running server**
 

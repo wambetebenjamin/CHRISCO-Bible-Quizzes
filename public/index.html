@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>CHRISCO Bible Quizzes</title>
-  <link rel="icon" href="data:," />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%2346178f'/><path d='M28 12h8v14h14v8H36v18h-8V34H14v-8h14z' fill='%23ffd76e'/></svg>" />
   <style>
     :root {
       --purple: #46178f;
@@ -13,16 +13,24 @@
       --blue: #1368ce;
       --yellow: #d89e00;
       --green: #26890c;
+      --gold: #ffd76e;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       min-height: 100vh;
       font-family: ui-rounded, "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
-      background: radial-gradient(1200px 800px at 50% -10%, #6a2ec9 0%, var(--purple) 45%, var(--dark) 100%);
       color: #fff;
       display: flex;
       flex-direction: column;
       overflow-x: hidden;
+      background-color: var(--purple);
+      background-image:
+        linear-gradient(180deg, rgba(43, 11, 74, .9) 0%, rgba(70, 23, 143, .88) 45%, rgba(43, 11, 74, .95) 100%),
+        url("/img/hero-worship.jpg");
+      background-size: cover;
+      background-position: center 22%;
+      background-attachment: fixed;
+      background-repeat: no-repeat;
     }
     /* Floating background shapes */
     .blob { position: fixed; opacity: .16; pointer-events: none; animation: float 9s ease-in-out infinite; }
@@ -47,37 +55,38 @@
       align-items: center;
       justify-content: center;
       text-align: center;
-      padding: 40px 20px;
-      gap: 34px;
+      padding: 48px 20px 30px;
+      gap: 30px;
       position: relative;
       z-index: 1;
     }
     .logo { font-size: clamp(2.2rem, 6vw, 4.5rem); font-weight: 900; line-height: 1.1; letter-spacing: 1px; }
-    .logo .cross { display: block; font-size: clamp(2.6rem, 7vw, 5rem); margin-bottom: 6px; }
-    .logo span {
+    .logo .cross { display: block; font-size: clamp(2.6rem, 7vw, 5rem); margin-bottom: 6px; color: var(--gold); }
+    .logo .cross svg { width: 1em; height: 1em; filter: drop-shadow(0 6px 18px rgba(255, 215, 110, .45)); }
+    .logo span.sub {
       display: block;
       font-size: clamp(1.3rem, 3.5vw, 2.4rem);
-      color: #ffd76e;
+      color: var(--gold);
       letter-spacing: .35em;
       text-transform: uppercase;
       margin-top: 8px;
     }
     .tagline {
-      max-width: 620px;
+      max-width: 640px;
       font-size: clamp(1rem, 2.2vw, 1.3rem);
       font-weight: 600;
-      opacity: .88;
+      opacity: .9;
       line-height: 1.5;
     }
-    .cta { display: flex; flex-wrap: wrap; gap: 26px; justify-content: center; width: 100%; max-width: 900px; }
+    .cta { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; width: 100%; max-width: 980px; }
     .btn {
-      flex: 1 1 300px;
-      max-width: 420px;
+      flex: 1 1 260px;
+      max-width: 380px;
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 8px;
-      padding: clamp(26px, 4vw, 44px) 24px;
+      padding: clamp(22px, 3.4vw, 36px) 22px;
       border-radius: 24px;
       text-decoration: none;
       color: #fff;
@@ -88,23 +97,30 @@
     }
     .btn:hover { transform: translateY(-6px); box-shadow: 0 18px 0 rgba(0,0,0,.3), 0 28px 50px rgba(0,0,0,.4); }
     .btn:active { transform: translateY(2px); box-shadow: 0 6px 0 rgba(0,0,0,.3); }
-    .btn .icon { font-size: clamp(2.6rem, 6vw, 4rem); }
-    .btn .label { font-size: clamp(1.5rem, 3.5vw, 2.2rem); letter-spacing: 1px; }
-    .btn .hint { font-size: clamp(.85rem, 1.8vw, 1rem); font-weight: 600; opacity: .85; }
+    .btn .icon { color: var(--gold); display: grid; place-items: center; }
+    .btn .icon svg { width: clamp(2.4rem, 5vw, 3.2rem); height: clamp(2.4rem, 5vw, 3.2rem); stroke-width: 2.3; }
+    .btn .label { font-size: clamp(1.3rem, 3vw, 1.9rem); letter-spacing: 1px; }
+    .btn .hint { font-size: clamp(.82rem, 1.7vw, .95rem); font-weight: 600; opacity: .85; }
     .btn.join { background: linear-gradient(160deg, #22a113, var(--green)); }
     .btn.host { background: linear-gradient(160deg, #187ae8, var(--blue)); }
+    .btn.demo { background: linear-gradient(160deg, #7c3aed, var(--purple)); border-color: rgba(255, 215, 110, .55); }
 
-    .steps { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; max-width: 820px; }
+    .steps { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; max-width: 860px; }
     .step {
-      background: rgba(0, 0, 0, .28);
+      background: rgba(0, 0, 0, .32);
       border: 2px solid rgba(255, 255, 255, .18);
       border-radius: 16px;
       padding: 14px 20px;
       font-size: clamp(.85rem, 1.8vw, 1.05rem);
       font-weight: 700;
-      min-width: 200px;
+      min-width: 210px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
     }
-    .step b { color: #ffd76e; }
+    .step b { color: var(--gold); }
+    .step svg { width: 1.15em; height: 1.15em; color: var(--gold); flex: none; }
     footer {
       position: relative;
       z-index: 1;
@@ -112,8 +128,9 @@
       padding: 16px;
       font-size: .9rem;
       font-weight: 600;
-      opacity: .7;
+      opacity: .75;
     }
+    footer .credit { display: block; margin-top: 6px; font-size: .75rem; opacity: .75; font-weight: 500; }
 
     /* ---------- Quiz packs / use cases ---------- */
     .packs-section {
@@ -126,23 +143,29 @@
       font-size: clamp(1.5rem, 4vw, 2.4rem);
       font-weight: 900;
       margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: .4em;
     }
+    .packs-section h2 svg { width: 1em; height: 1em; color: var(--gold); }
     .packs-sub {
-      max-width: 720px;
+      max-width: 760px;
       margin: 0 auto 26px;
       font-size: clamp(.9rem, 2vw, 1.1rem);
       font-weight: 600;
-      opacity: .85;
-      line-height: 1.5;
+      opacity: .88;
+      line-height: 1.55;
     }
     .use-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(255px, 1fr));
       gap: 18px;
-      max-width: 1100px;
+      max-width: 1140px;
       margin: 0 auto;
     }
     .use-card {
+      position: relative;
       display: flex;
       flex-direction: column;
       align-items: flex-start;
@@ -150,31 +173,62 @@
       text-align: left;
       text-decoration: none;
       color: #fff;
-      background: rgba(0, 0, 0, .32);
+      background: rgba(0, 0, 0, .38);
       border: 3px solid rgba(255, 255, 255, .16);
       border-radius: 20px;
-      padding: 20px 20px 16px;
+      padding: 16px 18px 16px;
       transition: transform .12s ease, border-color .12s ease, box-shadow .12s ease;
       box-shadow: 0 8px 0 rgba(0, 0, 0, .25);
+      overflow: hidden;
     }
     .use-card:hover {
       transform: translateY(-6px);
-      border-color: #ffd76e;
+      border-color: var(--gold);
       box-shadow: 0 14px 0 rgba(0, 0, 0, .25), 0 22px 40px rgba(0, 0, 0, .35);
     }
     .use-card:active { transform: translateY(0); }
-    .use-icon { font-size: 2.4rem; line-height: 1; }
-    .use-title { font-size: 1.2rem; font-weight: 900; letter-spacing: .4px; }
-    .use-desc { font-size: .92rem; font-weight: 600; opacity: .8; line-height: 1.4; flex: 1; }
+    .use-media { position: relative; width: calc(100% + 0px); }
+    .use-img {
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      object-fit: cover;
+      border-radius: 12px;
+      display: block;
+      border: 2px solid rgba(255, 255, 255, .22);
+      filter: saturate(1.05);
+    }
+    .use-icon {
+      position: absolute;
+      left: 10px;
+      bottom: -14px;
+      background: var(--dark);
+      border: 2px solid var(--gold);
+      color: var(--gold);
+      border-radius: 12px;
+      padding: .4em;
+      display: grid;
+      place-items: center;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, .4);
+    }
+    .use-icon svg { width: 1.5rem; height: 1.5rem; stroke-width: 2.4; }
+    .use-card-plain .use-icon { position: static; margin-bottom: 4px; }
+    .use-title { font-size: 1.15rem; font-weight: 900; letter-spacing: .4px; margin-top: 12px; }
+    .use-card-plain .use-title { margin-top: 0; }
+    .use-desc { font-size: .9rem; font-weight: 600; opacity: .82; line-height: 1.45; flex: 1; }
     .use-cta {
       margin-top: 6px;
-      font-size: .95rem;
+      font-size: .93rem;
       font-weight: 900;
-      color: #ffd76e;
+      color: var(--gold);
       letter-spacing: .4px;
+      display: flex;
+      align-items: center;
+      gap: .35em;
     }
-    .use-card-alt { background: rgba(38, 137, 12, .35); border-color: rgba(255, 255, 255, .3); }
+    .use-cta svg { width: 1.05em; height: 1.05em; }
+    .use-card-alt { background: rgba(38, 137, 12, .32); border-color: rgba(255, 255, 255, .3); }
     .use-card-alt .use-cta { color: #b9ffab; }
+    .use-card-alt .use-icon { border-color: #b9ffab; color: #b9ffab; }
   </style>
 </head>
 <body>
@@ -185,79 +239,111 @@
 
   <main>
     <h1 class="logo">
-      <span class="cross">✝️</span>
+      <span class="cross" aria-hidden="true"><svg viewBox="0 0 64 64"><path d="M28 12h8v14h14v8H36v18h-8V34H14v-8h14z" fill="currentColor"/></svg></span>
       CHRISCO
-      <span>Bible Quizzes</span>
+      <span class="sub">Bible Quizzes</span>
     </h1>
 
     <p class="tagline">
-      Real-time Bible trivia for youth camp! Host the quiz on the big screen
-      and answer from your phone — live scores, speed points and a podium finish.
+      Real-time Bible trivia for youth camp, Sunday school, classrooms and offices.
+      Host on the big screen, answer from your phone — live scores, speed points and a podium finish.
     </p>
 
     <div class="cta">
       <a class="btn join" href="player.html">
-        <span class="icon">🎮</span>
+        <span class="icon"><i data-lucide="gamepad-2"></i></span>
         <span class="label">Join a Game</span>
         <span class="hint">Enter the PIN shown on the big screen</span>
       </a>
       <a class="btn host" href="host.html">
-        <span class="icon">🎤</span>
+        <span class="icon"><i data-lucide="presentation"></i></span>
         <span class="label">Host a Game</span>
         <span class="hint">Project the quiz for your group</span>
+      </a>
+      <a class="btn demo" href="host.html?pack=youth-camp&amp;demo=1">
+        <span class="icon"><i data-lucide="circle-play"></i></span>
+        <span class="label">Watch the Demo</span>
+        <span class="hint">Plays itself — no players needed</span>
       </a>
     </div>
 
     <div class="steps">
-      <div class="step"><b>1.</b> Host opens the big screen</div>
-      <div class="step"><b>2.</b> Campers join with the PIN</div>
-      <div class="step"><b>3.</b> Answer fast, score big!</div>
+      <div class="step"><b>1.</b><i data-lucide="monitor-play"></i> Host opens the big screen</div>
+      <div class="step"><b>2.</b><i data-lucide="smartphone"></i> Players join with the PIN</div>
+      <div class="step"><b>3.</b><i data-lucide="zap"></i> Answer fast, score big!</div>
     </div>
   </main>
 
   <section class="packs-section">
-    <h2>Quiz packs for every occasion</h2>
-    <p class="packs-sub">Pick a demo below — it opens the host screen pre-loaded with that quiz. Teachers &amp; facilitators: you can create your own packs too (see <b>CREATE-A-QUIZ.md</b>).</p>
+    <h2><i data-lucide="trophy"></i> Quiz packs for every occasion</h2>
+    <p class="packs-sub">
+      Every demo below runs <b>by itself</b> with simulated players — host screen, timer, answer reveal,
+      leaderboard and podium — so you can explain the whole concept without anyone joining.
+      Facilitators: create your own packs in minutes (see <b>CREATE-A-QUIZ.md</b>).
+    </p>
     <div class="use-grid">
-      <a class="use-card" href="host.html?pack=youth-camp">
-        <span class="use-icon">🏕️</span>
+      <a class="use-card" href="host.html?pack=youth-camp&amp;demo=1">
+        <span class="use-media">
+          <img class="use-img" src="/img/pack-youth-camp.jpg" alt="Canvas tent at a youth camp" loading="lazy" />
+          <span class="use-icon"><i data-lucide="tent"></i></span>
+        </span>
         <span class="use-title">Youth Camp Bible Quiz</span>
         <span class="use-desc">Classic camp trivia for projector + phones</span>
-        <span class="use-cta">Host demo →</span>
+        <span class="use-cta">Watch demo <i data-lucide="arrow-right"></i></span>
       </a>
-      <a class="use-card" href="host.html?pack=sunday-school">
-        <span class="use-icon">⛪</span>
+      <a class="use-card" href="host.html?pack=sunday-school&amp;demo=1">
+        <span class="use-media">
+          <img class="use-img" src="/img/pack-sunday-school.jpg" alt="Teacher with children in Sunday school" loading="lazy" />
+          <span class="use-icon"><i data-lucide="church"></i></span>
+        </span>
         <span class="use-title">Children’s Sunday School</span>
         <span class="use-desc">Gentle Bible-story questions for younger kids</span>
-        <span class="use-cta">Host demo →</span>
+        <span class="use-cta">Watch demo <i data-lucide="arrow-right"></i></span>
       </a>
-      <a class="use-card" href="host.html?pack=school-quest">
-        <span class="use-icon">🏫</span>
+      <a class="use-card" href="host.html?pack=school-quest&amp;demo=1">
+        <span class="use-media">
+          <img class="use-img" src="/img/pack-school.jpg" alt="Student working at a classroom desk" loading="lazy" />
+          <span class="use-icon"><i data-lucide="graduation-cap"></i></span>
+        </span>
         <span class="use-title">School &amp; General Knowledge</span>
         <span class="use-desc">Maths, science &amp; geography for class competitions</span>
-        <span class="use-cta">Host demo →</span>
+        <span class="use-cta">Watch demo <i data-lucide="arrow-right"></i></span>
       </a>
-      <a class="use-card" href="host.html?pack=business-brain">
-        <span class="use-icon">💼</span>
+      <a class="use-card" href="host.html?pack=business-brain&amp;demo=1">
+        <span class="use-media">
+          <img class="use-img" src="/img/pack-business.jpg" alt="Team in a business meeting" loading="lazy" />
+          <span class="use-icon"><i data-lucide="briefcase"></i></span>
+        </span>
         <span class="use-title">Business Trivia</span>
         <span class="use-desc">Team-building energizer for offices &amp; conferences</span>
-        <span class="use-cta">Host demo →</span>
+        <span class="use-cta">Watch demo <i data-lucide="arrow-right"></i></span>
       </a>
-      <a class="use-card" href="host.html?pack=bible-scholars">
-        <span class="use-icon">📖</span>
+      <a class="use-card" href="host.html?pack=bible-scholars&amp;demo=1">
+        <span class="use-media">
+          <img class="use-img" src="/img/pack-scholars.jpg" alt="Open Bible on a wooden table" loading="lazy" />
+          <span class="use-icon"><i data-lucide="book-open"></i></span>
+        </span>
         <span class="use-title">Bible Scholars</span>
         <span class="use-desc">Harder Bible knowledge for teens &amp; adults</span>
-        <span class="use-cta">Host demo →</span>
+        <span class="use-cta">Watch demo <i data-lucide="arrow-right"></i></span>
       </a>
-      <a class="use-card use-card-alt" href="host.html">
-        <span class="use-icon">➕</span>
+      <a class="use-card use-card-alt use-card-plain" href="host.html">
+        <span class="use-icon"><i data-lucide="circle-plus"></i></span>
         <span class="use-title">Create your own</span>
-        <span class="use-desc">Build a custom pack for your class, church or team</span>
-        <span class="use-cta">Open host →</span>
+        <span class="use-desc">Build a custom pack for your class, church or team — full steps in CREATE-A-QUIZ.md</span>
+        <span class="use-cta">Open host <i data-lucide="arrow-right"></i></span>
       </a>
     </div>
   </section>
 
-  <footer>Youth Camp Edition • “I can do all things through Christ” — Philippians 4:13</footer>
+  <footer>
+    Youth Camp Edition • “I can do all things through Christ” — Philippians 4:13
+    <span class="credit">Photography from Pexels (free to use) • Icons by Lucide</span>
+  </footer>
+
+  <script src="/vendor/lucide.min.js"></script>
+  <script>
+    window.lucide && lucide.createIcons({ attrs: { 'stroke-width': 2.4 } });
+  </script>
 </body>
 </html>

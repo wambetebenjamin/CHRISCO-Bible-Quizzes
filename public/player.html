@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <title>Play • CHRISCO Bible Quizzes</title>
-  <link rel="icon" href="data:," />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%2346178f'/><path d='M28 12h8v14h14v8H36v18h-8V34H14v-8h14z' fill='%23ffd76e'/></svg>" />
   <style>
     :root {
       --red: #e21b3c;
@@ -13,6 +13,7 @@
       --green: #26890c;
       --purple: #46178f;
       --panel: #36225c;
+      --gold: #ffd76e;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
     html, body { height: 100%; }
@@ -51,16 +52,29 @@
       font-size: 1.05rem;
       letter-spacing: .12em;
       text-transform: uppercase;
-      color: #ffd76e;
+      color: var(--gold);
       padding-top: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: .45em;
     }
-    .brand small { display: block; color: #fff; opacity: .75; font-size: .72rem; letter-spacing: .25em; margin-top: 3px; }
+    .brand svg { width: 1.15em; height: 1.15em; flex: none; }
+    .brand .brand-text { display: flex; flex-direction: column; align-items: center; }
+    .brand small { color: #fff; opacity: .75; font-size: .72rem; letter-spacing: .25em; margin-top: 3px; }
 
     /* ---------------- LOGIN ---------------- */
     #login { justify-content: center; gap: 22px; text-align: center; }
-    .logo-big { font-size: clamp(3.4rem, 18vw, 5rem); line-height: 1; }
+    .logo-big {
+      font-size: clamp(3.4rem, 18vw, 5rem);
+      line-height: 1;
+      color: var(--gold);
+      display: grid;
+      place-items: center;
+    }
+    .logo-big svg { width: 1em; height: 1em; stroke-width: 2.2; filter: drop-shadow(0 8px 24px rgba(255, 215, 110, .4)); }
     .title-big { font-size: clamp(1.7rem, 8vw, 2.4rem); font-weight: 900; letter-spacing: 1px; }
-    .title-big span { color: #ffd76e; display: block; font-size: .6em; letter-spacing: .3em; text-transform: uppercase; margin-top: 6px; }
+    .title-big span { color: var(--gold); display: block; font-size: .6em; letter-spacing: .3em; text-transform: uppercase; margin-top: 6px; }
     .card {
       background: rgba(0, 0, 0, .32);
       border: 3px solid rgba(255, 255, 255, .18);
@@ -93,7 +107,7 @@
       outline: none;
       transition: border-color .15s;
     }
-    .field input:focus { border-color: #ffd76e; }
+    .field input:focus { border-color: var(--gold); }
     #pin {
       text-align: center;
       font-size: 2rem;
@@ -132,11 +146,11 @@
       background: var(--green);
       display: grid;
       place-items: center;
-      font-size: clamp(3rem, 12vw, 4.5rem);
-      font-weight: 900;
+      color: #fff;
       box-shadow: 0 10px 40px rgba(38, 137, 12, .55);
       animation: pop .4s cubic-bezier(.2, 1.6, .4, 1);
     }
+    .big-check svg { width: 55%; height: 55%; stroke-width: 3; }
     @keyframes pop { from { transform: scale(0); } to { transform: scale(1); } }
     .wait-title { font-size: clamp(1.8rem, 8vw, 2.6rem); font-weight: 900; }
     .wait-sub { font-size: clamp(1rem, 4vw, 1.2rem); font-weight: 700; opacity: .85; line-height: 1.5; }
@@ -150,13 +164,17 @@
     }
     .score-pill {
       background: rgba(0, 0, 0, .35);
-      border: 2px solid #ffd76e;
-      color: #ffd76e;
+      border: 2px solid var(--gold);
+      color: var(--gold);
       font-weight: 900;
       padding: .5em 1.3em;
       border-radius: 999px;
       font-size: 1.05rem;
+      display: inline-flex;
+      align-items: center;
+      gap: .4em;
     }
+    .score-pill svg { width: 1em; height: 1em; }
     .dots::after {
       content: '';
       animation: dots 1.4s steps(4, end) infinite;
@@ -174,7 +192,7 @@
       font-size: .9rem;
       padding: .4em 1em;
     }
-    .seconds { font-size: 1.5rem; font-weight: 900; color: #ffd76e; min-width: 2ch; text-align: right; }
+    .seconds { font-size: 1.5rem; font-weight: 900; color: var(--gold); min-width: 2ch; text-align: right; }
     .tbar { height: 10px; background: rgba(255, 255, 255, .18); border-radius: 99px; overflow: hidden; }
     .tbar i { display: block; height: 100%; width: 100%; background: linear-gradient(90deg, #ffd76e, #ff9f1a); border-radius: 99px; }
     .pq {
@@ -229,17 +247,19 @@
     #result.right { background: linear-gradient(180deg, #1f9c0f 0%, #146308 100%); }
     #result.wrong { background: linear-gradient(180deg, #d01634 0%, #8f0d24 100%); }
     .verdict { font-size: clamp(3.4rem, 20vw, 6rem); font-weight: 900; line-height: 1; animation: pop .35s cubic-bezier(.2, 1.6, .4, 1); }
+    .verdict svg { width: 1em; height: 1em; stroke-width: 3; }
     .verdict-text { font-size: clamp(1.6rem, 8vw, 2.4rem); font-weight: 900; letter-spacing: 1px; }
     .pts-earned {
       background: rgba(0, 0, 0, .3);
-      border: 3px solid #ffd76e;
-      color: #ffd76e;
+      border: 3px solid var(--gold);
+      color: var(--gold);
       font-size: clamp(1.5rem, 7vw, 2.2rem);
       font-weight: 900;
       padding: .45em 1.1em;
       border-radius: 16px;
     }
-    .total-line { font-size: 1.15rem; font-weight: 800; opacity: .95; }
+    .total-line { font-size: 1.15rem; font-weight: 800; opacity: .95; display: inline-flex; align-items: center; gap: .4em; }
+    .total-line svg { width: 1em; height: 1em; color: var(--gold); }
     .rank-line { font-size: 1rem; font-weight: 800; opacity: .85; }
     .answer-reveal { font-size: 1.05rem; font-weight: 800; opacity: .95; background: rgba(0,0,0,.25); padding:.5em 1em; border-radius:12px; }
 
@@ -258,7 +278,8 @@
       padding: 30px;
     }
     .overlay.show { display: flex; }
-    .overlay .icon { font-size: 4rem; }
+    .overlay .icon { color: #ffb3bd; line-height: 0; }
+    .overlay .icon svg { width: clamp(3rem, 14vw, 4.5rem); height: clamp(3rem, 14vw, 4.5rem); stroke-width: 2.2; }
     .overlay h2 { font-size: 1.6rem; font-weight: 900; }
     .overlay p { font-weight: 700; opacity: .85; line-height: 1.5; }
     .overlay button {
@@ -297,11 +318,11 @@
 </head>
 <body>
   <div class="app">
-    <div class="brand">✝️ CHRISCO <small>Bible Quizzes</small></div>
+    <div class="brand"><i data-lucide="cross"></i><span class="brand-text">CHRISCO<small>Bible Quizzes</small></span></div>
 
     <!-- ============ LOGIN ============ -->
     <section class="screen active" id="login">
-      <div class="logo-big">🎮</div>
+      <div class="logo-big"><i data-lucide="gamepad-2"></i></div>
       <div class="title-big">Let’s Play!<span>Bible Quizzes</span></div>
       <form class="card" id="join-form" autocomplete="off">
         <div class="field">
@@ -321,7 +342,7 @@
 
     <!-- ============ WAITING ============ -->
     <section class="screen" id="waiting">
-      <div class="big-check" id="wait-icon">✔</div>
+      <div class="big-check" id="wait-icon"><i data-lucide="check"></i></div>
       <div class="wait-title" id="wait-title">You’re in!</div>
       <div class="wait-sub" id="wait-sub">Look at the big screen…</div>
       <div class="name-pill" id="wait-name" style="display:none;"></div>
@@ -353,17 +374,17 @@
 
     <!-- ============ RESULT ============ -->
     <section class="screen" id="result">
-      <div class="verdict" id="verdict">✔</div>
+      <div class="verdict" id="verdict"><i data-lucide="check"></i></div>
       <div class="verdict-text" id="verdict-text">Correct!</div>
       <div class="pts-earned" id="pts-earned">+0 points</div>
-      <div class="total-line" id="total-line">Total: 0</div>
+      <div class="total-line" id="total-line"><i data-lucide="star"></i> Total: 0</div>
       <div class="rank-line" id="rank-line"></div>
       <div class="answer-reveal" id="answer-reveal"></div>
     </section>
 
     <!-- ============ HOST LEFT OVERLAY ============ -->
     <div class="overlay" id="host-left">
-      <div class="icon">📡</div>
+      <div class="icon"><i data-lucide="wifi-off"></i></div>
       <h2>The host left the game</h2>
       <p>Ask the leader to start a new game, then join again with the new PIN.</p>
       <button onclick="location.reload()">BACK TO LOGIN</button>
@@ -372,6 +393,7 @@
     <div class="toast" id="toast"></div>
   </div>
 
+  <script src="/vendor/lucide.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js"></script>
   <script>
     if (!window.supabase) document.write('<script src="/vendor/supabase.js"><\/script>');
@@ -383,6 +405,8 @@
        ============================================================ */
     const $ = (id) => document.getElementById(id);
     const fmt = (n) => Number(n).toLocaleString();
+    const icons = () => window.lucide && lucide.createIcons({ attrs: { 'stroke-width': 2.4 } });
+    icons();
 
     // Persistent token lets a player rejoin after a Wi-Fi blip
     // without losing their score.
@@ -427,8 +451,8 @@
       toast._t = setTimeout(() => t.classList.remove('show'), 2600);
     }
 
-    function setWaiting(title, sub, { icon = '✔', showName = true, showScore = false } = {}) {
-      $('wait-icon').textContent = icon;
+    function setWaiting(title, sub, { icon = 'check', showName = true, showScore = false } = {}) {
+      $('wait-icon').innerHTML = `<i data-lucide="${icon}"></i>`;
       $('wait-title').textContent = title;
       $('wait-sub').textContent = sub;
       const namePill = $('wait-name');
@@ -436,8 +460,9 @@
       namePill.textContent = myName;
       const scorePill = $('wait-score');
       scorePill.style.display = showScore ? '' : 'none';
-      scorePill.textContent = '⭐ ' + fmt(myScore) + ' pts';
+      scorePill.innerHTML = `<i data-lucide="star"></i> ${fmt(myScore)} pts`;
       show('waiting');
+      icons();
     }
 
     // ---------- Login ----------
@@ -556,7 +581,7 @@
           setWaiting('You’re in!', 'Look at the big screen — the game will start soon.');
         } else if (room.status === 'finished') {
           setWaiting('Game over!', 'Thanks for playing — ask the host for the results!', {
-            icon: '🏁',
+            icon: 'flag',
             showScore: true,
           });
         } else if (channel) {
@@ -655,7 +680,7 @@
       if (error === 'You already answered this question.' || error === 'Time is up!') return;
       // Rejected because the question ended: show the interstitial.
       if (error === 'There is no active question.') {
-        setWaiting('Get ready!', 'Next question coming up…', { icon: '⏳', showScore: true });
+        setWaiting('Get ready!', 'Next question coming up…', { icon: 'hourglass', showScore: true });
         return;
       }
       // Anything else (e.g. not in game): restore the pad if we have the question.
@@ -692,18 +717,19 @@
       const el = $('result');
       el.classList.toggle('right', ok);
       el.classList.toggle('wrong', !ok);
-      $('verdict').textContent = ok ? '✔' : '✘';
+      $('verdict').innerHTML = ok ? '<i data-lucide="check"></i>' : '<i data-lucide="x"></i>';
       $('verdict-text').textContent = ok ? 'Correct!' : 'Wrong!';
       $('pts-earned').textContent = r.answered ? '+' + fmt(r.points) + ' points' : 'No answer';
-      $('total-line').textContent = '⭐ Total: ' + fmt(r.score) + ' pts';
+      $('total-line').innerHTML = `<i data-lucide="star"></i> Total: ${fmt(r.score)} pts`;
       $('rank-line').textContent = r.rank ? `You’re #${r.rank} on the scoreboard` : '';
       $('answer-reveal').textContent = 'Answer: ' + results.correctText;
       show('result');
+      icons();
       if (navigator.vibrate) navigator.vibrate(ok ? [60, 40, 60] : 200);
       // Hold the result, then show a waiting screen for the next question.
       clearTimeout(renderResult._t);
       renderResult._t = setTimeout(() => {
-        setWaiting('Get ready!', 'Next question coming up…', { icon: '⏳', showScore: true });
+        setWaiting('Get ready!', 'Next question coming up…', { icon: 'hourglass', showScore: true });
       }, 3200);
     }
 
@@ -711,7 +737,7 @@
     function onFinal(f) {
       if (f.forToken && f.forToken !== token) return;
       setWaiting('Game over!', 'Thanks for playing — ask the host for the results!', {
-        icon: '🏁',
+        icon: 'flag',
         showScore: true,
       });
     }
