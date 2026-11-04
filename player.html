@@ -3,233 +3,334 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>CHRISCO Bible Quizzes - Player (Pursue, Overtake, Recover All)</title>
-  <!-- Premium Icons (Font Awesome Free via CDN) -->
+  <title>CHRISCO Bible Quizzes - Join (Pursue, Overtake, Recover All)</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" />
-  <!-- Supabase JS CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <!-- Kahoot-style font (Montserrat) with fallback -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <style>
     :root {
       --primary: #00008B; --secondary: #FF8C00; --accent: #006400; --bg: #F5F5F5;
-      --purple: #46178f; --yellow: #ffc00a; --red: #e21b3c; --text: #333;
+      --purple: #46178f; --yellow: #ffc00a; --red: #e21b3c; --green: #1a9e3a; --text: #333;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Montserrat', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; }
-
+    body { font-family: 'Montserrat', 'Segoe UI', Tahoma, sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; }
     .topbar { position: sticky; top: 0; z-index: 100; background: var(--primary); color: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.25); }
-    .topbar-inner { max-width: 1100px; margin: 0 auto; padding: 0.7rem 1rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+    .topbar-inner { max-width: 600px; margin: 0 auto; padding: 0.7rem 1rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
     .brand { display: flex; align-items: center; gap: 0.6rem; text-decoration: none; color: #fff; }
     .brand-logo { width: 42px; height: 42px; border-radius: 12px; background: var(--secondary); display: flex; align-items: center; justify-content: center; font-size: 1.3rem; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
     .brand-text { font-weight: 900; font-size: 1.15rem; line-height: 1; }
     .brand-text small { display: block; font-size: 0.65rem; font-weight: 500; color: var(--yellow); letter-spacing: 1px; }
-    .btn { display: inline-flex; align-items: center; gap: 0.4rem; font-weight: 700; font-size: 0.9rem; padding: 0.6rem 1.2rem; border-radius: 10px; border: none; cursor: pointer; text-decoration: none; transition: transform 0.2s, box-shadow 0.2s; color: #fff; }
+    .btn { display: inline-flex; align-items: center; gap: 0.4rem; font-weight: 700; font-size: 0.95rem; padding: 0.7rem 1.4rem; border-radius: 12px; border: none; cursor: pointer; text-decoration: none; transition: transform 0.2s, box-shadow 0.2s; color: #fff; }
     .btn:active { transform: scale(0.96); }
     .btn--yellow { background: var(--yellow); color: #333; }
     .btn--yellow:hover { box-shadow: 0 6px 20px rgba(255,192,10,0.5); transform: translateY(-2px); }
     .btn--outline { background: rgba(255,255,255,0.12); border: 2px solid #fff; }
     .btn--outline:hover { background: #fff; color: var(--primary); }
-    .btn--green { background: var(--accent); }
-    .btn--green:hover { box-shadow: 0 6px 20px rgba(0,100,0,0.4); transform: translateY(-2px); }
+    .btn--green { background: var(--green); }
+    .btn--green:hover { box-shadow: 0 6px 20px rgba(26,158,58,0.5); transform: translateY(-2px); }
     .btn--blue { background: var(--primary); }
-    .btn--blue:hover { box-shadow: 0 6px 20px rgba(0,0,139,0.5); transform: translateY(-2px); }
-    .btn--orange { background: var(--secondary); }
-    .btn--orange:hover { box-shadow: 0 6px 20px rgba(255,140,0,0.5); transform: translateY(-2px); }
     .btn--large { padding: 0.9rem 2rem; font-size: 1.1rem; border-radius: 14px; }
     .btn--block { width: 100%; justify-content: center; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
 
-    .hero {
-      position: relative; overflow: hidden; color: #fff; text-align: center;
-      background: radial-gradient(900px 400px at 80% 10%, rgba(255,140,0,0.35) 0%, transparent 60%), linear-gradient(120deg, #006400 0%, #00008B 100%);
-      padding: 3rem 1rem 2.5rem;
-    }
+    .hero { position: relative; overflow: hidden; color: #fff; text-align: center; background: radial-gradient(900px 400px at 80% 10%, rgba(255,140,0,0.35) 0%, transparent 60%), linear-gradient(120deg, #006400 0%, #00008B 100%); padding: 2rem 1rem 2rem; }
     .hero::before { content: ''; position: absolute; inset: 0; background: url('./image-search/bright-colorful-worship-church-backgroun-1.jpg') center/cover no-repeat; opacity: 0.15; mix-blend-mode: overlay; }
     .hero-content { position: relative; z-index: 2; max-width: 700px; margin: 0 auto; }
-    .hero h1 { font-size: clamp(1.8rem, 5vw, 3rem); font-weight: 900; text-shadow: 0 4px 20px rgba(0,0,0,0.4); }
-    .hero p { margin-top: 0.6rem; opacity: 0.9; font-weight: 500; }
+    .hero h1 { font-size: clamp(1.6rem, 4vw, 2.6rem); font-weight: 900; text-shadow: 0 4px 20px rgba(0,0,0,0.4); }
+    .hero p { margin-top: 0.5rem; opacity: 0.9; font-weight: 500; }
     .hero p strong { color: var(--yellow); }
 
-    .container { max-width: 500px; margin: 2rem auto; padding: 0 1rem; }
+    .container { max-width: 600px; margin: 1.5rem auto; padding: 0 1rem; }
 
-    .join-card {
-      position: relative; border-radius: 24px; overflow: hidden; color: #fff;
-      padding: 2rem 1.8rem; margin-bottom: 2rem;
-      background: linear-gradient(160deg, #00008B 0%, #46178f 100%);
-      box-shadow: 0 14px 35px rgba(0,0,139,0.3);
-    }
-    .join-card::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.35) 100%); }
-    .join-card > * { position: relative; z-index: 2; }
-    .join-card h2 { font-size: 1.5rem; font-weight: 800; display: flex; align-items: center; gap: 0.6rem; }
-    .join-card p { opacity: 0.95; margin: 0.5rem 0 1rem; }
+    .card { position: relative; border-radius: 24px; overflow: hidden; color: #fff; padding: 2rem 1.8rem; margin-bottom: 1.5rem; box-shadow: 0 14px 35px rgba(0,0,0,0.18); }
+    .card--blue { background: linear-gradient(160deg, #00008B 0%, #46178f 100%); }
+    .card--orange { background: linear-gradient(160deg, #FF8C00 0%, #e21b3c 100%); }
+    .card--green { background: linear-gradient(160deg, #006400 0%, #0aa3a3 100%); }
+    .card h2 { font-size: 1.5rem; font-weight: 800; display: flex; align-items: center; gap: 0.6rem; }
+    .card p { opacity: 0.95; margin: 0.5rem 0 1rem; }
 
-    .pin-input {
-      width: 100%; padding: 1.1rem; font-size: 1.8rem; font-weight: 800; text-align: center;
-      letter-spacing: 8px; border: 2px dashed rgba(255,255,255,0.6); border-radius: 14px;
-      background: rgba(255,255,255,0.12); color: #fff; outline: none;
-      font-family: 'Montserrat', sans-serif;
-    }
+    .field { margin-bottom: 1rem; }
+    .field label { display: block; font-size: 0.85rem; font-weight: 700; margin-bottom: 0.4rem; }
+    .pin-input { width: 100%; padding: 1.1rem; font-size: 1.8rem; font-weight: 800; text-align: center; letter-spacing: 8px; border: 2px dashed rgba(255,255,255,0.6); border-radius: 14px; background: rgba(255,255,255,0.12); color: #fff; outline: none; font-family: inherit; }
     .pin-input::placeholder { color: rgba(255,255,255,0.5); letter-spacing: 4px; font-size: 1.2rem; }
     .pin-input:focus { background: rgba(255,255,255,0.2); border-color: var(--yellow); }
+    .name-input { width: 100%; padding: 0.9rem 1rem; font-size: 1.1rem; font-weight: 700; border-radius: 14px; border: 2px solid rgba(255,255,255,0.5); background: rgba(255,255,255,0.12); color: #fff; outline: none; font-family: inherit; }
+    .name-input::placeholder { color: rgba(255,255,255,0.6); }
+    .name-input:focus { background: rgba(255,255,255,0.2); border-color: var(--yellow); }
 
-    .status-pill {
-      display: inline-flex; align-items: center; gap: 0.5rem;
-      background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 50px;
-      font-size: 0.85rem; font-weight: 600; margin-top: 1rem;
-    }
+    .status-pill { display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 50px; font-size: 0.85rem; font-weight: 600; margin-bottom: 1rem; }
     .status-pill.ok { background: rgba(0,100,0,0.5); }
     .status-pill.err { background: rgba(226,27,60,0.6); }
+    .status-pill.warn { background: rgba(255,192,10,0.3); }
 
-    .joined-box {
-      background: #fff; border-radius: 20px; padding: 1.6rem; text-align: center;
-      box-shadow: 0 12px 30px rgba(0,0,0,0.1); margin-bottom: 1.5rem;
-      border-top: 6px solid var(--accent);
-    }
-    .joined-box h2 { color: var(--accent); font-size: 1.4rem; display: flex; align-items: center; gap: 0.5rem; justify-content: center; }
-    .joined-pin { font-size: 2.2rem; font-weight: 900; color: var(--primary); letter-spacing: 6px; margin: 0.8rem 0; }
-    .joined-mode { display: inline-flex; align-items: center; gap: 0.4rem; background: var(--yellow); color: #333; font-weight: 700; padding: 0.4rem 1rem; border-radius: 20px; }
-    .sync-info { margin-top: 0.8rem; font-size: 0.9rem; color: #555; }
+    .player-list { list-style: none; margin: 1rem 0; display: grid; gap: 0.5rem; }
+    .player-list li { display: flex; align-items: center; gap: 0.6rem; background: rgba(255,255,255,0.15); padding: 0.6rem 1rem; border-radius: 12px; font-weight: 600; }
+    .player-list li .pavatar { width: 34px; height: 34px; border-radius: 50%; background: var(--yellow); color: #333; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.9rem; }
+    .player-list li.me { outline: 3px solid var(--yellow); outline-offset: 2px; }
+    .player-list .empty { text-align: center; opacity: 0.8; font-style: italic; }
 
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    .question-card { background: #fff; border-radius: 24px; padding: 2rem 1.5rem; box-shadow: 0 14px 35px rgba(0,0,0,0.12); margin-bottom: 1.5rem; }
+    .q-counter { display: inline-flex; align-items: center; gap: 0.4rem; background: var(--primary); color: #fff; font-weight: 700; padding: 0.4rem 1rem; border-radius: 50px; font-size: 0.85rem; }
+    .q-text { font-size: clamp(1.1rem, 3vw, 1.5rem); font-weight: 800; color: var(--primary); margin: 1rem 0; line-height: 1.4; }
+    .timer-num { text-align: right; font-weight: 800; color: var(--red); font-size: 1.1rem; margin-bottom: 0.8rem; }
+    .options { display: grid; gap: 0.8rem; }
+    .opt { display: flex; align-items: center; gap: 0.7rem; padding: 1rem 1.2rem; border-radius: 14px; background: #f4f6fa; font-weight: 600; text-align: left; border: 2px solid transparent; transition: background 0.2s, transform 0.1s; font-family: inherit; cursor: pointer; font-size: 1rem; color: var(--text); width: 100%; }
+    .opt:hover:not(:disabled) { background: #e8ecf5; }
+    .opt:disabled { cursor: default; }
+    .opt .letter { width: 30px; height: 30px; border-radius: 8px; background: var(--primary); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0; }
+    .opt.correct { background: rgba(26,158,58,0.15); border-color: var(--green); }
+    .opt.correct .letter { background: var(--green); }
+    .opt.wrong { background: rgba(226,27,60,0.12); border-color: var(--red); }
+    .opt.wrong .letter { background: var(--red); }
+    .opt.my-choice { outline: 3px solid var(--secondary); outline-offset: 2px; }
+    .explain { background: #f0f7ff; border-left: 4px solid var(--primary); padding: 1rem 1.2rem; border-radius: 10px; margin-top: 1.2rem; font-size: 0.9rem; color: #444; }
+    .feedback { text-align: center; font-weight: 800; font-size: 1.1rem; margin-top: 1rem; }
+    .feedback.good { color: var(--green); }
+    .feedback.bad { color: var(--red); }
+
+    .score-card { text-align: center; }
+    .score-card .big { font-size: 4rem; font-weight: 900; color: var(--yellow); }
+    .score-card .label { font-weight: 700; opacity: 0.9; }
+    .winner-banner { background: rgba(255,192,10,0.2); border: 2px dashed var(--yellow); color: var(--yellow); font-weight: 900; font-size: 1.2rem; padding: 1rem; border-radius: 14px; margin-top: 1rem; }
     footer { text-align: center; padding: 1.5rem 1rem 2rem; color: #888; font-size: 0.8rem; }
 
-    @media (max-width: 600px) {
-      .topbar-inner { flex-wrap: wrap; }
-      .join-card { padding: 1.4rem 1.2rem; }
-      .pin-input { font-size: 1.5rem; letter-spacing: 4px; }
-    }
+    @media (max-width: 600px) { .topbar-inner { flex-wrap: wrap; } .card { padding: 1.4rem 1.2rem; } .pin-input { font-size: 1.5rem; letter-spacing: 4px; } .question-card { padding: 1.4rem 1.1rem; } }
   </style>
 </head>
 <body>
   <div class="topbar">
     <div class="topbar-inner">
-      <a class="brand" href="index.html">
-        <span class="brand-logo"><i class="fa-solid fa-crosshairs"></i></span>
-        <span class="brand-text">CHRISCO<small>BIBLE QUIZZES</small></span>
-      </a>
-      <div class="topbar-actions">
-        <a class="btn btn--outline" href="player.html"><i class="fa-solid fa-right-to-bracket"></i> Join</a>
-        <a class="btn btn--yellow" href="host.html"><i class="fa-solid fa-gamepad"></i> Host</a>
+      <a class="brand" href="index.html"><span class="brand-logo"><i class="fa-solid fa-crosshairs"></i></span><span class="brand-text">CHRISCO<small>BIBLE QUIZZES</small></span></a>
+      <div class="topbar-actions"><a class="btn btn--outline" href="player.html"><i class="fa-solid fa-right-to-bracket"></i> Join</a><a class="btn btn--yellow" href="host.html"><i class="fa-solid fa-gamepad"></i> Host</a></div>
+    </div>
+  </div>
+
+  <section class="hero"><div class="hero-content"><h1><i class="fa-solid fa-right-to-bracket"></i> Join a Game</h1><p>Enter the PIN from your host. Theme: <strong>1 Samuel 30:8 Pursue Overtake Recover All</strong></p></div></section>
+
+  <div class="container">
+    <!-- SETUP SCREEN -->
+    <div class="screen active" id="setup-screen">
+      <div class="card card--blue">
+        <div class="status-pill" id="setup-status"><i class="fa-solid fa-circle-info"></i> Ready when you are</div>
+        <h2><i class="fa-solid fa-key"></i> Join a Game</h2>
+        <p>Enter the 4 to 6 digit PIN your host shared, and your name.</p>
+        <div class="field">
+          <label for="name-input">Your Name</label>
+          <input type="text" class="name-input" id="name-input" placeholder="e.g. David" maxlength="16" autocomplete="off" />
+        </div>
+        <div class="field">
+          <label for="pin-input">Game PIN</label>
+          <input type="text" class="pin-input" id="pin-input" placeholder="000000" maxlength="6" inputmode="numeric" autocomplete="off" />
+        </div>
+        <button id="join-btn" class="btn btn--yellow btn--large btn--block"><i class="fa-solid fa-right-to-bracket"></i> Join Game</button>
+      </div>
+    </div>
+
+    <!-- LOBBY SCREEN -->
+    <div class="screen" id="lobby-screen">
+      <div class="card card--orange">
+        <div class="status-pill" id="lobby-status"><i class="fa-solid fa-spinner fa-spin"></i> Joining room...</div>
+        <h2><i class="fa-solid fa-users"></i> Room PIN <span id="room-pin" style="color:var(--yellow);">----</span></h2>
+        <p>Waiting for the host to start. You can see who else is here.</p>
+        <ul class="player-list" id="player-list"><li class="empty">Waiting for players...</li></ul>
+        <div id="waiting-hint" style="text-align:center;margin-top:0.8rem;"><i class="fa-solid fa-hourglass-half"></i> Waiting for host to start the game...</div>
+      </div>
+    </div>
+
+    <!-- QUESTION SCREEN -->
+    <div class="screen" id="question-screen">
+      <div class="question-card">
+        <span class="q-counter" id="q-counter"><i class="fa-solid fa-list-ol"></i> Question</span>
+        <div class="timer-num" id="timer-num"><i class="fa-solid fa-clock"></i> ---</div>
+        <div class="q-text" id="q-text">Waiting for the next question...</div>
+        <div class="options" id="q-options"></div>
+        <div class="feedback" id="feedback"></div>
+        <div class="explain" id="q-explain" style="display:none;"></div>
+      </div>
+      <div class="card card--green score-card">
+        <div class="big" id="my-score">0</div>
+        <div class="label">Your score</div>
+      </div>
+    </div>
+
+    <!-- RESULT SCREEN -->
+    <div class="screen" id="result-screen">
+      <div class="card card--blue score-card">
+        <div class="big" id="final-score">0</div>
+        <div class="label">Your final score</div>
+        <div class="winner-banner" id="winner-banner" style="display:none;"></div>
+        <p id="result-sub" style="margin-top:1rem;opacity:0.9;">Theme: 1 Samuel 30:8 Pursue Overtake Recover All</p>
+        <button id="play-again-btn" class="btn btn--yellow btn--large btn--block" style="margin-top:1rem;"><i class="fa-solid fa-rotate-left"></i> Join Another Game</button>
+        <a class="btn btn--outline btn--block" style="margin-top:0.8rem;" href="index.html"><i class="fa-solid fa-house"></i> Back to Home</a>
       </div>
     </div>
   </div>
 
-  <section class="hero">
-    <div class="hero-content">
-      <h1><i class="fa-solid fa-right-to-bracket"></i> Join a Game</h1>
-      <p>Enter the PIN from your host. Theme: <strong>1 Samuel 30:8 Pursue Overtake Recover All</strong></p>
-    </div>
-  </section>
+  <footer>&copy; 2026 CHRISCO Bible Quizzes. Theme: 1 Samuel 30:8 Pursue Overtake Recover All.</footer>
 
-  <div class="container">
-    <div class="join-card">
-      <h2><i class="fa-solid fa-key"></i> Enter Game PIN</h2>
-      <p>Your host shared a 4 to 6 digit PIN. Type it below to join the lobby.</p>
-      <input type="text" class="pin-input" id="pin-input" placeholder="000000" maxlength="6" inputmode="numeric" autocomplete="off" />
-      <button id="join-btn" class="btn btn--yellow btn--large btn--block" style="margin-top: 1rem;"><i class="fa-solid fa-right-to-bracket"></i> Join Game</button>
-      <div class="status-pill" id="status-pill"><i class="fa-solid fa-circle-info"></i> Waiting for PIN...</div>
-    </div>
-
-    <div class="joined-box" id="game-active-area" style="display: none;">
-      <h2><i class="fa-solid fa-user-group"></i> You are in!</h2>
-      <div class="joined-pin">PIN <span id="joined-pin"></span></div>
-      <div class="joined-mode"><i class="fa-solid fa-gamepad"></i> Mode: <span id="joined-mode">Loading...</span></div>
-      <div class="sync-info" id="sync-status"><i class="fa-solid fa-spinner fa-spin"></i> Waiting for host to start...</div>
-    </div>
-  </div>
-
-  <footer>&copy; 2026 CHRISCO Bible Quizzes. Theme: 1 Samuel 30:8 Pursue Overtake Recover All. Premium icons by Font Awesome. Real-time multiplayer by Supabase.</footer>
-
+  <script src="questions.js"></script>
   <script>
-    let supabase = null;
-    let channel = null;
-    let currentPin = '';
+    const LETTERS = ['A','B','C','D'];
+    const state = {
+      name: '', pin: '', channel: null, supabase: null,
+      players: {}, myAnswer: null, score: 0, phase: 'setup'
+    };
+    function $(id) { return document.getElementById(id); }
+    function esc(s) { const d = document.createElement('div'); d.textContent = s == null ? '' : String(s); return d.innerHTML; }
 
-    document.addEventListener('DOMContentLoaded', () => {
-      const statusPill = document.getElementById('status-pill');
-      const joinBtn = document.getElementById('join-btn');
-      const pinInput = document.getElementById('pin-input');
-      const gameActiveArea = document.getElementById('game-active-area');
-      const joinedPin = document.getElementById('joined-pin');
-      const joinedMode = document.getElementById('joined-mode');
-      const syncStatus = document.getElementById('sync-status');
+    function loadConfig() {
+      return fetch('/api/config').then(r => r.json()).catch(() => null).then(cfg => {
+        if (cfg && cfg.url && cfg.key) return cfg;
+        return new Promise((resolve, reject) => {
+          const s = document.createElement('script');
+          s.src = '/public/config.js';
+          s.onload = () => {
+            if (window.CHRISCO_CONFIG && window.CHRISCO_CONFIG.supabaseUrl) {
+              resolve({ url: window.CHRISCO_CONFIG.supabaseUrl, key: window.CHRISCO_CONFIG.supabaseAnonKey });
+            } else reject(new Error('No config available'));
+          };
+          s.onerror = () => reject(new Error('No config available'));
+          document.head.appendChild(s);
+        });
+      });
+    }
+    function showScreen(id) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      $('' + id + '-screen').classList.add('active');
+    }
+    function lobbyStatus(html, cls) { const p = $('lobby-status'); p.className = 'status-pill ' + (cls||''); p.innerHTML = html; }
 
-      fetch('/api/config')
-        .then(res => res.json())
+    function buildPlayerList() {
+      const ul = $('player-list');
+      const players = Object.values(state.players);
+      if (players.length === 0) {
+        ul.innerHTML = '<li class="empty"><i class="fa-solid fa-user-plus"></i> Waiting for players...</li>';
+      } else {
+        ul.innerHTML = players.map(p => '<li' + (p.name === state.name ? ' class="me"' : '') + '><span class="pavatar">' + esc(p.name.charAt(0)) + '</span>' + esc(p.name) + (p.isHost ? ' <i class="fa-solid fa-crown" style="margin-left:auto;color:var(--yellow);"></i>' : '') + '</li>').join('');
+      }
+    }
+
+    function lockInAnswer(choice) {
+      if (state.phase !== 'question' || state.myAnswer !== null) return;
+      state.myAnswer = choice;
+      const opts = $('q-options').querySelectorAll('.opt');
+      opts.forEach(b => { b.disabled = true; });
+      opts[choice].classList.add('my-choice');
+      if (state.channel) state.channel.send({ type: 'broadcast', event: 'answer', payload: { name: state.name, choice: choice } });
+      $('feedback').className = 'feedback';
+      $('feedback').innerHTML = '<i class="fa-solid fa-lock"></i> Answer locked in. Wait for the host to reveal.';
+    }
+
+    function onQuestion(data) {
+      if (!data) return;
+      state.phase = 'question';
+      state.myAnswer = null;
+      $('q-counter').innerHTML = '<i class="fa-solid fa-list-ol"></i> Question ' + (data.index+1) + ' of ' + data.total;
+      $('q-text').textContent = data.q;
+      $('q-options').innerHTML = data.options.map((o,i) => '<button class="opt" data-i="'+i+'"><span class="letter">'+LETTERS[i]+'</span><span>'+esc(o)+'</span></button>').join('');
+      $('q-options').querySelectorAll('.opt').forEach(b => b.addEventListener('click', () => lockInAnswer(parseInt(b.dataset.i, 10))));
+      $('feedback').innerHTML = '';
+      $('q-explain').style.display = 'none';
+      $('timer-num').innerHTML = '<i class="fa-solid fa-clock"></i> ' + (data.seconds||20) + 's';
+      showScreen('question');
+    }
+
+    function onReveal(data) {
+      if (!data) return;
+      state.phase = 'reveal';
+      const opts = $('q-options').querySelectorAll('.opt');
+      opts.forEach((b,i) => {
+        if (i === data.correct) b.classList.add('correct');
+      });
+      if (state.myAnswer === data.correct) {
+        opts[state.myAnswer].classList.add('correct');
+        $('feedback').className = 'feedback good';
+        $('feedback').innerHTML = '<i class="fa-solid fa-circle-check"></i> Correct! +100 points';
+        state.score += 100;
+      } else if (state.myAnswer !== null) {
+        opts[state.myAnswer].classList.add('wrong');
+        $('feedback').className = 'feedback bad';
+        $('feedback').innerHTML = '<i class="fa-solid fa-circle-xmark"></i> Not quite. The right answer is highlighted.';
+      } else {
+        $('feedback').className = 'feedback bad';
+        $('feedback').innerHTML = '<i class="fa-solid fa-clock"></i> Time ran out. The right answer is highlighted.';
+      }
+      $('q-explain').innerHTML = '<i class="fa-solid fa-circle-info"></i> ' + esc(data.explain);
+      $('q-explain').style.display = 'block';
+      $('my-score').textContent = state.score;
+    }
+
+    function onEnd(data) {
+      state.phase = 'end';
+      $('final-score').textContent = state.score;
+      if (data && data.winner) {
+        if (data.winner === state.name) {
+          $('winner-banner').style.display = 'block';
+          $('winner-banner').innerHTML = '<i class="fa-solid fa-trophy"></i> You win! Pursue Overtake Recover All!';
+        } else {
+          $('winner-banner').style.display = 'block';
+          $('winner-banner').innerHTML = '<i class="fa-solid fa-trophy"></i> ' + esc(data.winner) + ' wins!';
+        }
+      } else {
+        $('winner-banner').style.display = 'block';
+        $('winner-banner').innerHTML = '<i class="fa-solid fa-trophy"></i> Game complete!';
+      }
+      showScreen('result');
+    }
+
+    function joinRoom() {
+      const name = $('name-input').value.trim();
+      const pin = $('pin-input').value.trim();
+      if (!name) { alert('Please enter your name.'); return; }
+      if (!pin) { alert('Please enter the game PIN.'); return; }
+      state.name = name;
+      state.pin = pin;
+
+      loadConfig()
         .then(config => {
           const { url, key } = config;
-          supabase = supabaseJs.createClient(url, key);
-          console.log('Supabase Client Initialized');
-
-          joinBtn.onclick = () => {
-            const enteredPin = pinInput.value.trim();
-            if (!enteredPin) {
-              alert('Please enter a PIN');
-              return;
-            }
-            currentPin = enteredPin;
-            joinedPin.textContent = currentPin;
-            statusPill.className = 'status-pill';
-            statusPill.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Joining room ' + currentPin + '...';
-
-            channel = supabase
-              .channel('room-' + currentPin)
-              .on('presence', { event: 'SYNC' }, (payload) => {
-                console.log('Presence synced:', payload);
-                const presenceState = payload.presence || {};
-                const hostEntry = Object.values(presenceState).find(state => state.isHost === true);
-
-                if (hostEntry) {
-                  const mode = hostEntry.mode || 'pursue';
-                  joinedMode.textContent = mode.charAt(0).toUpperCase() + mode.slice(1);
-                  statusPill.className = 'status-pill ok';
-                  statusPill.innerHTML = '<i class="fa-solid fa-circle-check"></i> Player joined PIN ' + currentPin + '. Host found.';
-                  syncStatus.innerHTML = '<i class="fa-solid fa-circle-check" style="color: var(--accent);"></i> Presence sync: Host active (mode: ' + mode + ').';
-                  gameActiveArea.style.display = 'block';
-                } else {
-                  console.log('Host not found in initial sync. Waiting 3s...');
-                  syncStatus.innerHTML = '<i class="fa-solid fa-clock" style="color: var(--primary);"></i> Waiting 3s for host...';
-
-                  setTimeout(() => {
-                    const currentPresence = channel.presence.state();
-                    const hostFound = Object.values(currentPresence).find(state => state.isHost === true);
-
-                    if (hostFound) {
-                      const mode = hostFound.mode || 'pursue';
-                      joinedMode.textContent = mode.charAt(0).toUpperCase() + mode.slice(1);
-                      statusPill.className = 'status-pill ok';
-                      statusPill.innerHTML = '<i class="fa-solid fa-circle-check"></i> Player joined PIN ' + currentPin + '. Host found (delayed).';
-                      syncStatus.innerHTML = '<i class="fa-solid fa-circle-check" style="color: var(--accent);"></i> Presence sync: Host active (mode: ' + mode + ').';
-                      gameActiveArea.style.display = 'block';
-                    } else {
-                      console.error('Realtime connection failed: Host ended');
-                      statusPill.className = 'status-pill err';
-                      statusPill.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Host ended. Ask the leader to start a new game.';
-                      syncStatus.innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color: var(--red);"></i> Host not found after 3s. Leader: start new game.';
-                    }
-                  }, 3000);
-                }
-              })
-              .subscribe((status) => {
-                if (status === 'CHANNEL_ERROR' || status === 'CHANNEL_CLOSED') {
-                  console.error('Realtime connection failed');
-                  statusPill.className = 'status-pill err';
-                  statusPill.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Connection lost. Host ended?';
-                } else if (status === 'SUBSCRIBED') {
-                  statusPill.className = 'status-pill';
-                  statusPill.innerHTML = '<i class="fa-solid fa-circle-info"></i> Joined room ' + currentPin + '. Waiting for host...';
-                }
-              });
-          };
+          state.supabase = supabaseJs.createClient(url, key);
+          state.channel = state.supabase
+            .channel('quiz-' + state.pin)
+            .on('presence', { event: 'SYNC' }, (payload) => { state.players = payload.presence || {}; buildPlayerList(); })
+            .on('presence', { event: 'CHANGES' }, (payload) => { state.players = Object.assign({}, state.players, payload.events.leaves, payload.events.joins); buildPlayerList(); })
+            .on('broadcast', { event: 'start' }, (payload) => { $('waiting-hint').innerHTML = '<i class="fa-solid fa-play"></i> Game started: ' + esc(payload.payload.name || 'Pursue Overtake Recover All') + '. Get ready!'; })
+            .on('broadcast', { event: 'question' }, (payload) => onQuestion(payload.payload))
+            .on('broadcast', { event: 'reveal' }, (payload) => onReveal(payload.payload))
+            .on('broadcast', { event: 'end' }, (payload) => onEnd(payload.payload))
+            .on('broadcast', { event: 'reset' }, () => { state.phase = 'lobby'; showScreen('lobby'); lobbyStatus('<i class="fa-solid fa-rotate"></i> New game ready. Waiting for host to start...', 'warn'); })
+            .subscribe(async (status) => {
+              if (status === 'SUBSCRIBED') {
+                await state.channel.track({ name: state.name, isHost: false, status: 'lobby', score: 0 });
+                $('room-pin').textContent = state.pin;
+                lobbyStatus('<i class="fa-solid fa-circle-check"></i> Joined room ' + state.pin + '. Waiting for host...', 'ok');
+                showScreen('lobby');
+              } else if (status === 'CHANNEL_ERROR' || status === 'CHANNEL_CLOSED') {
+                lobbyStatus('<i class="fa-solid fa-triangle-exclamation"></i> Lost connection to room ' + state.pin + '. Check the PIN and host status.', 'err');
+              }
+            });
         })
         .catch(err => {
-          console.error('Failed to load Supabase config:', err);
-          statusPill.className = 'status-pill err';
-          statusPill.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Failed to load config API';
-          joinBtn.disabled = true;
-          joinBtn.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Serverless config unavailable';
+          $('setup-status').className = 'status-pill err';
+          $('setup-status').innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Could not reach the game server.';
         });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      $('join-btn').addEventListener('click', joinRoom);
+      $('play-again-btn').addEventListener('click', () => {
+        state.phase = 'setup';
+        state.players = {}; state.myAnswer = null; state.score = 0;
+        $('name-input').value = ''; $('pin-input').value = '';
+        $('setup-status').className = 'status-pill';
+        $('setup-status').innerHTML = '<i class="fa-solid fa-circle-info"></i> Ready when you are';
+        showScreen('setup');
+      });
     });
   </script>
 </body>
