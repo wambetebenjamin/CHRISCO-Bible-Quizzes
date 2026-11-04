@@ -5,7 +5,7 @@
 // Facebook / X show a thumbnail with the right message for whoever shares.
 
 const THEME = '1 Samuel 30:8 Pursue Overtake Recover All';
-const IMAGE_PATH = '/image-search/david-bible-battle-victory-colorful-illu-1.jpg';
+const IMAGE_PATH = '/image-search/bright-colorful-worship-church-backgroun-1.jpg';
 
 const MODE_NAMES = { pursue: 'David Quiz', overtake: 'Overtake', recover: 'Recover All' };
 

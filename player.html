@@ -9,11 +9,11 @@
   <meta property="og:site_name" content="CHRISCO Bible Quizzes" />
   <meta property="og:title" content="CHRISCO Bible Quizzes | Join a live Bible Quiz game" />
   <meta property="og:description" content="Join a live multiplayer Bible quiz game with a PIN. Answer questions, see the scoreboard, compete with friends. Theme: 1 Samuel 30:8 Pursue Overtake Recover All." />
-  <meta property="og:image" content="https://chrisco-bible-quizzes.vercel.app/image-search/david-bible-battle-victory-colorful-illu-1.jpg" />
+  <meta property="og:image" content="https://chrisco-bible-quizzes.vercel.app/image-search/bright-colorful-worship-church-backgroun-1.jpg" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="CHRISCO Bible Quizzes | Join a live Bible Quiz game" />
   <meta name="twitter:description" content="Join a live multiplayer Bible quiz game with a PIN. Answer questions, see the scoreboard, compete with friends. Theme: 1 Samuel 30:8 Pursue Overtake Recover All." />
-  <meta name="twitter:image" content="https://chrisco-bible-quizzes.vercel.app/image-search/david-bible-battle-victory-colorful-illu-1.jpg" />
+  <meta name="twitter:image" content="https://chrisco-bible-quizzes.vercel.app/image-search/bright-colorful-worship-church-backgroun-1.jpg" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <script src="vendor/supabase.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -237,9 +237,11 @@
     const LOBBY_CHANNEL = 'chrisco-lobby';
     const state = {
       name: '', icon: 'fa-solid fa-lion', emoji: '🦁', pin: '', hostName: '',
+      myId: '',
       channel: null, supabase: null, lobbyChannel: null,
       players: {}, lobbyGames: {}, myAnswer: null, score: 0, phase: 'setup'
     };
+    if (!state.myId) state.myId = 'p' + Math.random().toString(36).slice(2, 10);
 
     function iconHtml(p) {
       if (p && p.icon) return '<i class="' + p.icon + '"></i>';
@@ -276,7 +278,7 @@
 
     function buildLobbyList() {
       const grid = $('lobby-list');
-      const games = Object.values(state.lobbyGames).filter(g => g.pin && g.status !== 'ended');
+      const games = Object.values(state.lobbyGames).filter(g => g.pin && g.status !== 'closed');
       if (games.length === 0) {
         grid.innerHTML = '<div class="game-tile gt-empty"><i class="fa-solid fa-mug-hot"></i> No games running yet. Ask a host to create one!</div>';
         return;
@@ -395,10 +397,22 @@
       else if (kind === 'copy') { navigator.clipboard.writeText(text).then(() => alert('Score copied! Share it with friends.')); }
     }
 
+    function nameTakenInRoom() {
+      return Object.values(state.players).some(p =>
+        p.name && p.name.toLowerCase() === state.name.toLowerCase() && p.myId !== state.myId);
+    }
+
     function joinGame(pin, hostName) {
       const name = $('name-input').value.trim();
       if (!name) { alert('Please enter your name first.'); return; }
       if (!pin) { alert('Please enter a PIN.'); return; }
+      // Names cannot be repeated: a player cannot take a host's name of a running game
+      const hostNameConflict = Object.values(state.lobbyGames).some(g =>
+        g.name && g.name.toLowerCase() === name.toLowerCase() && g.status !== 'closed');
+      if (hostNameConflict) {
+        alert('That name is already used by a host of a running game. Pick a different name.');
+        return;
+      }
       if (hostName) state.hostName = hostName;
       state.name = name;
       state.icon = state.icon || 'fa-solid fa-lion';
@@ -408,16 +422,20 @@
 
       if (state.channel) { state.channel.unsubscribe(); state.channel = null; }
       state.channel = state.supabase.channel('quiz-' + state.pin)
-        .on('presence', { event: 'SYNC' }, (payload) => { state.players = payload.presence || {}; buildPlayerList(); })
-        .on('presence', { event: 'CHANGES' }, (payload) => { state.players = Object.assign({}, state.players, payload.events.leaves, payload.events.joins); buildPlayerList(); })
+        .on('presence', { event: 'SYNC' }, (payload) => { state.players = payload.presence || {}; buildPlayerList(); if (nameTakenInRoom()) leaveRoom('That name is already taken in this room. Pick a different name.'); })
+        .on('presence', { event: 'CHANGES' }, (payload) => { state.players = Object.assign({}, state.players, payload.events.leaves, payload.events.joins); buildPlayerList(); if (nameTakenInRoom()) leaveRoom('That name is already taken in this room. Pick a different name.'); })
         .on('broadcast', { event: 'start' }, (payload) => { $('waiting-hint').innerHTML = '<i class="fa-solid fa-play"></i> Game started: ' + esc(payload.payload.name || 'David Quiz') + '. Get ready!'; })
         .on('broadcast', { event: 'question' }, (payload) => onQuestion(payload.payload))
         .on('broadcast', { event: 'reveal' }, (payload) => onReveal(payload.payload))
         .on('broadcast', { event: 'end' }, (payload) => onEnd(payload.payload))
         .on('broadcast', { event: 'reset' }, () => { state.phase = 'lobby'; showScreen('lobbywait'); lobbyStatus('<i class="fa-solid fa-rotate"></i> New game ready. Waiting for host to start...', 'warn'); })
+        .on('broadcast', { event: 'close' }, (payload) => {
+          leaveRoom((payload.payload && payload.payload.message) || 'Host closed this game.');
+          lobbyStatus('<i class="fa-solid fa-triangle-exclamation"></i> ' + esc((payload.payload && payload.payload.message) || 'Host closed this game.') + ' Join another game.', 'err');
+        })
         .subscribe(async (status) => {
           if (status === 'SUBSCRIBED') {
-            await state.channel.track({ name: state.name, icon: state.icon, isHost: false, status: 'lobby', score: 0 });
+            await state.channel.track({ name: state.name, icon: state.icon, myId: state.myId, isHost: false, status: 'lobby', score: 0 });
             $('room-pin').textContent = state.pin;
             lobbyStatus('<i class="fa-solid fa-circle-check"></i> Joined room ' + state.pin + '. Waiting for host...', 'ok');
             showScreen('lobbywait');
@@ -425,6 +443,18 @@
             lobbyStatus('<i class="fa-solid fa-triangle-exclamation"></i> Lost connection to room ' + state.pin + '. Check the PIN and host status.', 'err');
           }
         });
+    }
+
+    function leaveRoom(message) {
+      if (state.channel) { state.channel.unsubscribe(); state.channel = null; }
+      state.phase = 'setup';
+      state.players = {};
+      state.pin = '';
+      state.name = '';
+      $('name-input').value = '';
+      $('pin-input').value = '';
+      setupStatus('<i class="fa-solid fa-circle-info"></i> ' + esc(message || 'Left the room.'), '');
+      showScreen('setup');
     }
 
     document.addEventListener('DOMContentLoaded', () => {

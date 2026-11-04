@@ -9,11 +9,11 @@
   <meta property="og:site_name" content="CHRISCO Bible Quizzes" />
   <meta property="og:title" content="CHRISCO Bible Quizzes | Host a live Bible Quiz game" />
   <meta property="og:description" content="Host a live multiplayer Bible quiz game. Share the PIN, answer questions, see the scoreboard. Theme: 1 Samuel 30:8 Pursue Overtake Recover All." />
-  <meta property="og:image" content="https://chrisco-bible-quizzes.vercel.app/image-search/david-bible-battle-victory-colorful-illu-1.jpg" />
+  <meta property="og:image" content="https://chrisco-bible-quizzes.vercel.app/image-search/bright-colorful-worship-church-backgroun-1.jpg" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="CHRISCO Bible Quizzes | Host a live Bible Quiz game" />
   <meta name="twitter:description" content="Host a live multiplayer Bible quiz game. Share the PIN, answer questions, see the scoreboard. Theme: 1 Samuel 30:8 Pursue Overtake Recover All." />
-  <meta name="twitter:image" content="https://chrisco-bible-quizzes.vercel.app/image-search/david-bible-battle-victory-colorful-illu-1.jpg" />
+  <meta name="twitter:image" content="https://chrisco-bible-quizzes.vercel.app/image-search/bright-colorful-worship-church-backgroun-1.jpg" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <script src="vendor/supabase.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -118,7 +118,7 @@
     .mode-card::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.6) 100%); }
     .mode-card > * { position: relative; z-index: 2; }
     .mc-pursue { background: linear-gradient(160deg, #00008B, #000051); }
-    .mc-pursue::before { background-image: url('./image-search/david-bible-battle-victory-colorful-illu-1.jpg'); }
+    .mc-pursue::before { background-image: url('./image-search/bright-colorful-worship-church-backgroun-1.jpg'); }
     .mc-overtake { background: linear-gradient(160deg, #FF8C00, #c75c00); }
     .mc-overtake::before { background-image: url('./image-search/david-bible-battle-victory-colorful-illu-3.jpg'); }
     .mc-recover { background: linear-gradient(160deg, #006400, #003d00); }
@@ -213,6 +213,7 @@
         <h3 style="font-size:1rem;margin-top:0.5rem;"><i class="fa-solid fa-users"></i> Players</h3>
         <ul class="player-list" id="player-list"><li class="empty">Waiting for players to join with this PIN...</li></ul>
         <button id="start-game-btn" class="btn btn--green btn--large btn--block"><i class="fa-solid fa-play"></i> Start Game</button>
+        <button id="close-game-btn" class="btn btn--outline btn--block" style="margin-top:0.6rem;color:#fff;border-color:rgba(255,255,255,0.5);"><i class="fa-solid fa-xmark"></i> Close Game (only you can stop it)</button>
       </div>
       <div class="card card--blue" style="margin-top:1rem;">
         <h2><i class="fa-solid fa-sliders"></i> Choose a Mode</h2>
@@ -262,12 +263,13 @@
     const LETTERS = ['A','B','C','D'];
     const LOBBY_CHANNEL = 'chrisco-lobby';
     const state = {
-      hostName: 'Host', hostIcon: 'fa-solid fa-lion', pin: '', mode: 'pursue',
+      hostName: 'Host', hostIcon: 'fa-solid fa-lion', hostId: '', pin: '', mode: 'pursue',
       lobbyChannel: null, gameChannel: null, supabase: null,
       players: {}, lobbyGames: {},
       questions: [], qIndex: 0, phase: 'setup',
       timer: null, timeLeft: 0, answers: {}, revealed: false
     };
+    if (!state.hostId) state.hostId = 'h' + Math.random().toString(36).slice(2, 10);
 
     function iconHtml(p) {
       if (p && p.icon) return '<i class="' + p.icon + '"></i>';
@@ -327,7 +329,7 @@
 
     function buildLobbyList() {
       const grid = $('lobby-list');
-      const games = Object.values(state.lobbyGames).filter(g => g.pin && g.status !== 'ended');
+      const games = Object.values(state.lobbyGames).filter(g => g.pin && g.status !== 'closed');
       if (games.length === 0) {
         grid.innerHTML = '<div class="game-tile gt-empty"><i class="fa-solid fa-mug-hot"></i> No games running yet. Create one to get started!</div>';
         return;
@@ -374,9 +376,11 @@
 
     function updateLobbyPresence() {
       if (!state.lobbyChannel) return;
+      const status = state.phase === 'setup' ? 'idle'
+        : (state.phase === 'end' ? 'lobby' : (state.phase === 'lobby' ? 'lobby' : 'playing'));
       state.lobbyChannel.track({
-        name: state.hostName, icon: state.hostIcon, pin: state.pin || '', mode: state.mode,
-        status: state.phase === 'end' ? 'ended' : (state.phase === 'lobby' ? 'lobby' : 'playing'),
+        name: state.hostName, icon: state.hostIcon, hostId: state.hostId,
+        pin: state.pin || '', mode: state.mode, status: status,
         players: Object.values(state.players).map(p => p.name),
         isHost: true
       });
@@ -385,24 +389,56 @@
     function createGame() {
       const name = $('host-name').value.trim() || 'Host';
       state.hostName = name;
+      if (!state.hostId) state.hostId = 'h' + Math.random().toString(36).slice(2, 10);
+
+      // Names cannot be repeated: reject if another host already runs a game with this name
+      const conflict = Object.values(state.lobbyGames).some(g =>
+        g.name && g.name.toLowerCase() === name.toLowerCase() && g.status !== 'closed' && g.hostId !== state.hostId);
+      if (conflict) {
+        alert('That name is already used by a running game. Pick a different name so hosts stay unique.');
+        return;
+      }
+
+      // If this host had an earlier game running, close it first (only the host can stop their game)
+      if (state.gameChannel && state.pin) {
+        state.gameChannel.send({ type: 'broadcast', event: 'close', payload: { message: 'Host started a new game. This game is closed.' } });
+        state.gameChannel.unsubscribe();
+        state.gameChannel = null;
+      }
+
       state.pin = Math.floor(1000 + Math.random() * 90000).toString();
       state.phase = 'lobby';
       $('pin-display').textContent = state.pin;
       updateLobbyPresence();
-      if (state.gameChannel) { state.gameChannel.unsubscribe(); state.gameChannel = null; }
       state.gameChannel = state.supabase.channel('quiz-' + state.pin)
         .on('presence', { event: 'SYNC' }, (payload) => { state.players = payload.presence || {}; buildPlayerList(); updateLobbyPresence(); })
         .on('presence', { event: 'CHANGES' }, (payload) => { state.players = Object.assign({}, state.players, payload.events.leaves, payload.events.joins); buildPlayerList(); updateLobbyPresence(); })
         .on('broadcast', { event: 'answer' }, (payload) => { handleAnswer(payload.payload); })
         .subscribe(async (status) => {
           if (status === 'SUBSCRIBED') {
-            await state.gameChannel.track({ name: state.hostName, icon: state.hostIcon, isHost: true, status: 'lobby', score: 0, mode: state.mode });
+            await state.gameChannel.track({ name: state.hostName, icon: state.hostIcon, hostId: state.hostId, isHost: true, status: 'lobby', score: 0, mode: state.mode });
             $('mygame-status').innerHTML = '<i class="fa-solid fa-circle-check"></i> Live! Room ' + state.pin + ' ready. Share the PIN!';
           } else if (status === 'CHANNEL_ERROR' || status === 'CHANNEL_CLOSED') {
             $('mygame-status').innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Connection to room ' + state.pin + ' lost.';
           }
         });
       showScreen('mygame');
+    }
+
+    function closeGame() {
+      if (!state.gameChannel) return;
+      if (!confirm('Close this game? Players will be told the game is closed and the room stops accepting new players.')) return;
+      state.gameChannel.send({ type: 'broadcast', event: 'close', payload: { message: 'Host closed this game.' } });
+      state.gameChannel.unsubscribe();
+      state.gameChannel = null;
+      state.phase = 'setup';
+      state.players = {};
+      state.pin = '';
+      state.questions = []; state.qIndex = 0; state.timer = null;
+      $('pin-display').textContent = '----';
+      $('mygame-status').innerHTML = '<i class="fa-solid fa-circle-check"></i> Your game is closed. Share the PIN to start a new one.';
+      updateLobbyPresence();
+      showScreen('setup');
     }
 
     function startGame() {
@@ -490,6 +526,7 @@
 
       $('create-game-btn').addEventListener('click', createGame);
       $('start-game-btn').addEventListener('click', startGame);
+      $('close-game-btn').addEventListener('click', closeGame);
       $('reveal-btn').addEventListener('click', () => { if (!state.revealed) revealAnswer(); else nextQuestion(); });
       $('play-again-btn').addEventListener('click', () => {
         state.phase = 'lobby'; state.questions = []; state.qIndex = 0;
@@ -510,7 +547,7 @@
           .subscribe(async (status) => {
             if (status === 'SUBSCRIBED') {
               statusPill('<i class="fa-solid fa-circle-check"></i> Connected to lobby. Create a game to start!', 'ok');
-              await state.lobbyChannel.track({ name: state.hostName, pin: '', mode: state.mode, status: 'idle', players: [], isHost: true });
+              await state.lobbyChannel.track({ name: state.hostName, icon: state.hostIcon, hostId: state.hostId, pin: '', mode: state.mode, status: 'idle', players: [], isHost: true });
             } else if (status === 'CHANNEL_ERROR' || status === 'CHANNEL_CLOSED') {
               statusPill('<i class="fa-solid fa-triangle-exclamation"></i> Lobby connection lost. Reconnecting...', 'err');
             }
