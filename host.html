@@ -34,12 +34,10 @@
     .btn--blue:hover { box-shadow: 0 6px 20px rgba(0,0,139,0.5); transform: translateY(-2px); }
     .btn--orange { background: var(--secondary); }
     .btn--orange:hover { box-shadow: 0 6px 20px rgba(255,140,0,0.5); transform: translateY(-2px); }
-    .btn--purple { background: var(--purple); }
-    .btn--purple:hover { box-shadow: 0 6px 20px rgba(70,23,143,0.5); transform: translateY(-2px); }
-    .btn--red { background: var(--red); }
     .btn--large { padding: 0.9rem 2rem; font-size: 1.1rem; border-radius: 14px; }
     .btn--block { width: 100%; justify-content: center; }
     .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+    .btn--sm { padding: 0.4rem 0.9rem; font-size: 0.85rem; border-radius: 10px; }
 
     .hero { position: relative; overflow: hidden; color: #fff; text-align: center; background: radial-gradient(900px 400px at 80% 10%, rgba(255,140,0,0.35) 0%, transparent 60%), linear-gradient(120deg, #00008B 0%, #46178f 100%); padding: 2rem 1rem 2rem; }
     .hero::before { content: ''; position: absolute; inset: 0; background: url('./image-search/bright-colorful-worship-church-backgroun-1.jpg') center/cover no-repeat; opacity: 0.15; mix-blend-mode: overlay; }
@@ -50,24 +48,56 @@
 
     .container { max-width: 850px; margin: 1.5rem auto; padding: 0 1rem; }
 
-    /* Lobby */
-    .lobby { position: relative; border-radius: 24px; overflow: hidden; color: #fff; padding: 2rem 1.8rem; margin-bottom: 1.5rem; background: linear-gradient(160deg, #FF8C00 0%, #e21b3c 100%); box-shadow: 0 14px 35px rgba(255,140,0,0.3); }
-    .lobby::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.35) 100%); }
-    .lobby > * { position: relative; z-index: 2; }
-    .lobby h2 { font-size: 1.5rem; font-weight: 800; display: flex; align-items: center; gap: 0.6rem; }
-    .pin-display { font-size: clamp(2.2rem, 7vw, 3.4rem); font-weight: 900; letter-spacing: 8px; text-align: center; background: rgba(255,255,255,0.15); border: 2px dashed rgba(255,255,255,0.5); padding: 1rem; border-radius: 16px; margin: 1rem 0; user-select: all; }
+    .card { position: relative; border-radius: 24px; overflow: hidden; color: #fff; padding: 2rem 1.8rem; margin-bottom: 1.5rem; box-shadow: 0 14px 35px rgba(0,0,0,0.18); }
+    .card--blue { background: linear-gradient(160deg, #00008B 0%, #46178f 100%); }
+    .card--orange { background: linear-gradient(160deg, #FF8C00 0%, #e21b3c 100%); }
+    .card--green { background: linear-gradient(160deg, #006400 0%, #0aa3a3 100%); }
+    .card h2 { font-size: 1.5rem; font-weight: 800; display: flex; align-items: center; gap: 0.6rem; }
+    .card p { opacity: 0.95; margin: 0.5rem 0 1rem; }
     .status-pill { display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 50px; font-size: 0.85rem; font-weight: 600; margin-bottom: 1rem; }
     .status-pill.ok { background: rgba(0,100,0,0.5); }
     .status-pill.err { background: rgba(226,27,60,0.6); }
     .status-pill.warn { background: rgba(255,192,10,0.3); }
 
+    .field { margin-bottom: 1rem; }
+    .field label { display: block; font-size: 0.85rem; font-weight: 700; margin-bottom: 0.4rem; }
+    .name-input { width: 100%; padding: 0.9rem 1rem; font-size: 1.1rem; font-weight: 700; border-radius: 14px; border: 2px solid rgba(255,255,255,0.5); background: rgba(255,255,255,0.12); color: #fff; outline: none; font-family: inherit; }
+    .name-input::placeholder { color: rgba(255,255,255,0.6); }
+    .name-input:focus { background: rgba(255,255,255,0.2); border-color: var(--yellow); }
+
+    .pin-display { font-size: clamp(2.2rem, 7vw, 3.4rem); font-weight: 900; letter-spacing: 8px; text-align: center; background: rgba(255,255,255,0.15); border: 2px dashed rgba(255,255,255,0.5); padding: 1rem; border-radius: 16px; margin: 1rem 0; user-select: all; }
     .player-list { list-style: none; margin: 1rem 0; display: grid; gap: 0.5rem; }
     .player-list li { display: flex; align-items: center; gap: 0.6rem; background: rgba(255,255,255,0.15); padding: 0.6rem 1rem; border-radius: 12px; font-weight: 600; }
     .player-list li .pavatar { width: 34px; height: 34px; border-radius: 50%; background: var(--yellow); color: #333; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.9rem; }
     .player-list .empty { text-align: center; opacity: 0.8; font-style: italic; }
 
-    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
-    .mode-card { position: relative; border-radius: 20px; overflow: hidden; padding: 1.3rem; color: #fff; cursor: pointer; min-height: 150px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 8px 20px rgba(0,0,0,0.2); transition: transform 0.3s; border: none; text-align: left; font-family: inherit; }
+    /* Share buttons */
+    .share-row { display: flex; gap: 0.5rem; flex-wrap: wrap; margin: 1rem 0; }
+    .share-btn { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.6rem 1rem; border-radius: 12px; border: none; cursor: pointer; font-weight: 700; font-size: 0.85rem; color: #fff; transition: transform 0.2s, box-shadow 0.2s; font-family: inherit; }
+    .share-btn:active { transform: scale(0.95); }
+    .share-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,0.25); }
+    .share-whatsapp { background: #25d366; }
+    .share-facebook { background: #1877f2; }
+    .share-x { background: #000; }
+    .share-sms { background: #34c759; }
+    .share-copy { background: var(--primary); }
+
+    /* Running games lobby */
+    .section-head { margin: 1.5rem 0 0.8rem; }
+    .section-head h2 { font-size: 1.3rem; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 0.5rem; }
+    .lobby-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1rem; }
+    .game-tile { background: #fff; border-radius: 18px; padding: 1.3rem; box-shadow: 0 8px 20px rgba(0,0,0,0.1); display: flex; flex-direction: column; gap: 0.5rem; border-top: 5px solid var(--primary); }
+    .game-tile.playing { border-top-color: var(--green); }
+    .game-tile.waiting { border-top-color: var(--secondary); }
+    .game-tile .gt-pin { font-size: 1.5rem; font-weight: 900; color: var(--primary); letter-spacing: 3px; }
+    .game-tile .gt-mode { font-weight: 700; color: var(--accent); display: flex; align-items: center; gap: 0.4rem; }
+    .game-tile .gt-host { font-size: 0.85rem; color: #666; }
+    .game-tile .gt-meta { display: flex; justify-content: space-between; font-size: 0.8rem; color: #888; }
+    .game-tile .gt-empty { text-align: center; padding: 2rem 1rem; color: #999; font-style: italic; grid-column: 1/-1; }
+
+    /* Mode cards */
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1rem 0; }
+    .mode-card { position: relative; border-radius: 20px; overflow: hidden; padding: 1.2rem; color: #fff; cursor: pointer; min-height: 140px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 8px 20px rgba(0,0,0,0.2); transition: transform 0.3s; border: none; text-align: left; font-family: inherit; }
     .mode-card:hover { transform: translateY(-4px); }
     .mode-card::before { content: ''; position: absolute; inset: 0; background-size: cover; background-position: center; }
     .mode-card::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.6) 100%); }
@@ -79,14 +109,13 @@
     .mc-recover { background: linear-gradient(160deg, #006400, #003d00); }
     .mc-recover::before { background-image: url('./image-search/david-bible-battle-victory-colorful-illu-2.jpg'); }
     .mode-card .mc-icon { font-size: 1.8rem; }
-    .mode-card h3 { font-size: 1.2rem; font-weight: 800; }
+    .mode-card h3 { font-size: 1.15rem; font-weight: 800; }
     .mode-card p { font-size: 0.8rem; opacity: 0.95; }
     .mode-card.selected { outline: 4px solid var(--yellow); outline-offset: 3px; }
 
-    /* Game screens */
+    /* Screens */
     .screen { display: none; }
     .screen.active { display: block; }
-
     .question-card { background: #fff; border-radius: 24px; padding: 2rem 1.6rem; box-shadow: 0 14px 35px rgba(0,0,0,0.12); margin-bottom: 1.5rem; }
     .q-counter { display: inline-flex; align-items: center; gap: 0.4rem; background: var(--primary); color: #fff; font-weight: 700; padding: 0.4rem 1rem; border-radius: 50px; font-size: 0.85rem; }
     .q-text { font-size: clamp(1.1rem, 3vw, 1.6rem); font-weight: 800; color: var(--primary); margin: 1rem 0; line-height: 1.4; }
@@ -94,15 +123,12 @@
     .timer-bar .fill { height: 100%; background: linear-gradient(90deg, var(--green), var(--secondary), var(--red)); width: 100%; transition: width 1s linear; }
     .timer-num { text-align: right; font-weight: 800; color: var(--red); font-size: 1.1rem; margin-bottom: 1rem; }
     .options { display: grid; gap: 0.8rem; }
-    .opt { display: flex; align-items: center; gap: 0.7rem; padding: 1rem 1.2rem; border-radius: 14px; background: #f4f6fa; font-weight: 600; text-align: left; border: 2px solid transparent; transition: background 0.2s, transform 0.1s; font-family: inherit; cursor: default; font-size: 1rem; color: var(--text); }
+    .opt { display: flex; align-items: center; gap: 0.7rem; padding: 1rem 1.2rem; border-radius: 14px; background: #f4f6fa; font-weight: 600; text-align: left; border: 2px solid transparent; transition: background 0.2s; font-family: inherit; cursor: default; font-size: 1rem; color: var(--text); }
     .opt:hover { background: #e8ecf5; }
     .opt .letter { width: 30px; height: 30px; border-radius: 8px; background: var(--primary); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0; }
     .opt.correct { background: rgba(26,158,58,0.15); border-color: var(--green); }
     .opt.correct .letter { background: var(--green); }
-    .opt.wrong { background: rgba(226,27,60,0.12); border-color: var(--red); }
-    .opt.wrong .letter { background: var(--red); }
     .explain { background: #f0f7ff; border-left: 4px solid var(--primary); padding: 1rem 1.2rem; border-radius: 10px; margin-top: 1.2rem; font-size: 0.9rem; color: #444; }
-
     .scoreboard { background: #fff; border-radius: 20px; padding: 1.5rem; box-shadow: 0 10px 25px rgba(0,0,0,0.08); margin-bottom: 1.5rem; }
     .scoreboard h3 { font-size: 1.1rem; color: var(--primary); margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.4rem; }
     .score-row { display: flex; align-items: center; gap: 0.6rem; padding: 0.5rem 0; border-bottom: 1px solid #f0f0f0; }
@@ -112,14 +138,12 @@
     .score-row .pscore { font-weight: 800; color: var(--accent); }
     .score-row.winner .pname { color: var(--yellow); font-weight: 800; }
     .score-row.winner .pavatar { background: var(--secondary); }
-
-    .winner-banner { text-align: center; font-size: 1.4rem; font-weight: 900; color: var(--yellow); padding: 1rem; }
     .final-card { background: linear-gradient(160deg, #46178f, #00008B); color: #fff; border-radius: 24px; padding: 2.5rem 1.8rem; text-align: center; box-shadow: 0 14px 35px rgba(70,23,143,0.4); }
     .final-card h2 { font-size: 1.8rem; font-weight: 900; }
-    .final-card .trophy { font-size: 4rem; color: var(--yellow); margin-bottom: 1rem; }
+    .final-card .trophy { font-size: 3rem; color: var(--yellow); margin-bottom: 1rem; }
     footer { text-align: center; padding: 1.5rem 1rem 2rem; color: #888; font-size: 0.8rem; }
 
-    @media (max-width: 600px) { .topbar-inner { flex-wrap: wrap; } .lobby { padding: 1.4rem 1.2rem; } .pin-display { letter-spacing: 4px; padding: 0.7rem; } .question-card { padding: 1.4rem 1.1rem; } }
+    @media (max-width: 600px) { .topbar-inner { flex-wrap: wrap; } .card { padding: 1.4rem 1.2rem; } .pin-display { letter-spacing: 4px; padding: 0.7rem; } .question-card { padding: 1.4rem 1.1rem; } .lobby-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
@@ -130,29 +154,58 @@
     </div>
   </div>
 
-  <section class="hero"><div class="hero-content"><h1><i class="fa-solid fa-gamepad"></i> Host a Game</h1><p>Pick a mode, share the PIN, and play. Theme: <strong>1 Samuel 30:8 Pursue Overtake Recover All</strong></p></div></section>
+  <section class="hero"><div class="hero-content"><h1><i class="fa-solid fa-gamepad"></i> Host a Game</h1><p>Create a Bible Quiz game, share the PIN, and play. Theme: <strong>1 Samuel 30:8 Pursue Overtake Recover All</strong></p></div></section>
 
   <div class="container">
-    <!-- LOBBY SCREEN -->
-    <div class="screen active" id="lobby-screen">
-      <div class="lobby">
+    <!-- Identity / Create Game -->
+    <div class="screen active" id="setup-screen">
+      <div class="card card--blue">
         <div class="status-pill" id="status-pill"><i class="fa-solid fa-spinner fa-spin"></i> Setting up your game room...</div>
-        <h2><i class="fa-solid fa-user-tie"></i> Game Lobby</h2>
-        <p>Share this PIN so players can join. Theme: 1 Samuel 30:8 Pursue Overtake Recover All.</p>
-        <div class="pin-display"><span class="label" style="display:block;font-size:0.8rem;letter-spacing:2px;opacity:0.8;font-weight:600;">GAME PIN</span><span id="pin-display">Loading...</span></div>
-        <h3 style="font-size:1rem;margin-bottom:0.5rem;"><i class="fa-solid fa-users"></i> Players in room</h3>
-        <ul class="player-list" id="player-list"><li class="empty">Waiting for players to join with this PIN...</li></ul>
-        <button id="start-game-btn" class="btn btn--yellow btn--large btn--block" disabled><i class="fa-solid fa-play"></i> Start Game</button>
+        <h2><i class="fa-solid fa-user-tie"></i> Host a Game</h2>
+        <p>Enter your name, pick a mode, and create a game. Share the PIN so friends can join.</p>
+        <div class="field">
+          <label for="host-name">Your Name</label>
+          <input type="text" class="name-input" id="host-name" placeholder="e.g. Pastor David" maxlength="16" autocomplete="off" />
+        </div>
+        <button id="create-game-btn" class="btn btn--yellow btn--large btn--block"><i class="fa-solid fa-plus"></i> Create New Game</button>
+        <p style="margin-top:1rem;font-size:0.85rem;opacity:0.85;"><i class="fa-solid fa-info-circle"></i> All games use the David Quiz (1 Samuel 30:8) question bank.</p>
       </div>
 
-      <div class="cards">
-        <button class="mode-card mc-pursue" id="mode-pursue"><div><div class="mc-icon"><i class="fa-solid fa-compass"></i></div><h3>Pursue</h3><p>5 rounds, 20s each.</p></div></button>
-        <button class="mode-card mc-overtake" id="mode-overtake"><div><div class="mc-icon"><i class="fa-solid fa-running"></i></div><h3>Overtake</h3><p>5 rounds, 15s each.</p></div></button>
-        <button class="mode-card mc-recover" id="mode-recover"><div><div class="mc-icon"><i class="fa-solid fa-shield-halved"></i></div><h3>Recover All</h3><p>10 rounds, 20s each.</p></div></button>
+      <!-- Running Games Lobby -->
+      <div class="section-head"><h2><i class="fa-solid fa-list-check" style="color:var(--secondary);"></i> Running Games on Server</h2></div>
+      <div class="lobby-grid" id="lobby-list"><div class="game-tile gt-empty"><i class="fa-solid fa-hourglass-half"></i> Connecting to lobby...</div></div>
+    </div>
+
+    <!-- My Game -->
+    <div class="screen" id="mygame-screen">
+      <div class="card card--orange">
+        <div class="status-pill ok" id="mygame-status"><i class="fa-solid fa-circle-check"></i> Your game is live. Share the PIN!</div>
+        <h2><i class="fa-solid fa-bullseye"></i> Your Game</h2>
+        <p>Players join by entering this PIN at the Join page.</p>
+        <div class="pin-display"><span class="label" style="display:block;font-size:0.8rem;letter-spacing:2px;opacity:0.8;font-weight:600;">GAME PIN</span><span id="pin-display">----</span></div>
+        <div class="share-row" id="share-row">
+          <button class="share-btn share-whatsapp" onclick="shareGame('whatsapp')"><i class="fa-brands fa-whatsapp"></i> WhatsApp</button>
+          <button class="share-btn share-facebook" onclick="shareGame('facebook')"><i class="fa-brands fa-facebook-f"></i> Facebook</button>
+          <button class="share-btn share-x" onclick="shareGame('x')"><i class="fa-brands fa-x-twitter"></i> X</button>
+          <button class="share-btn share-sms" onclick="shareGame('sms')"><i class="fa-solid fa-comment-sms"></i> SMS</button>
+          <button class="share-btn share-copy" onclick="shareGame('copy')"><i class="fa-solid fa-link"></i> Copy Link</button>
+        </div>
+        <h3 style="font-size:1rem;margin-top:0.5rem;"><i class="fa-solid fa-users"></i> Players</h3>
+        <ul class="player-list" id="player-list"><li class="empty">Waiting for players to join with this PIN...</li></ul>
+        <button id="start-game-btn" class="btn btn--green btn--large btn--block"><i class="fa-solid fa-play"></i> Start Game</button>
+      </div>
+      <div class="card card--blue" style="margin-top:1rem;">
+        <h2><i class="fa-solid fa-sliders"></i> Choose a Mode</h2>
+        <p>All modes use the David Quiz (1 Samuel 30:8) questions.</p>
+        <div class="cards">
+          <button class="mode-card mc-pursue selected" id="mode-pursue"><div><div class="mc-icon"><i class="fa-solid fa-compass"></i></div><h3>David Quiz</h3><p>5 rounds, 20s each.</p></div></button>
+          <button class="mode-card mc-overtake" id="mode-overtake"><div><div class="mc-icon"><i class="fa-solid fa-running"></i></div><h3>Overtake</h3><p>5 rounds, 15s each.</p></div></button>
+          <button class="mode-card mc-recover" id="mode-recover"><div><div class="mc-icon"><i class="fa-solid fa-shield-halved"></i></div><h3>Recover All</h3><p>10 rounds, 20s each.</p></div></button>
+        </div>
       </div>
     </div>
 
-    <!-- QUESTION SCREEN -->
+    <!-- Question Screen -->
     <div class="screen" id="question-screen">
       <div class="question-card">
         <span class="q-counter" id="q-counter"><i class="fa-solid fa-list-ol"></i> Question 1 of 5</span>
@@ -161,7 +214,7 @@
         <div class="q-text" id="q-text">Question text appears here.</div>
         <div class="options" id="q-options"></div>
         <div class="explain" id="q-explain" style="display:none;"></div>
-        <button id="reveal-btn" class="btn btn--green btn--block" style="display:none;margin-top:1.2rem;"><i class="fa-solid fa-eye"></i> Reveal Answer &amp; Next</button>
+        <button id="reveal-btn" class="btn btn--green btn--block" style="display:none;margin-top:1.2rem;"></button>
       </div>
       <div class="scoreboard">
         <h3><i class="fa-solid fa-ranking-star"></i> Live Scoreboard</h3>
@@ -169,7 +222,7 @@
       </div>
     </div>
 
-    <!-- END SCREEN -->
+    <!-- End Screen -->
     <div class="screen" id="end-screen">
       <div class="final-card">
         <div class="trophy" id="end-trophy"><i class="fa-solid fa-trophy"></i></div>
@@ -187,14 +240,37 @@
   <script src="questions.js"></script>
   <script>
     const LETTERS = ['A','B','C','D'];
+    const LOBBY_CHANNEL = 'chrisco-lobby';
     const state = {
-      pin: '', mode: 'pursue', channel: null, supabase: null,
-      players: {}, questions: [], qIndex: 0, phase: 'lobby',
-      timer: null, timeLeft: 0, answers: {}
+      hostName: 'Host', pin: '', mode: 'pursue',
+      lobbyChannel: null, gameChannel: null, supabase: null,
+      players: {}, lobbyGames: {},
+      questions: [], qIndex: 0, phase: 'setup',
+      timer: null, timeLeft: 0, answers: {}, revealed: false
     };
-
     function $(id) { return document.getElementById(id); }
+    function esc(s) { const d = document.createElement('div'); d.textContent = s == null ? '' : String(s); return d.innerHTML; }
     function statusPill(html, cls) { const p = $('status-pill'); p.className = 'status-pill ' + (cls||''); p.innerHTML = html; }
+    function showScreen(id) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      $('' + id + '-screen').classList.add('active');
+    }
+
+    function loadConfig() {
+      return fetch('/api/config').then(r => r.json()).catch(() => null).then(cfg => {
+        if (cfg && cfg.url && cfg.key) return cfg;
+        return new Promise((resolve, reject) => {
+          const s = document.createElement('script');
+          s.src = '/public/config.js';
+          s.onload = () => {
+            if (window.CHRISCO_CONFIG && window.CHRISCO_CONFIG.supabaseUrl) resolve({ url: window.CHRISCO_CONFIG.supabaseUrl, key: window.CHRISCO_CONFIG.supabaseAnonKey });
+            else reject(new Error('No config available'));
+          };
+          s.onerror = () => reject(new Error('No config available'));
+          document.head.appendChild(s);
+        });
+      });
+    }
 
     function selectMode(mode) {
       state.mode = mode;
@@ -204,72 +280,102 @@
 
     function buildPlayerList() {
       const ul = $('player-list');
-      const host = Object.values(state.players).find(p => p.isHost);
       const players = Object.values(state.players).filter(p => !p.isHost);
-      const total = players.length;
-      if (total === 0) {
-        ul.innerHTML = '<li class="empty"><i class="fa-solid fa-user-plus"></i> Waiting for players to join with this PIN...</li>';
-      } else {
-        ul.innerHTML = players.map(p => '<li><span class="pavatar">' + esc(p.name.charAt(0)) + '</span>' + esc(p.name) + ' <span style="margin-left:auto;font-size:0.8rem;opacity:0.8;"><i class="fa-solid fa-circle-dot"></i> ready</span></li>').join('');
-      }
+      if (players.length === 0) ul.innerHTML = '<li class="empty"><i class="fa-solid fa-user-plus"></i> Waiting for players to join with this PIN...</li>';
+      else ul.innerHTML = players.map(p => '<li><span class="pavatar">' + esc(p.name.charAt(0)) + '</span>' + esc(p.name) + '</li>').join('');
       $('start-game-btn').disabled = false;
     }
 
-    function esc(s) { const d = document.createElement('div'); d.textContent = s == null ? '' : String(s); return d.innerHTML; }
-
-    function loadConfig() {
-      return fetch('/api/config').then(r => r.json()).catch(() => null).then(cfg => {
-        if (cfg && cfg.url && cfg.key) return cfg;
-        return new Promise((resolve, reject) => {
-          const s = document.createElement('script');
-          s.src = '/public/config.js';
-          s.onload = () => {
-            if (window.CHRISCO_CONFIG && window.CHRISCO_CONFIG.supabaseUrl) {
-              resolve({ url: window.CHRISCO_CONFIG.supabaseUrl, key: window.CHRISCO_CONFIG.supabaseAnonKey });
-            } else reject(new Error('No config available'));
-          };
-          s.onerror = () => reject(new Error('No config available'));
-          document.head.appendChild(s);
-        });
-      });
+    function buildLobbyList() {
+      const grid = $('lobby-list');
+      const games = Object.values(state.lobbyGames).filter(g => g.pin && g.status !== 'ended');
+      if (games.length === 0) {
+        grid.innerHTML = '<div class="game-tile gt-empty"><i class="fa-solid fa-mug-hot"></i> No games running yet. Create one to get started!</div>';
+        return;
+      }
+      games.sort((a,b) => (b.players||[]).length - (a.players||[]).length);
+      grid.innerHTML = games.map(g => {
+        const modeName = (window.CHRISCO_MODES[g.mode] && window.CHRISCO_MODES[g.mode].name) || g.mode || 'David Quiz';
+        const modeIcon = (window.CHRISCO_MODES[g.mode] && window.CHRISCO_MODES[g.mode].icon) || 'fa-gamepad';
+        const cls = g.status === 'playing' ? 'playing' : 'waiting';
+        const statusLabel = g.status === 'playing' ? '<span style="color:var(--green);font-weight:700;"><i class="fa-solid fa-play"></i> Playing</span>' : '<span style="color:var(--secondary);font-weight:700;"><i class="fa-solid fa-clock"></i> Waiting</span>';
+        return '<div class="game-tile ' + cls + '">' +
+          '<div class="gt-pin">' + esc(g.pin) + '</div>' +
+          '<div class="gt-mode"><i class="fa-solid ' + modeIcon + '"></i> ' + esc(modeName) + '</div>' +
+          '<div class="gt-host"><i class="fa-solid fa-user"></i> ' + esc(g.name || 'Host') + '</div>' +
+          '<div class="gt-meta"><span>' + (g.players||[]).length + ' players</span>' + statusLabel + '</div>' +
+          '</div>';
+      }).join('');
     }
 
     function renderScores() {
       const all = Object.values(state.players);
       all.sort((a,b) => (b.score||0) - (a.score||0));
-      const winner = all[0];
-      const html = all.map((p,i) => {
-        const win = i===0 ? ' winner' : '';
-        return '<div class="score-row' + win + '"><span class="pavatar">' + esc(p.name.charAt(0)) + '</span><span class="pname">' + (p.isHost ? esc(p.name) + ' (Host)' : esc(p.name)) + '</span><span class="pscore">' + (p.score||0) + '</span></div>';
-      }).join('');
-      $('live-scores').innerHTML = html;
+      $('live-scores').innerHTML = all.map((p,i) => '<div class="score-row' + (i===0?' winner':'') + '"><span class="pavatar">' + esc(p.name.charAt(0)) + '</span><span class="pname">' + esc(p.name) + '</span><span class="pscore">' + (p.score||0) + '</span></div>').join('');
     }
 
-    function showScreen(id) {
-      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-      $('' + id + '-screen').classList.add('active');
+    function shareGame(kind) {
+      const url = window.location.origin + '/player.html';
+      const text = 'Join my Bible Quiz game! PIN: ' + state.pin + '. Theme: 1 Samuel 30:8 Pursue Overtake Recover All. Play at ' + url;
+      const enc = encodeURIComponent(text);
+      const uenc = encodeURIComponent(url);
+      if (kind === 'whatsapp') window.open('https://wa.me/?text=' + enc, '_blank');
+      else if (kind === 'facebook') window.open('https://www.facebook.com/sharer/sharer.php?u=' + uenc + '&quote=' + enc, '_blank');
+      else if (kind === 'x') window.open('https://twitter.com/intent/tweet?text=' + enc + '&url=' + uenc, '_blank');
+      else if (kind === 'sms') window.open('sms:?body=' + enc, '_blank');
+      else if (kind === 'copy') { navigator.clipboard.writeText(text).then(() => { alert('Link copied! Share it with friends.'); }); }
     }
 
-    // Start game
+    function updateLobbyPresence() {
+      if (!state.lobbyChannel) return;
+      state.lobbyChannel.track({
+        name: state.hostName, pin: state.pin || '', mode: state.mode,
+        status: state.phase === 'end' ? 'ended' : (state.phase === 'lobby' ? 'lobby' : 'playing'),
+        players: Object.values(state.players).map(p => p.name),
+        isHost: true
+      });
+    }
+
+    function createGame() {
+      const name = $('host-name').value.trim() || 'Host';
+      state.hostName = name;
+      state.pin = Math.floor(1000 + Math.random() * 90000).toString();
+      state.phase = 'lobby';
+      $('pin-display').textContent = state.pin;
+      updateLobbyPresence();
+      if (state.gameChannel) { state.gameChannel.unsubscribe(); state.gameChannel = null; }
+      state.gameChannel = state.supabase.channel('quiz-' + state.pin)
+        .on('presence', { event: 'SYNC' }, (payload) => { state.players = payload.presence || {}; buildPlayerList(); updateLobbyPresence(); })
+        .on('presence', { event: 'CHANGES' }, (payload) => { state.players = Object.assign({}, state.players, payload.events.leaves, payload.events.joins); buildPlayerList(); updateLobbyPresence(); })
+        .on('broadcast', { event: 'answer' }, (payload) => { handleAnswer(payload.payload); })
+        .subscribe(async (status) => {
+          if (status === 'SUBSCRIBED') {
+            await state.gameChannel.track({ name: state.hostName, isHost: true, status: 'lobby', score: 0, mode: state.mode });
+            $('mygame-status').innerHTML = '<i class="fa-solid fa-circle-check"></i> Live! Room ' + state.pin + ' ready. Share the PIN!';
+          } else if (status === 'CHANNEL_ERROR' || status === 'CHANNEL_CLOSED') {
+            $('mygame-status').innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Connection to room ' + state.pin + ' lost.';
+          }
+        });
+      showScreen('mygame');
+    }
+
     function startGame() {
       const cfg = window.CHRISCO_MODES[state.mode];
       state.questions = window.pickQuestions(state.mode, cfg.rounds);
-      state.qIndex = 0;
-      state.phase = 'question';
-      state.answers = {};
+      state.qIndex = 0; state.phase = 'question'; state.answers = {};
       Object.values(state.players).forEach(p => { p.score = 0; p.answered = false; });
       renderScores();
-      broadcast('start', { mode: state.mode, rounds: state.questions.length, name: cfg.name });
+      state.gameChannel.send({ type: 'broadcast', event: 'start', payload: { mode: state.mode, rounds: state.questions.length, name: cfg.name } });
       showScreen('question');
       showQuestion();
+      updateLobbyPresence();
     }
 
     function showQuestion() {
       const q = state.questions[state.qIndex];
       $('q-counter').innerHTML = '<i class="fa-solid fa-list-ol"></i> Question ' + (state.qIndex+1) + ' of ' + state.questions.length;
       $('q-text').textContent = q.q;
-      const opts = q.options.map((o,i) => '<button class="opt" data-i="'+i+'"><span class="letter">'+LETTERS[i]+'</span><span>'+esc(o)+'</span></button>').join('');
-      $('q-options').innerHTML = opts;
+      $('q-options').innerHTML = q.options.map((o,i) => '<button class="opt" data-i="'+i+'"><span class="letter">'+LETTERS[i]+'</span><span>'+esc(o)+'</span></button>').join('');
       $('q-explain').style.display = 'none';
       $('reveal-btn').style.display = 'block';
       $('reveal-btn').innerHTML = '<i class="fa-solid fa-eye"></i> Reveal Answer';
@@ -277,7 +383,7 @@
       state.timeLeft = window.CHRISCO_MODES[state.mode].seconds;
       $('timer-num').innerHTML = '<i class="fa-solid fa-clock"></i> ' + state.timeLeft + 's';
       $('timer-fill').style.width = '100%';
-      broadcast('question', { index: state.qIndex, total: state.questions.length, q: q.q, options: q.options, seconds: state.timeLeft });
+      state.gameChannel.send({ type: 'broadcast', event: 'question', payload: { index: state.qIndex, total: state.questions.length, q: q.q, options: q.options, seconds: state.timeLeft } });
       clearInterval(state.timer);
       state.timer = setInterval(tickTimer, 1000);
     }
@@ -292,25 +398,19 @@
     function revealAnswer() {
       clearInterval(state.timer);
       const q = state.questions[state.qIndex];
-      const opts = $('q-options').querySelectorAll('.opt');
-      opts.forEach((b,i) => { if (i === q.correct) b.classList.add('correct'); });
+      $('q-options').querySelectorAll('.opt').forEach((b,i) => { if (i === q.correct) b.classList.add('correct'); });
       $('q-explain').innerHTML = '<i class="fa-solid fa-circle-info"></i> ' + esc(q.explain);
       $('q-explain').style.display = 'block';
-      $('reveal-btn').style.display = 'block';
       $('reveal-btn').innerHTML = '<i class="fa-solid fa-arrow-right"></i> Next Question';
       state.revealed = true;
-      // Award points
-      Object.values(state.players).forEach(p => {
-        if (p.answered && p.answer === q.correct) p.score = (p.score||0) + 100;
-        p.answered = false; p.answer = null;
-      });
+      Object.values(state.players).forEach(p => { if (p.answered && p.answer === q.correct) p.score = (p.score||0) + 100; p.answered = false; p.answer = null; });
       renderScores();
-      broadcast('reveal', { correct: q.correct, explain: q.explain });
+      state.gameChannel.send({ type: 'broadcast', event: 'reveal', payload: { correct: q.correct, explain: q.explain } });
+      updateLobbyPresence();
     }
 
     function nextQuestion() {
-      state.qIndex++;
-      state.answers = {};
+      state.qIndex++; state.answers = {};
       if (state.qIndex >= state.questions.length) { finishGame(); return; }
       state.phase = 'question';
       showQuestion();
@@ -325,12 +425,15 @@
       $('end-sub').innerHTML = 'Theme: <strong>1 Samuel 30:8 Pursue Overtake Recover All</strong>';
       $('end-scores').innerHTML = all.map((p,i) => '<div class="score-row' + (i===0?' winner':'') + '"><span class="pavatar">' + esc(p.name.charAt(0)) + '</span><span class="pname">' + esc(p.name) + '</span><span class="pscore">' + (p.score||0) + '</span></div>').join('');
       $('end-trophy').innerHTML = winner ? '<i class="fa-solid fa-trophy"></i> ' + esc(winner.name) + ' wins!' : '<i class="fa-solid fa-trophy"></i>';
-      broadcast('end', { winner: winner ? winner.name : null });
+      state.gameChannel.send({ type: 'broadcast', event: 'end', payload: { winner: winner ? winner.name : null } });
+      updateLobbyPresence();
       showScreen('end');
     }
 
-    function broadcast(event, payload) {
-      if (state.channel) state.channel.send({ type: 'broadcast', event: event, payload: payload });
+    function handleAnswer(a) {
+      if (!a || state.phase !== 'question') return;
+      state.answers[a.name] = a.choice;
+      if (state.players[a.name]) { state.players[a.name].answered = true; state.players[a.name].answer = a.choice; }
     }
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -338,60 +441,37 @@
       if (['pursue','overtake','recover'].includes(hash)) selectMode(hash);
       selectMode('pursue');
 
+      $('create-game-btn').addEventListener('click', createGame);
       $('start-game-btn').addEventListener('click', startGame);
-      $('reveal-btn').addEventListener('click', () => {
-        if (!state.revealed) revealAnswer();
-        else nextQuestion();
-      });
+      $('reveal-btn').addEventListener('click', () => { if (!state.revealed) revealAnswer(); else nextQuestion(); });
       $('play-again-btn').addEventListener('click', () => {
-        state.phase = 'lobby';
-        state.questions = []; state.qIndex = 0;
+        state.phase = 'lobby'; state.questions = []; state.qIndex = 0;
         Object.values(state.players).forEach(p => { p.score = 0; p.answered = false; p.answer = null; });
-        showScreen('lobby');
-        broadcast('reset', {});
+        showScreen('mygame');
+        state.gameChannel.send({ type: 'broadcast', event: 'reset', payload: {} });
+        updateLobbyPresence();
       });
 
-      loadConfig()
-        .then(config => {
-          const { url, key } = config;
-          if (typeof supabase === 'undefined') {
-            statusPill('<i class="fa-solid fa-triangle-exclamation"></i> Game libraries failed to load. Please reload the page.', 'err');
-            $('pin-display').textContent = 'ERROR';
-            $('start-game-btn').disabled = true;
-            return;
-          }
-          state.supabase = supabase.createClient(url, key);
-          state.pin = Math.floor(1000 + Math.random() * 90000).toString();
-          $('pin-display').textContent = state.pin;
+      loadConfig().then(config => {
+        const { url, key } = config;
+        state.supabase = supabase.createClient(url, key);
 
-          state.channel = state.supabase
-            .channel('quiz-' + state.pin)
-            .on('presence', { event: 'SYNC' }, (payload) => { state.players = payload.presence || {}; buildPlayerList(); })
-            .on('presence', { event: 'CHANGES' }, (payload) => { state.players = Object.assign({}, state.players, payload.events.leaves, payload.events.joins); buildPlayerList(); })
-            .on('broadcast', { event: 'answer' }, (payload) => { handleAnswer(payload.payload); })
-            .subscribe(async (status) => {
-              if (status === 'SUBSCRIBED') {
-                await state.channel.track({ name: 'Host', isHost: true, status: 'lobby', score: 0, mode: state.mode });
-                statusPill('<i class="fa-solid fa-circle-check"></i> Live! Room ' + state.pin + ' is ready. Share the PIN.', 'ok');
-              } else if (status === 'CHANNEL_ERROR' || status === 'CHANNEL_CLOSED') {
-                statusPill('<i class="fa-solid fa-triangle-exclamation"></i> Connection lost. Reconnecting...', 'err');
-              }
-            });
-        })
-        .catch(err => {
-          statusPill('<i class="fa-solid fa-triangle-exclamation"></i> Could not reach the game server. Check /api/config.', 'err');
-          $('pin-display').textContent = 'ERROR';
-          $('start-game-btn').disabled = true;
-        });
+        // Lobby channel: list running games
+        state.lobbyChannel = state.supabase.channel(LOBBY_CHANNEL)
+          .on('presence', { event: 'SYNC' }, (payload) => { state.lobbyGames = payload.presence || {}; buildLobbyList(); })
+          .on('presence', { event: 'CHANGES' }, (payload) => { state.lobbyGames = Object.assign({}, state.lobbyGames, payload.events.leaves, payload.events.joins); buildLobbyList(); })
+          .subscribe(async (status) => {
+            if (status === 'SUBSCRIBED') {
+              statusPill('<i class="fa-solid fa-circle-check"></i> Connected to lobby. Create a game to start!', 'ok');
+              await state.lobbyChannel.track({ name: state.hostName, pin: '', mode: state.mode, status: 'idle', players: [], isHost: true });
+            } else if (status === 'CHANNEL_ERROR' || status === 'CHANNEL_CLOSED') {
+              statusPill('<i class="fa-solid fa-triangle-exclamation"></i> Lobby connection lost. Reconnecting...', 'err');
+            }
+          });
+      }).catch(err => {
+        statusPill('<i class="fa-solid fa-triangle-exclamation"></i> Could not reach the game server.', 'err');
+      });
     });
-
-    function handleAnswer(a) {
-      if (!a) return;
-      if (state.phase !== 'question') return;
-      state.answers[a.name] = a.choice;
-      const p = state.players[a.name];
-      if (p) { p.answered = true; p.answer = a.choice; }
-    }
   </script>
 </body>
 </html>
