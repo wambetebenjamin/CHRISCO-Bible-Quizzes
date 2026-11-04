@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>CHRISCO Bible Quizzes - Join (Pursue, Overtake, Recover All)</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" />
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <script src="vendor/supabase.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
@@ -294,7 +294,13 @@
       loadConfig()
         .then(config => {
           const { url, key } = config;
-          state.supabase = supabaseJs.createClient(url, key);
+          if (typeof supabase === 'undefined') {
+            $('setup-status').className = 'status-pill err';
+            $('setup-status').innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Game libraries failed to load. Please reload the page.';
+            $('join-btn').disabled = true;
+            return;
+          }
+          state.supabase = supabase.createClient(url, key);
           state.channel = state.supabase
             .channel('quiz-' + state.pin)
             .on('presence', { event: 'SYNC' }, (payload) => { state.players = payload.presence || {}; buildPlayerList(); })
