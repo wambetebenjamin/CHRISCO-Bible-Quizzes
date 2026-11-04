@@ -96,6 +96,11 @@
     .share-x { background: #000; }
     .share-sms { background: #34c759; }
     .share-copy { background: var(--primary); }
+    .game-bar { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; flex-wrap: wrap; background: rgba(0,0,0,0.28); padding: 0.7rem 1rem; border-radius: 14px; margin-bottom: 1rem; }
+    .gb-left { display: flex; align-items: center; gap: 0.4rem; font-weight: 700; font-size: 0.9rem; }
+    .gb-share { margin: 0; gap: 0.35rem; }
+    .gb-share .share-btn { padding: 0.45rem 0.7rem; font-size: 0.8rem; }
+    .gb-close { background: #e21b3c; }
 
     /* Running games lobby */
     .section-head { margin: 1.5rem 0 0.8rem; }
@@ -196,38 +201,19 @@
       <div class="lobby-grid" id="lobby-list"><div class="game-tile gt-empty"><i class="fa-solid fa-hourglass-half"></i> Connecting to lobby...</div></div>
     </div>
 
-    <!-- My Game -->
-    <div class="screen" id="mygame-screen">
-      <div class="card card--orange">
-        <div class="status-pill ok" id="mygame-status"><i class="fa-solid fa-circle-check"></i> Your game is live. Share the PIN!</div>
-        <h2><i class="fa-solid fa-bullseye"></i> Your Game</h2>
-        <p>Players join by entering this PIN at the Join page.</p>
-        <div class="pin-display"><span class="label" style="display:block;font-size:0.8rem;letter-spacing:2px;opacity:0.8;font-weight:600;">GAME PIN</span><span id="pin-display">----</span></div>
-        <div class="share-row" id="share-row">
-          <button class="share-btn share-whatsapp" onclick="shareGame('whatsapp')"><i class="fa-brands fa-whatsapp"></i> WhatsApp</button>
-          <button class="share-btn share-facebook" onclick="shareGame('facebook')"><i class="fa-brands fa-facebook-f"></i> Facebook</button>
-          <button class="share-btn share-x" onclick="shareGame('x')"><i class="fa-brands fa-x-twitter"></i> X</button>
-          <button class="share-btn share-sms" onclick="shareGame('sms')"><i class="fa-solid fa-comment-sms"></i> SMS</button>
-          <button class="share-btn share-copy" onclick="shareGame('copy')"><i class="fa-solid fa-link"></i> Copy Link</button>
-        </div>
-        <h3 style="font-size:1rem;margin-top:0.5rem;"><i class="fa-solid fa-users"></i> Players</h3>
-        <ul class="player-list" id="player-list"><li class="empty">Waiting for players to join with this PIN...</li></ul>
-        <button id="start-game-btn" class="btn btn--green btn--large btn--block"><i class="fa-solid fa-play"></i> Start Game</button>
-        <button id="close-game-btn" class="btn btn--outline btn--block" style="margin-top:0.6rem;color:#fff;border-color:rgba(255,255,255,0.5);"><i class="fa-solid fa-xmark"></i> Close Game (only you can stop it)</button>
-      </div>
-      <div class="card card--blue" style="margin-top:1rem;">
-        <h2><i class="fa-solid fa-sliders"></i> Choose a Mode</h2>
-        <p>All modes use the David Quiz (1 Samuel 30:8) questions.</p>
-        <div class="cards">
-          <button class="mode-card mc-pursue selected" id="mode-pursue"><div><div class="mc-icon"><i class="fa-solid fa-compass"></i></div><h3>David Quiz</h3><p>5 rounds, 20s each.</p></div></button>
-          <button class="mode-card mc-overtake" id="mode-overtake"><div><div class="mc-icon"><i class="fa-solid fa-running"></i></div><h3>Overtake</h3><p>5 rounds, 15s each.</p></div></button>
-          <button class="mode-card mc-recover" id="mode-recover"><div><div class="mc-icon"><i class="fa-solid fa-shield-halved"></i></div><h3>Recover All</h3><p>10 rounds, 20s each.</p></div></button>
-        </div>
-      </div>
-    </div>
-
     <!-- Question Screen -->
     <div class="screen" id="question-screen">
+      <div class="game-bar">
+        <div class="gb-left"><i class="fa-solid fa-key"></i> PIN <span id="game-pin-bar" style="font-weight:800;letter-spacing:2px;">----</span></div>
+        <div class="share-row gb-share">
+          <button class="share-btn share-whatsapp" onclick="shareGame('whatsapp')" title="WhatsApp"><i class="fa-brands fa-whatsapp"></i></button>
+          <button class="share-btn share-facebook" onclick="shareGame('facebook')" title="Facebook"><i class="fa-brands fa-facebook-f"></i></button>
+          <button class="share-btn share-x" onclick="shareGame('x')" title="X"><i class="fa-brands fa-x-twitter"></i></button>
+          <button class="share-btn share-sms" onclick="shareGame('sms')" title="SMS"><i class="fa-solid fa-comment-sms"></i></button>
+          <button class="share-btn share-copy" onclick="shareGame('copy')" title="Copy link"><i class="fa-solid fa-link"></i></button>
+          <button class="share-btn gb-close" onclick="closeGame()" title="Close game"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+      </div>
       <div class="question-card">
         <span class="q-counter" id="q-counter"><i class="fa-solid fa-list-ol"></i> Question 1 of 5</span>
         <div class="timer-num" id="timer-num"><i class="fa-solid fa-clock"></i> 20s</div>
@@ -245,6 +231,17 @@
 
     <!-- End Screen -->
     <div class="screen" id="end-screen">
+      <div class="game-bar">
+        <div class="gb-left"><i class="fa-solid fa-key"></i> PIN <span id="game-pin-bar" style="font-weight:800;letter-spacing:2px;">----</span></div>
+        <div class="share-row gb-share">
+          <button class="share-btn share-whatsapp" onclick="shareGame('whatsapp')" title="WhatsApp"><i class="fa-brands fa-whatsapp"></i></button>
+          <button class="share-btn share-facebook" onclick="shareGame('facebook')" title="Facebook"><i class="fa-brands fa-facebook-f"></i></button>
+          <button class="share-btn share-x" onclick="shareGame('x')" title="X"><i class="fa-brands fa-x-twitter"></i></button>
+          <button class="share-btn share-sms" onclick="shareGame('sms')" title="SMS"><i class="fa-solid fa-comment-sms"></i></button>
+          <button class="share-btn share-copy" onclick="shareGame('copy')" title="Copy link"><i class="fa-solid fa-link"></i></button>
+          <button class="share-btn gb-close" onclick="closeGame()" title="Close game"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+      </div>
       <div class="final-card">
         <div class="trophy" id="end-trophy"><i class="fa-solid fa-trophy"></i></div>
         <h2 id="end-title">Game Over!</h2>
@@ -267,7 +264,8 @@
       lobbyChannel: null, gameChannel: null, supabase: null,
       players: {}, lobbyGames: {},
       questions: [], qIndex: 0, phase: 'setup',
-      timer: null, timeLeft: 0, answers: {}, revealed: false
+      timer: null, timeLeft: 0, answers: {}, revealed: false,
+      currentQ: null, winner: null
     };
     if (!state.hostId) state.hostId = 'h' + Math.random().toString(36).slice(2, 10);
 
@@ -321,10 +319,10 @@
 
     function buildPlayerList() {
       const ul = $('player-list');
+      if (!ul) return;
       const players = Object.values(state.players).filter(p => !p.isHost);
       if (players.length === 0) ul.innerHTML = '<li class="empty"><i class="fa-solid fa-user-plus"></i> Waiting for players to join with this PIN...</li>';
       else ul.innerHTML = players.map(p => '<li><span class="pavatar">' + iconHtml(p) + '</span>' + esc(p.name) + '</li>').join('');
-      $('start-game-btn').disabled = false;
     }
 
     function buildLobbyList() {
@@ -408,21 +406,55 @@
 
       state.pin = Math.floor(1000 + Math.random() * 90000).toString();
       state.phase = 'lobby';
-      $('pin-display').textContent = state.pin;
+      $('game-pin-bar').textContent = state.pin;
       updateLobbyPresence();
       state.gameChannel = state.supabase.channel('quiz-' + state.pin)
         .on('presence', { event: 'SYNC' }, (payload) => { state.players = payload.presence || {}; buildPlayerList(); updateLobbyPresence(); })
-        .on('presence', { event: 'CHANGES' }, (payload) => { state.players = Object.assign({}, state.players, payload.events.leaves, payload.events.joins); buildPlayerList(); updateLobbyPresence(); })
+        .on('presence', { event: 'CHANGES' }, (payload) => {
+          state.players = Object.assign({}, state.players, payload.events.leaves, payload.events.joins);
+          buildPlayerList(); updateLobbyPresence();
+          // New players join: send them the current game state so they can play immediately
+          const newPlayers = Object.values(payload.events.joins || {}).filter(j => !j.isHost);
+          if (newPlayers.length) {
+            if (state.phase === 'lobby') { startGame(); return; } // never let players wait: auto-start
+            newPlayers.forEach(j => sendSync(j.myId));
+          }
+        })
         .on('broadcast', { event: 'answer' }, (payload) => { handleAnswer(payload.payload); })
+        .on('broadcast', { event: 'sync-request' }, (payload) => { if (payload.payload && payload.payload.myId) sendSync(payload.payload.myId); })
         .subscribe(async (status) => {
           if (status === 'SUBSCRIBED') {
             await state.gameChannel.track({ name: state.hostName, icon: state.hostIcon, hostId: state.hostId, isHost: true, status: 'lobby', score: 0, mode: state.mode });
-            $('mygame-status').innerHTML = '<i class="fa-solid fa-circle-check"></i> Live! Room ' + state.pin + ' ready. Share the PIN!';
+            // Start immediately: no waiting lobby. Host shares the PIN from the game bar.
+            startGame();
           } else if (status === 'CHANNEL_ERROR' || status === 'CHANNEL_CLOSED') {
-            $('mygame-status').innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Connection to room ' + state.pin + ' lost.';
+            $('game-pin-bar').textContent = state.pin;
           }
         });
-      showScreen('mygame');
+      showScreen('question');
+    }
+
+    function sendSync(to) {
+      if (!state.gameChannel || !to) return;
+      const cur = state.currentQ;
+      const scores = Object.values(state.players).map(p => ({ name: p.name, icon: p.icon, score: p.score || 0 }));
+      state.gameChannel.send({
+        type: 'broadcast', event: 'sync',
+        payload: {
+          to: to,
+          phase: state.phase,
+          index: state.qIndex,
+          total: state.questions.length,
+          q: cur ? cur.q : null,
+          options: cur ? cur.options : [],
+          correct: cur ? cur.correct : null,
+          explain: cur ? cur.explain : null,
+          seconds: state.timeLeft,
+          scores: scores,
+          winner: state.winner || null,
+          mode: state.mode
+        }
+      });
     }
 
     function closeGame() {
@@ -435,17 +467,17 @@
       state.players = {};
       state.pin = '';
       state.questions = []; state.qIndex = 0; state.timer = null;
-      $('pin-display').textContent = '----';
-      $('mygame-status').innerHTML = '<i class="fa-solid fa-circle-check"></i> Your game is closed. Share the PIN to start a new one.';
+      $('game-pin-bar').textContent = '----';
       updateLobbyPresence();
       showScreen('setup');
     }
 
     function startGame() {
+      if (!state.gameChannel || state.phase === 'question' || state.phase === 'reveal') return;
       const cfg = window.CHRISCO_MODES[state.mode];
       state.questions = window.pickQuestions(state.mode, cfg.rounds);
-      state.qIndex = 0; state.phase = 'question'; state.answers = {};
-      Object.values(state.players).forEach(p => { p.score = 0; p.answered = false; });
+      state.qIndex = 0; state.phase = 'question'; state.answers = {}; state.revealed = false; state.winner = null;
+      Object.values(state.players).forEach(p => { p.score = 0; p.answered = false; p.answer = null; });
       renderScores();
       state.gameChannel.send({ type: 'broadcast', event: 'start', payload: { mode: state.mode, rounds: state.questions.length, name: cfg.name } });
       showScreen('question');
@@ -455,6 +487,7 @@
 
     function showQuestion() {
       const q = state.questions[state.qIndex];
+      state.currentQ = { q: q.q, options: q.options, correct: q.correct, explain: q.explain };
       $('q-counter').innerHTML = '<i class="fa-solid fa-list-ol"></i> Question ' + (state.qIndex+1) + ' of ' + state.questions.length;
       $('q-text').textContent = q.q;
       $('q-options').innerHTML = q.options.map((o,i) => '<button class="opt" data-i="'+i+'"><span class="letter">'+LETTERS[i]+'</span><span>'+esc(o)+'</span></button>').join('');
@@ -487,7 +520,7 @@
       state.revealed = true;
       Object.values(state.players).forEach(p => { if (p.answered && p.answer === q.correct) p.score = (p.score||0) + 100; p.answered = false; p.answer = null; });
       renderScores();
-      state.gameChannel.send({ type: 'broadcast', event: 'reveal', payload: { correct: q.correct, explain: q.explain } });
+      state.gameChannel.send({ type: 'broadcast', event: 'reveal', payload: { index: state.qIndex, correct: q.correct, explain: q.explain } });
       updateLobbyPresence();
     }
 
@@ -503,6 +536,7 @@
       const all = Object.values(state.players);
       all.sort((a,b) => (b.score||0) - (a.score||0));
       const winner = all[0];
+      state.winner = winner ? winner.name : null;
       $('end-title').textContent = 'Game Over!';
       $('end-sub').innerHTML = 'Theme: <strong>1 Samuel 30:8 Pursue Overtake Recover All</strong>';
       $('end-scores').innerHTML = all.map((p,i) => '<div class="score-row' + (i===0?' winner':'') + '"><span class="pavatar">' + iconHtml(p) + '</span><span class="pname">' + esc(p.name) + '</span><span class="pscore">' + (p.score||0) + '</span></div>').join('');
@@ -525,15 +559,10 @@
       renderIconPicker();
 
       $('create-game-btn').addEventListener('click', createGame);
-      $('start-game-btn').addEventListener('click', startGame);
-      $('close-game-btn').addEventListener('click', closeGame);
       $('reveal-btn').addEventListener('click', () => { if (!state.revealed) revealAnswer(); else nextQuestion(); });
       $('play-again-btn').addEventListener('click', () => {
-        state.phase = 'lobby'; state.questions = []; state.qIndex = 0;
-        Object.values(state.players).forEach(p => { p.score = 0; p.answered = false; p.answer = null; });
-        showScreen('mygame');
-        state.gameChannel.send({ type: 'broadcast', event: 'reset', payload: {} });
-        updateLobbyPresence();
+        // New round starts immediately: players already in the room get the new questions live
+        startGame();
       });
 
       loadConfig().then(config => {

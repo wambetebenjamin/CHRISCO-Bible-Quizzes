@@ -132,6 +132,10 @@
     .share-x { background: #000; }
     .share-sms { background: #34c759; }
     .share-copy { background: var(--primary); }
+    .game-bar { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; flex-wrap: wrap; background: rgba(0,0,0,0.28); padding: 0.7rem 1rem; border-radius: 14px; margin-bottom: 1rem; }
+    .gb-left { display: flex; align-items: center; gap: 0.4rem; font-weight: 700; font-size: 0.9rem; }
+    .gb-share { margin: 0; gap: 0.35rem; }
+    .gb-share .share-btn { padding: 0.45rem 0.7rem; font-size: 0.8rem; }
     footer { text-align: center; padding: 1.5rem 1rem 2rem; color: #888; font-size: 0.8rem; }
 
     @media (max-width: 600px) { .topbar-inner { flex-wrap: wrap; } .card { padding: 1.4rem 1.2rem; } .pin-input { font-size: 1.5rem; letter-spacing: 4px; } .question-card { padding: 1.4rem 1.1rem; } .lobby-grid { grid-template-columns: 1fr; } }
@@ -176,27 +180,20 @@
       </div>
     </div>
 
-    <!-- Lobby waiting -->
-    <div class="screen" id="lobbywait-screen">
-      <div class="card card--orange">
-        <div class="status-pill" id="lobby-status"><i class="fa-solid fa-spinner fa-spin"></i> Joining room...</div>
-        <h2><i class="fa-solid fa-users"></i> Room PIN <span id="room-pin" style="color:var(--yellow);">----</span></h2>
-        <p>Waiting for the host to start. You can see who else is here.</p>
-        <ul class="player-list" id="player-list"><li class="empty">Waiting for players...</li></ul>
-        <div class="share-row" id="lobbywait-share">
-          <button class="share-btn share-whatsapp" onclick="shareLobby('whatsapp')"><i class="fa-brands fa-whatsapp"></i> WhatsApp</button>
-          <button class="share-btn share-facebook" onclick="shareLobby('facebook')"><i class="fa-brands fa-facebook-f"></i> Facebook</button>
-          <button class="share-btn share-x" onclick="shareLobby('x')"><i class="fa-brands fa-x-twitter"></i> X</button>
-          <button class="share-btn share-sms" onclick="shareLobby('sms')"><i class="fa-solid fa-comment-sms"></i> SMS</button>
-          <button class="share-btn share-copy" onclick="shareLobby('copy')"><i class="fa-solid fa-link"></i> Copy Link</button>
-        </div>
-        <div id="waiting-hint" style="text-align:center;margin-top:0.8rem;"><i class="fa-solid fa-hourglass-half"></i> Waiting for host to start the game...</div>
-      </div>
-    </div>
-
-    <!-- Question Screen -->
+    <!-- Question Screen (join and play immediately) -->
     <div class="screen" id="question-screen">
+      <div class="game-bar">
+        <div class="gb-left"><i class="fa-solid fa-key"></i> PIN <span id="player-pin-bar" style="font-weight:800;letter-spacing:2px;">----</span></div>
+        <div class="share-row gb-share">
+          <button class="share-btn share-whatsapp" onclick="shareLobby('whatsapp')" title="WhatsApp"><i class="fa-brands fa-whatsapp"></i></button>
+          <button class="share-btn share-facebook" onclick="shareLobby('facebook')" title="Facebook"><i class="fa-brands fa-facebook-f"></i></button>
+          <button class="share-btn share-x" onclick="shareLobby('x')" title="X"><i class="fa-brands fa-x-twitter"></i></button>
+          <button class="share-btn share-sms" onclick="shareLobby('sms')" title="SMS"><i class="fa-solid fa-comment-sms"></i></button>
+          <button class="share-btn share-copy" onclick="shareLobby('copy')" title="Copy link"><i class="fa-solid fa-link"></i></button>
+        </div>
+      </div>
       <div class="question-card">
+        <div class="status-pill" id="q-status"><i class="fa-solid fa-spinner fa-spin"></i> Getting the current question...</div>
         <span class="q-counter" id="q-counter"><i class="fa-solid fa-list-ol"></i> Question</span>
         <div class="timer-num" id="timer-num"><i class="fa-solid fa-clock"></i> ---</div>
         <div class="q-text" id="q-text">Waiting for the next question...</div>
@@ -237,7 +234,7 @@
     const LOBBY_CHANNEL = 'chrisco-lobby';
     const state = {
       name: '', icon: 'fa-solid fa-lion', emoji: '🦁', pin: '', hostName: '',
-      myId: '',
+      myId: '', qIndex: -1,
       channel: null, supabase: null, lobbyChannel: null,
       players: {}, lobbyGames: {}, myAnswer: null, score: 0, phase: 'setup'
     };
@@ -274,7 +271,6 @@
       $('' + id + '-screen').classList.add('active');
     }
     function setupStatus(html, cls) { const p = $('setup-status'); p.className = 'status-pill ' + (cls||''); p.innerHTML = html; }
-    function lobbyStatus(html, cls) { const p = $('lobby-status'); p.className = 'status-pill ' + (cls||''); p.innerHTML = html; }
 
     function buildLobbyList() {
       const grid = $('lobby-list');
@@ -301,6 +297,7 @@
 
     function buildPlayerList() {
       const ul = $('player-list');
+      if (!ul) return;
       const players = Object.values(state.players);
       if (players.length === 0) ul.innerHTML = '<li class="empty"><i class="fa-solid fa-user-plus"></i> Waiting for players...</li>';
       else ul.innerHTML = players.map(p => '<li' + (p.name === state.name ? ' style="outline:3px solid var(--yellow);outline-offset:2px;"' : '') + '><span class="pavatar">' + iconHtml(p) + '</span>' + esc(p.name) + (p.isHost ? ' <i class="fa-solid fa-crown" style="margin-left:auto;color:var(--yellow);"></i>' : '') + '</li>').join('');
@@ -318,11 +315,19 @@
 
     function onQuestion(data) {
       if (!data) return;
-      state.phase = 'question'; state.myAnswer = null;
+      const sameQ = state.qIndex === data.index && state.myAnswer !== null;
+      state.qIndex = data.index;
+      state.phase = 'question';
+      if (!sameQ) state.myAnswer = null;
       $('q-counter').innerHTML = '<i class="fa-solid fa-list-ol"></i> Question ' + (data.index+1) + ' of ' + data.total;
       $('q-text').textContent = data.q;
       $('q-options').innerHTML = data.options.map((o,i) => '<button class="opt" data-i="'+i+'"><span class="letter">'+LETTERS[i]+'</span><span>'+esc(o)+'</span></button>').join('');
       $('q-options').querySelectorAll('.opt').forEach(b => b.addEventListener('click', () => lockInAnswer(parseInt(b.dataset.i, 10))));
+      if (sameQ) {
+        // keep the locked choice highlighted
+        const locked = $('q-options').querySelector('.opt.my-choice');
+        if (locked) locked.classList.add('my-choice');
+      }
       $('feedback').innerHTML = '';
       $('q-explain').style.display = 'none';
       $('timer-num').innerHTML = '<i class="fa-solid fa-clock"></i> ' + (data.seconds||20) + 's';
@@ -331,6 +336,7 @@
 
     function onReveal(data) {
       if (!data) return;
+      if (state.phase === 'reveal' && state.qIndex === data.index) return; // already applied
       state.phase = 'reveal';
       const opts = $('q-options').querySelectorAll('.opt');
       opts.forEach((b,i) => { if (i === data.correct) b.classList.add('correct'); });
@@ -424,25 +430,53 @@
       state.channel = state.supabase.channel('quiz-' + state.pin)
         .on('presence', { event: 'SYNC' }, (payload) => { state.players = payload.presence || {}; buildPlayerList(); if (nameTakenInRoom()) leaveRoom('That name is already taken in this room. Pick a different name.'); })
         .on('presence', { event: 'CHANGES' }, (payload) => { state.players = Object.assign({}, state.players, payload.events.leaves, payload.events.joins); buildPlayerList(); if (nameTakenInRoom()) leaveRoom('That name is already taken in this room. Pick a different name.'); })
-        .on('broadcast', { event: 'start' }, (payload) => { $('waiting-hint').innerHTML = '<i class="fa-solid fa-play"></i> Game started: ' + esc(payload.payload.name || 'David Quiz') + '. Get ready!'; })
+        .on('broadcast', { event: 'start' }, (payload) => { qStatus('<i class="fa-solid fa-play"></i> New round started: ' + esc(payload.payload.name || 'David Quiz') + '. Get ready!', 'warn'); })
         .on('broadcast', { event: 'question' }, (payload) => onQuestion(payload.payload))
         .on('broadcast', { event: 'reveal' }, (payload) => onReveal(payload.payload))
         .on('broadcast', { event: 'end' }, (payload) => onEnd(payload.payload))
-        .on('broadcast', { event: 'reset' }, () => { state.phase = 'lobby'; showScreen('lobbywait'); lobbyStatus('<i class="fa-solid fa-rotate"></i> New game ready. Waiting for host to start...', 'warn'); })
+        .on('broadcast', { event: 'sync' }, (payload) => onSync(payload.payload))
+        .on('broadcast', { event: 'reset' }, () => { qStatus('<i class="fa-solid fa-rotate"></i> New round ready. Get ready for the next question!', 'warn'); showScreen('question'); })
         .on('broadcast', { event: 'close' }, (payload) => {
           leaveRoom((payload.payload && payload.payload.message) || 'Host closed this game.');
-          lobbyStatus('<i class="fa-solid fa-triangle-exclamation"></i> ' + esc((payload.payload && payload.payload.message) || 'Host closed this game.') + ' Join another game.', 'err');
         })
         .subscribe(async (status) => {
           if (status === 'SUBSCRIBED') {
             await state.channel.track({ name: state.name, icon: state.icon, myId: state.myId, isHost: false, status: 'lobby', score: 0 });
-            $('room-pin').textContent = state.pin;
-            lobbyStatus('<i class="fa-solid fa-circle-check"></i> Joined room ' + state.pin + '. Waiting for host...', 'ok');
-            showScreen('lobbywait');
+            $('player-pin-bar').textContent = state.pin;
+            // Play immediately: no waiting lobby. Ask the host for the current question.
+            qStatus('<i class="fa-solid fa-spinner fa-spin"></i> Getting the current question...', 'warn');
+            showScreen('question');
+            state.channel.send({ type: 'broadcast', event: 'sync-request', payload: { myId: state.myId } });
           } else if (status === 'CHANNEL_ERROR' || status === 'CHANNEL_CLOSED') {
-            lobbyStatus('<i class="fa-solid fa-triangle-exclamation"></i> Lost connection to room ' + state.pin + '. Check the PIN and host status.', 'err');
+            qStatus('<i class="fa-solid fa-triangle-exclamation"></i> Lost connection to room ' + state.pin + '. Check the PIN and host status.', 'err');
           }
         });
+    }
+
+    function qStatus(html, cls) {
+      const p = $('q-status');
+      if (!p) return;
+      p.className = 'status-pill ' + (cls || '');
+      p.innerHTML = html;
+    }
+
+    function onSync(data) {
+      if (!data || data.to !== state.myId) return;
+      if (data.phase === 'question') {
+        onQuestion({ index: data.index, total: data.total, q: data.q, options: data.options, seconds: data.seconds });
+        qStatus('<i class="fa-solid fa-circle-check"></i> You are live. Answer now!', 'ok');
+      } else if (data.phase === 'reveal') {
+        onQuestion({ index: data.index, total: data.total, q: data.q, options: data.options, seconds: data.seconds });
+        onReveal({ index: data.index, correct: data.correct, explain: data.explain });
+        qStatus('<i class="fa-solid fa-circle-info"></i> Answer revealed. Next question coming.', 'ok');
+      } else if (data.phase === 'end') {
+        const mine = (data.scores || []).find(s => s.name === state.name);
+        if (mine) state.score = mine.score || 0;
+        onEnd({ winner: data.winner });
+      } else {
+        qStatus('<i class="fa-solid fa-hourglass-half"></i> Waiting for the host to start the next question...', 'warn');
+        showScreen('question');
+      }
     }
 
     function leaveRoom(message) {
