@@ -1,5 +1,4 @@
 {
-  "framework": "container",
   "buildCommand": null,
   "outputDirectory": "."
 }
