@@ -8,172 +8,252 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" />
   <!-- Supabase JS CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <!-- Kahoot-style font (Montserrat) with fallback -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --primary: #00008B; --secondary: #FF8C00; --accent: #006400; --bg: #F5F5F5; --text: #333; --card-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      --primary: #00008B; --secondary: #FF8C00; --accent: #006400; --bg: #F5F5F5;
+      --purple: #46178f; --yellow: #ffc00a; --red: #e21b3c; --text: #333;
     }
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background: var(--bg); color: var(--text); }
-    header { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: #fff; padding: 1rem 2rem; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-    header h1 { margin: 0; font-size: 1.5rem; }
-    header p { margin: 0.5rem 0 0 0; font-weight: 300; font-style: italic; }
-    .container { max-width: 800px; margin: 1.5rem auto; padding: 0 1rem; }
-    .section { background: #fff; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: var(--card-shadow); }
-    .section h2 { margin-top: 0; color: var(--primary); display: flex; align-items: center; gap: 0.5rem; border-bottom: 2px solid #eee; padding-bottom: 0.5rem; }
-    .game-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-top: 1rem; }
-    .game-card { background: #fff; border: 1px solid #ddd; border-radius: 12px; overflow: hidden; transition: transform 0.2s; cursor: pointer; text-decoration: none; color: inherit; position: relative; }
-    .game-card:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-    .game-card img { width: 100%; height: 150px; object-fit: cover; display: block; }
-    .game-card-content { padding: 1rem; }
-    .game-card-content h3 { margin: 0 0 0.3rem 0; color: var(--primary); font-size: 1.1rem; }
-    .game-card-content p { margin: 0; color: #555; font-size: 0.85rem; }
-    .badge { position: absolute; top: 8px; right: 8px; background: var(--accent); color: #fff; padding: 0.2rem 0.6rem; border-radius: 15px; font-size: 0.7rem; font-weight: bold; z-index: 2; }
-    .leader-controls { background: #fff3e0; border: 2px solid var(--secondary); border-radius: 12px; padding: 1.5rem; margin-top: 1.5rem; text-align: center; }
-    .pin-display { font-size: 2rem; font-weight: bold; color: var(--primary); letter-spacing: 4px; margin: 0.5rem 0; background: #fff; display: inline-block; padding: 0.3rem 1rem; border-radius: 6px; box-shadow: var(--card-shadow); }
-    .instruction { color: var(--accent); font-weight: bold; margin-top: 0.5rem; }
-    .status-box { margin-top: 1rem; padding: 0.8rem; border-radius: 8px; background: #f0f0f0; font-size: 0.9rem; border-left: 4px solid var(--primary); }
-    footer { text-align: center; padding: 1rem; color: #777; font-size: 0.8rem; margin-top: 1rem; }
-    @media (max-width: 600px) { .section { padding: 1rem; } .demo-box { flex-direction: column; text-align: center; } header h1 { font-size: 1.2rem; } }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Montserrat', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; }
+
+    .topbar { position: sticky; top: 0; z-index: 100; background: var(--primary); color: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.25); }
+    .topbar-inner { max-width: 1100px; margin: 0 auto; padding: 0.7rem 1rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+    .brand { display: flex; align-items: center; gap: 0.6rem; text-decoration: none; color: #fff; }
+    .brand-logo { width: 42px; height: 42px; border-radius: 12px; background: var(--secondary); display: flex; align-items: center; justify-content: center; font-size: 1.3rem; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+    .brand-text { font-weight: 900; font-size: 1.15rem; line-height: 1; }
+    .brand-text small { display: block; font-size: 0.65rem; font-weight: 500; color: var(--yellow); letter-spacing: 1px; }
+    .btn { display: inline-flex; align-items: center; gap: 0.4rem; font-weight: 700; font-size: 0.9rem; padding: 0.6rem 1.2rem; border-radius: 10px; border: none; cursor: pointer; text-decoration: none; transition: transform 0.2s, box-shadow 0.2s; color: #fff; }
+    .btn:active { transform: scale(0.96); }
+    .btn--yellow { background: var(--yellow); color: #333; }
+    .btn--yellow:hover { box-shadow: 0 6px 20px rgba(255,192,10,0.5); transform: translateY(-2px); }
+    .btn--outline { background: rgba(255,255,255,0.12); border: 2px solid #fff; }
+    .btn--outline:hover { background: #fff; color: var(--primary); }
+    .btn--green { background: var(--accent); }
+    .btn--green:hover { box-shadow: 0 6px 20px rgba(0,100,0,0.4); transform: translateY(-2px); }
+    .btn--blue { background: var(--primary); }
+    .btn--blue:hover { box-shadow: 0 6px 20px rgba(0,0,139,0.5); transform: translateY(-2px); }
+    .btn--orange { background: var(--secondary); }
+    .btn--orange:hover { box-shadow: 0 6px 20px rgba(255,140,0,0.5); transform: translateY(-2px); }
+    .btn--purple { background: var(--purple); }
+    .btn--purple:hover { box-shadow: 0 6px 20px rgba(70,23,143,0.5); transform: translateY(-2px); }
+    .btn--large { padding: 0.9rem 2rem; font-size: 1.1rem; border-radius: 14px; }
+    .btn--block { width: 100%; justify-content: center; }
+
+    /* Hero */
+    .hero {
+      position: relative; overflow: hidden; color: #fff; text-align: center;
+      background: radial-gradient(900px 400px at 80% 10%, rgba(255,140,0,0.35) 0%, transparent 60%), linear-gradient(120deg, #00008B 0%, #46178f 100%);
+      padding: 3rem 1rem 2.5rem;
+    }
+    .hero::before { content: ''; position: absolute; inset: 0; background: url('./image-search/bright-colorful-worship-church-backgroun-1.jpg') center/cover no-repeat; opacity: 0.15; mix-blend-mode: overlay; }
+    .hero-content { position: relative; z-index: 2; max-width: 700px; margin: 0 auto; }
+    .hero h1 { font-size: clamp(1.8rem, 5vw, 3rem); font-weight: 900; text-shadow: 0 4px 20px rgba(0,0,0,0.4); }
+    .hero p { margin-top: 0.6rem; opacity: 0.9; font-weight: 500; }
+    .hero p strong { color: var(--yellow); }
+
+    .container { max-width: 850px; margin: 2rem auto; padding: 0 1rem; }
+
+    /* Lobby Card (Kahoot style) */
+    .lobby {
+      position: relative; border-radius: 24px; overflow: hidden; color: #fff;
+      padding: 2rem 1.8rem; margin-bottom: 2rem;
+      background: linear-gradient(160deg, #FF8C00 0%, #e21b3c 100%);
+      box-shadow: 0 14px 35px rgba(255,140,0,0.3);
+    }
+    .lobby::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.35) 100%); }
+    .lobby > * { position: relative; z-index: 2; }
+    .lobby h2 { font-size: 1.5rem; font-weight: 800; display: flex; align-items: center; gap: 0.6rem; }
+    .lobby p { opacity: 0.95; margin: 0.5rem 0 1rem; }
+    .pin-display {
+      font-size: clamp(2.2rem, 7vw, 3.4rem); font-weight: 900; letter-spacing: 8px;
+      text-align: center; background: rgba(255,255,255,0.15); border: 2px dashed rgba(255,255,255,0.5);
+      padding: 1rem; border-radius: 16px; margin: 1rem 0;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+      user-select: all;
+    }
+    .pin-display .label { display: block; font-size: 0.8rem; letter-spacing: 2px; opacity: 0.8; font-weight: 600; }
+
+    .status-pill {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 50px;
+      font-size: 0.85rem; font-weight: 600; margin-bottom: 1rem;
+    }
+    .status-pill.ok { background: rgba(0,100,0,0.5); }
+    .status-pill.err { background: rgba(226,27,60,0.6); }
+
+    /* Cards */
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.2rem; margin-bottom: 2rem; }
+    .mode-card {
+      position: relative; border-radius: 20px; overflow: hidden; padding: 1.4rem;
+      color: #fff; text-decoration: none; cursor: pointer; min-height: 200px;
+      display: flex; flex-direction: column; justify-content: space-between;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2); transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .mode-card:hover { transform: translateY(-6px) scale(1.01); box-shadow: 0 16px 35px rgba(0,0,0,0.25); }
+    .mode-card::before { content: ''; position: absolute; inset: 0; background-size: cover; background-position: center; transition: transform 0.5s; }
+    .mode-card::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.65) 100%); }
+    .mode-card > * { position: relative; z-index: 2; }
+    .mc-pursue { background: linear-gradient(160deg, #00008B, #000051); }
+    .mc-pursue::before { background-image: url('./image-search/david-bible-battle-victory-colorful-illu-1.jpg'); }
+    .mc-overtake { background: linear-gradient(160deg, #FF8C00, #c75c00); }
+    .mc-overtake::before { background-image: url('./image-search/david-bible-battle-victory-colorful-illu-3.jpg'); }
+    .mc-recover { background: linear-gradient(160deg, #006400, #003d00); }
+    .mc-recover::before { background-image: url('./image-search/david-bible-battle-victory-colorful-illu-2.jpg'); }
+    .mode-card .mc-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+    .mode-card h3 { font-size: 1.3rem; font-weight: 800; }
+    .mode-card p { font-size: 0.85rem; opacity: 0.95; line-height: 1.4; }
+    .mode-card.selected { outline: 4px solid var(--yellow); outline-offset: 3px; }
+
+    .info-box {
+      background: #fff; border-radius: 16px; padding: 1.2rem 1.5rem;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.08); margin-bottom: 1.5rem;
+      border-left: 6px solid var(--primary);
+    }
+    .info-box h3 { color: var(--primary); font-size: 1.05rem; margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.4rem; }
+    .info-box p { font-size: 0.9rem; color: #555; line-height: 1.5; }
+
+    footer { text-align: center; padding: 1.5rem 1rem 2rem; color: #888; font-size: 0.8rem; }
+
+    @media (max-width: 600px) {
+      .topbar-inner { flex-wrap: wrap; }
+      .lobby { padding: 1.4rem 1.2rem; }
+      .pin-display { letter-spacing: 4px; padding: 0.7rem; }
+      .mode-card { min-height: 180px; }
+    }
   </style>
 </head>
 <body>
-  <header>
-    <h1><i class="fa-solid fa-crosshairs"></i> CHRISCO Bible Quizzes</h1>
-    <p>1 Samuel 30:8 — Pursue, Overtake, Recover All</p>
-  </header>
-
-  <div class="container">
-    <!-- Phase 1: Config Exposure -->
-    <section class="section">
-      <h2><i class="fa-solid fa-gear"></i> Phase 1: Supabase Config (Public)</h2>
-      <p>Config loaded from <code>/api/config</code>. Premium icons and theme active.</p>
-      <div class="status-box" id="config-status">
-        Checking SUPABASE_URL and SUPABASE_ANON_KEY...
+  <div class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">
+        <span class="brand-logo"><i class="fa-solid fa-crosshairs"></i></span>
+        <span class="brand-text">CHRISCO<small>BIBLE QUIZZES</small></span>
+      </a>
+      <div class="topbar-actions">
+        <a class="btn btn--outline" href="player.html"><i class="fa-solid fa-right-to-bracket"></i> Join</a>
+        <a class="btn btn--yellow" href="host.html"><i class="fa-solid fa-gamepad"></i> Host</a>
       </div>
-    </section>
-
-    <!-- Real Game Logic (No Concept Simulation) -->
-    <section class="section">
-      <h2><i class="fa-solid fa-lightbulb"></i> Realtime Game Lobby</h2>
-      <p>Host creates a game. Share the PIN with players.</p>
-      
-      <div class="leader-controls">
-        <h2><i class="fa-solid fa-user-tie"></i> Host Control Panel</h2>
-        <p>Generating random PIN for the game...</p>
-        <div class="pin-display" id="pin-display">PIN: <strong>Loading...</strong></div>
-        <div class="instruction" id="instruction-text"><i class="fa-solid fa-clock"></i> Waiting for Supabase Channel Subscription...</div>
-        <div class="status-box" id="realtime-status" style="border-left-color: var(--accent);">
-          <strong>Realtime Status:</strong> Initializing channel...
-        </div>
-        <button id="start-game-btn" class="game-card" style="width: 100%; margin-top: 1rem; display: none; background: var(--primary); color: #fff; border: none; padding: 1rem; border-radius: 12px; cursor: pointer; font-size: 1.1rem;">
-          <i class="fa-solid fa-play"></i> Start New Game
-        </button>
-      </div>
-    </section>
-
-    <!-- Game Selection (Mobile Friendly) -->
-    <section class="section">
-      <h2><i class="fa-solid fa-gamepad"></i> Select a Game Category</h2>
-      <p>Theme: <strong>1 Samuel 30:8</strong> — Pursue, Overtake, Recover All</p>
-      
-      <div class="game-grid">
-        <a href="#" class="game-card" onclick="setGameMode('pursue')">
-          <span class="badge"><i class="fa-solid fa-arrow-right"></i> Pursue</span>
-          <img src="./image-search/1-samuel-30-8-pursue-overtake-recover-bi-1.jpg" alt="Pursue Theme" />
-          <div class="game-card-content">
-            <h3>Pursue: David's Inquiry</h3>
-            <p><i class="fa-solid fa-clock"></i> 5 mins | <i class="fa-solid fa-user-group"></i> Mobile Optimized</p>
-          </div>
-        </a>
-        <a href="#" class="game-card" onclick="setGameMode('overtake')">
-          <span class="badge" style="background: var(--secondary);"><i class="fa-solid fa-running"></i> Overtake</span>
-          <img src="./image-search/1-samuel-30-8-pursue-overtake-recover-bi-2.jpg" alt="Overtake Theme" />
-          <div class="game-card-content">
-            <h3>Overtake: The Chase</h3>
-            <p><i class="fa-solid fa-clock"></i> 3 mins | <i class="fa-solid fa-user-group"></i> Mobile Optimized</p>
-          </div>
-        </a>
-        <a href="#" class="game-card" onclick="setGameMode('recover')">
-          <span class="badge" style="background: var(--accent);"><i class="fa-solid fa-shield-halved"></i> Recover</span>
-          <img src="./image-search/1-samuel-30-8-pursue-overtake-recover-bi-3.jpg" alt="Recover All Theme" />
-          <div class="game-card-content">
-            <h3>Recover All: Victory</h3>
-            <p><i class="fa-solid fa-clock"></i> 10 mins | <i class="fa-solid fa-user-group"></i> Mobile Optimized</p>
-          </div>
-        </a>
-      </div>
-    </section>
+    </div>
   </div>
 
-  <footer>
-    <p>&copy; 2026 CHRISCO Bible Quizzes. Theme: 1 Samuel 30:8 — Pursue, Overtake, Recover All. Premium icons by Font Awesome. Supabase Config Public.</p>
-  </footer>
+  <section class="hero">
+    <div class="hero-content">
+      <h1><i class="fa-solid fa-gamepad"></i> Host a Game</h1>
+      <p>Pick a mode, share the PIN, and play. Theme: <strong>1 Samuel 30:8 Pursue Overtake Recover All</strong></p>
+    </div>
+  </section>
 
-  <!-- Phase 1: Load Config from Serverless API -->
+  <div class="container">
+    <!-- Lobby with dynamic PIN -->
+    <div class="lobby">
+      <div class="status-pill" id="status-pill"><i class="fa-solid fa-spinner fa-spin"></i> Connecting to Supabase Realtime...</div>
+      <h2><i class="fa-solid fa-user-tie"></i> Game Lobby</h2>
+      <p>Your PIN is ready. Share it with players so they can join.</p>
+      <div class="pin-display"><span class="label">GAME PIN</span><span id="pin-display">Loading...</span></div>
+      <p id="instruction-text"><i class="fa-solid fa-clock"></i> Waiting for channel subscription...</p>
+      <button id="start-game-btn" class="btn btn--yellow btn--large btn--block" style="display: none;"><i class="fa-solid fa-play"></i> Start New Game</button>
+    </div>
+
+    <!-- Mode selection -->
+    <div class="cards">
+      <a class="mode-card mc-pursue" id="mode-pursue" onclick="selectMode('pursue'); return false;">
+        <div><div class="mc-icon"><i class="fa-solid fa-compass"></i></div><h3>Pursue</h3></div>
+        <p>5 min practice mode. Start your journey with David.</p>
+      </a>
+      <a class="mode-card mc-overtake" id="mode-overtake" onclick="selectMode('overtake'); return false;">
+        <div><div class="mc-icon"><i class="fa-solid fa-running"></i></div><h3>Overtake</h3></div>
+        <p>3 min speed mode. Fast answers win the race.</p>
+      </a>
+      <a class="mode-card mc-recover" id="mode-recover" onclick="selectMode('recover'); return false;">
+        <div><div class="mc-icon"><i class="fa-solid fa-shield-halved"></i></div><h3>Recover All</h3></div>
+        <p>10 min final round. Recover all and claim victory.</p>
+      </a>
+    </div>
+
+    <div class="info-box">
+      <h3><i class="fa-solid fa-circle-info"></i> How it works</h3>
+      <p>1. Pick a game mode above. 2. Share your PIN with players. 3. Players enter the PIN at <a href="player.html" style="color: var(--primary); font-weight: 700;">player.html</a>. 4. Start the game. Real-time connection powered by Supabase.</p>
+    </div>
+  </div>
+
+  <footer>&copy; 2026 CHRISCO Bible Quizzes. Theme: 1 Samuel 30:8 Pursue Overtake Recover All. Premium icons by Font Awesome. Real-time multiplayer by Supabase.</footer>
+
   <script>
     let gamePin = '';
-    let gameMode = 'pursue'; // Default
+    let gameMode = 'pursue';
     let channel = null;
     let supabase = null;
 
-    function setGameMode(mode) {
+    function selectMode(mode) {
       gameMode = mode;
-      console.log("Game Mode set to:", gameMode);
-      document.getElementById('instruction-text').innerHTML = `<i class="fa-solid fa-check"></i> Mode Selected: ${mode.charAt(0).toUpperCase() + mode.slice(1)}. Ready to Start.`;
+      document.querySelectorAll('.mode-card').forEach(el => el.classList.remove('selected'));
+      const card = document.getElementById('mode-' + mode);
+      if (card) card.classList.add('selected');
+      console.log('Game Mode set to:', gameMode);
+      if (document.getElementById('instruction-text')) {
+        document.getElementById('instruction-text').innerHTML = '<i class="fa-solid fa-check"></i> Mode selected: ' + mode.charAt(0).toUpperCase() + mode.slice(1) + '. Ready to start.';
+      }
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-      const statusBox = document.getElementById('config-status');
-      const realtimeBox = document.getElementById('realtime-status');
+      const statusPill = document.getElementById('status-pill');
       const pinDisplay = document.getElementById('pin-display');
+      const instruction = document.getElementById('instruction-text');
       const startBtn = document.getElementById('start-game-btn');
-      
-      // FETCH CONFIG FROM /api/config
+
+      // Support hash links (host.html#pursue etc.)
+      const hash = window.location.hash.replace('#', '');
+      if (['pursue', 'overtake', 'recover'].includes(hash)) selectMode(hash);
+
       fetch('/api/config')
         .then(res => res.json())
         .then(config => {
           const { url, key } = config;
-          statusBox.innerHTML = `<i class="fa-solid fa-check" style="color: var(--accent);"></i> Config Loaded from API: URL & Key exposed.`;
-          
-          const supabase = supabaseJs.createClient(url, key);
-          console.log("✅ Supabase Client Initialized");
+          supabase = supabaseJs.createClient(url, key);
+          console.log('Supabase Client Initialized');
 
-          // Phase 2: Generate Random PIN (4-6 digits)
           gamePin = Math.floor(1000 + Math.random() * 90000).toString();
-          pinDisplay.innerHTML = `PIN: <strong>${gamePin}</strong>`;
-          
-          // Create Channel: room-${gamePin}
+          pinDisplay.textContent = gamePin;
+
           channel = supabase
-            .channel(`room-${gamePin}`)
-            // Phase 3: Better Logging
+            .channel('room-' + gamePin)
             .on('presence', { event: 'SYNC' }, (payload) => {
-              console.log('Supabase Presence Synced:', payload);
+              console.log('Presence synced:', payload);
             })
             .subscribe(async (status) => {
               if (status === 'SUBSCRIBED') {
-                // PHASE 1 FIX: Track presence immediately after subscription
-                console.log("Host SUBSCRIBED. Tracking presence { isHost: true, status: 'LOBBY', mode: " + gameMode + " }");
                 await channel.track({ isHost: true, status: 'LOBBY', mode: gameMode });
-                
-                realtimeBox.innerHTML = `<i class="fa-solid fa-check" style="color: var(--accent);"></i> Realtime Status: Host Active (PIN: ${gamePin}). Channel Tracked.`;
-                startBtn.style.display = 'block';
-                
+                statusPill.className = 'status-pill ok';
+                statusPill.innerHTML = '<i class="fa-solid fa-circle-check"></i> Host Active (PIN: ' + gamePin + ')';
+                instruction.innerHTML = '<i class="fa-solid fa-check"></i> Channel ready. Pick a mode and start!';
+                startBtn.style.display = 'flex';
+
                 startBtn.onclick = () => {
-                  console.log("Starting game mode:", gameMode);
-                  realtimeBox.innerHTML = `<i class="fa-solid fa-play" style="color: var(--primary);"></i> Realtime Status: Game Started (Mode: ${gameMode}).`;
+                  console.log('Starting game mode:', gameMode);
+                  statusPill.className = 'status-pill ok';
+                  statusPill.innerHTML = '<i class="fa-solid fa-play"></i> Game Started (Mode: ' + gameMode + ')';
+                  instruction.innerHTML = '<i class="fa-solid fa-trophy"></i> Let the race begin! Players can now answer.';
                 };
               } else if (status === 'CHANNEL_ERROR' || status === 'CHANNEL_CLOSED') {
-                console.error("❌ REALTIME CONNECTION FAILED");
-                realtimeBox.innerHTML = `<i class="fa-solid fa-exclamation-triangle" style="color: var(--primary);"></i> Realtime Status: Connection Lost.`;
-                realtimeBox.style.borderLeftColor = 'var(--primary)';
+                console.error('Realtime connection failed');
+                statusPill.className = 'status-pill err';
+                statusPill.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Connection lost. Retrying...';
+                instruction.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Realtime connection failed. The game will restart shortly.';
               } else {
-                realtimeBox.innerHTML = `<i class="fa-solid fa-spinner fa-spin" style="color: var(--accent);"></i> Realtime Status: Connecting to ${gamePin}...`;
+                statusPill.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Connecting to room ' + gamePin + '...';
               }
             });
-
         })
         .catch(err => {
-          console.error("❌ Failed to load Supabase config:", err);
-          statusBox.innerHTML = `<i class="fa-solid fa-exclamation-triangle" style="color: var(--primary);"></i> Error: Failed to load config API.`;
+          console.error('Failed to load Supabase config:', err);
+          statusPill.className = 'status-pill err';
+          statusPill.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Failed to load config API';
+          pinDisplay.textContent = 'ERROR';
+          instruction.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Serverless config unavailable. Check /api/config.';
         });
     });
   </script>
