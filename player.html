@@ -6,7 +6,7 @@
   <title>CHRISCO Bible Quizzes - Player (Pursue, Overtake, Recover All)</title>
   <!-- Premium Icons (Font Awesome Free via CDN) -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" />
-  <!-- Supabase JS CDN (Fallback to local if needed) -->
+  <!-- Supabase JS CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <style>
     :root {
@@ -48,7 +48,7 @@
     <!-- Phase 1: Config Exposure -->
     <section class="section">
       <h2><i class="fa-solid fa-gear"></i> Phase 1: Supabase Config (Public)</h2>
-      <p>Config loaded from <code>/public/config.js</code>. Premium icons and theme active.</p>
+      <p>Config loaded from <code>/api/config</code>. Premium icons and theme active.</p>
       <div class="status-box" id="config-status">
         Checking SUPABASE_URL and SUPABASE_ANON_KEY...
       </div>
@@ -93,7 +93,7 @@
           </div>
         </a>
         <a href="#" class="game-card" style="pointer-events: none; opacity: 0.5;">
-          <span class="badge" style="background: var(--secondary);"><i class="fa-solid fa-running"></i> Overtake</span>
+          <span class="badge" style="background: var(--secondary);\"><i class="fa-solid fa-running"></i> Overtake</span>
           <img src="./image-search/1-samuel-30-8-pursue-overtake-recover-bi-2.jpg" alt="Overtake Theme" />
           <div class="game-card-content">
             <h3>Overtake: The Chase</h3>
@@ -101,7 +101,7 @@
           </div>
         </a>
         <a href="#" class="game-card" style="pointer-events: none; opacity: 0.5;">
-          <span class="badge" style="background: var(--accent);"><i class="fa-solid fa-shield-halved"></i> Recover</span>
+          <span class="badge" style="background: var(--accent);\"><i class="fa-solid fa-shield-halved"></i> Recover</span>
           <img src="./image-search/1-samuel-30-8-pursue-overtake-recover-bi-3.jpg" alt="Recover All Theme" />
           <div class="game-card-content">
             <h3>Recover All: Victory</h3>
@@ -116,15 +116,13 @@
     <p>&copy; 2026 CHRISCO Bible Quizzes. Theme: 1 Samuel 30:8 — Pursue, Overtake, Recover All. Premium icons by Font Awesome. Supabase Config Public.</p>
   </footer>
 
-  <!-- Phase 1: Load Config -->
-  <script src="./public/config.js"></script>
+  <!-- Phase 1: Load Config from Serverless API -->
   <script>
     let supabase = null;
     let channel = null;
     let currentPin = '';
 
     document.addEventListener('DOMContentLoaded', () => {
-      const { supabaseUrl, supabaseAnonKey } = window.CHRISCO_CONFIG;
       const statusBox = document.getElementById('config-status');
       const realtimeBox = document.getElementById('player-realtime-status');
       const joinBtn = document.getElementById('join-btn');
@@ -135,80 +133,86 @@
       const joinedModeDisplay = document.getElementById('joined-mode');
       const syncStatus = document.getElementById('sync-status');
       
-      if (supabaseUrl && supabaseAnonKey) {
-        statusBox.innerHTML = `<i class="fa-solid fa-check" style="color: var(--accent);"></i> Config Loaded: URL & Key exposed to browser.`;
-        
-        supabase = supabaseJs.createClient(supabaseUrl, supabaseAnonKey);
-        console.log("Supabase Client Initialized for Player (1 Samuel 30:8 Theme)");
-
-        joinBtn.onclick = () => {
-          const enteredPin = pinInput.value.trim();
-          if (!enteredPin) {
-            alert("Please enter a PIN");
-            return;
-          }
-          currentPin = enteredPin;
-          joinedPinDisplay.innerText = currentPin;
-          realtimeBox.innerHTML = `<i class="fa-solid fa-spinner fa-spin" style="color: var(--accent);"></i> Realtime Status: Joining room-${currentPin}...`;
+      // FETCH CONFIG FROM /api/config
+      fetch('/api/config')
+        .then(res => res.json())
+        .then(config => {
+          const { url, key } = config;
+          statusBox.innerHTML = `<i class="fa-solid fa-check" style="color: var(--accent);"></i> Config Loaded from API: URL & Key exposed.`;
           
-          // Create Channel: room-${currentPin}
-          channel = supabase
-            .channel(`room-${currentPin}`)
-            // Phase 3: Better Logging
-            .on('presence', { event: 'SYNC' }, (payload) => {
-              console.log('Supabase Presence Synced:', payload);
-              
-              // PHASE 2 FIX: Race Condition (Wait for SYNC before checking Host)
-              const presenceState = payload.presence || {};
-              const hostEntry = Object.values(presenceState).find(state => state.isHost === true);
-              
-              if (hostEntry) {
-                const mode = hostEntry.mode || 'pursue';
-                joinedModeDisplay.innerText = mode.charAt(0).toUpperCase() + mode.slice(1);
-                realtimeBox.innerHTML = `<i class="fa-solid fa-check" style="color: var(--accent);"></i> Realtime Status: Player Joined PIN ${currentPin}. Host Found.`;
-                syncStatus.innerHTML = `<i class="fa-solid fa-check" style="color: var(--accent);"></i> Presence Sync: Host Active (Mode: ${mode}).`;
-                
-                gameActiveArea.style.display = 'block';
-                gameGridSection.style.display = 'block';
-              } else {
-                console.log("Host not found in initial SYNC. Waiting 3 seconds before checking again...");
-                syncStatus.innerHTML = `<i class="fa-solid fa-clock" style="color: var(--primary);"></i> Presence Sync: Host not found. Waiting 3s...`;
-                
-                setTimeout(() => {
-                  const currentPresence = channel.presence.state();
-                  const hostFoundAfterDelay = Object.values(currentPresence).find(state => state.isHost === true);
-                  
-                  if (hostFoundAfterDelay) {
-                    const mode = hostFoundAfterDelay.mode || 'pursue';
-                    joinedModeDisplay.innerText = mode.charAt(0).toUpperCase() + mode.slice(1);
-                    realtimeBox.innerHTML = `<i class="fa-solid fa-check" style="color: var(--accent);"></i> Realtime Status: Player Joined PIN ${currentPin}. Host Found (Delayed).`;
-                    syncStatus.innerHTML = `<i class="fa-solid fa-check" style="color: var(--accent);"></i> Presence Sync: Host Active (Mode: ${mode}).`;
-                    
-                    gameActiveArea.style.display = 'block';
-                    gameGridSection.style.display = 'block';
-                  } else {
-                    console.error("REALTIME CONNECTION FAILED: Host ended (Race condition fixed - checked after 3s delay)");
-                    realtimeBox.innerHTML = `<i class="fa-solid fa-exclamation-triangle" style="color: var(--primary);"></i> Realtime Status: Host Ended (Leader Start New Game).`;
-                    syncStatus.innerHTML = `<i class="fa-solid fa-exclamation-triangle" style="color: var(--primary);"></i> Presence Sync: Host not found after 3s delay.`;
-                    realtimeBox.style.borderLeftColor = 'var(--primary)';
-                  }
-                }, 3000);
-              }
-            })
-            .subscribe((status) => {
-              if (status === 'CHANNEL_ERROR' || status === 'CHANNEL_CLOSED') {
-                console.error("REALTIME CONNECTION FAILED");
-                realtimeBox.innerHTML = `<i class="fa-solid fa-exclamation-triangle" style="color: var(--primary);"></i> Realtime Status: Connection Lost (Host Ended).`;
-                realtimeBox.style.borderLeftColor = 'var(--primary)';
-              } else if (status === 'SUBSCRIBED') {
-                realtimeBox.innerHTML = `<i class="fa-solid fa-check" style="color: var(--accent);"></i> Realtime Status: Player Joined PIN ${currentPin}. Waiting for Host Sync...`;
-              }
-            });
-        };
+          supabase = supabaseJs.createClient(url, key);
+          console.log("✅ Supabase Client Initialized");
 
-      } else {
-        statusBox.innerHTML = `<i class="fa-solid fa-exclamation-triangle" style="color: var(--primary);"></i> Error: Config missing.`;
-      }
+          joinBtn.onclick = () => {
+            const enteredPin = pinInput.value.trim();
+            if (!enteredPin) {
+              alert("Please enter a PIN");
+              return;
+            }
+            currentPin = enteredPin;
+            joinedPinDisplay.innerText = currentPin;
+            realtimeBox.innerHTML = `<i class="fa-solid fa-spinner fa-spin" style="color: var(--accent);"></i> Realtime Status: Joining room-${currentPin}...`;
+            
+            // Create Channel: room-${currentPin}
+            channel = supabase
+              .channel(`room-${currentPin}`)
+              // Phase 3: Better Logging
+              .on('presence', { event: 'SYNC' }, (payload) => {
+                console.log('Supabase Presence Synced:', payload);
+                
+                // PHASE 2 FIX: Race Condition (Wait for SYNC before checking Host)
+                const presenceState = payload.presence || {};
+                const hostEntry = Object.values(presenceState).find(state => state.isHost === true);
+                
+                if (hostEntry) {
+                  const mode = hostEntry.mode || 'pursue';
+                  joinedModeDisplay.innerText = mode.charAt(0).toUpperCase() + mode.slice(1);
+                  realtimeBox.innerHTML = `<i class="fa-solid fa-check" style="color: var(--accent);"></i> Realtime Status: Player Joined PIN ${currentPin}. Host Found.`;
+                  syncStatus.innerHTML = `<i class="fa-solid fa-check" style="color: var(--accent);"></i> Presence Sync: Host Active (Mode: ${mode}).`;
+                  
+                  gameActiveArea.style.display = 'block';
+                  gameGridSection.style.display = 'block';
+                } else {
+                  console.log("Host not found in initial SYNC. Waiting 3 seconds before checking again...");
+                  syncStatus.innerHTML = `<i class="fa-solid fa-clock" style="color: var(--primary);"></i> Presence Sync: Host not found. Waiting 3s...`;
+                  
+                  setTimeout(() => {
+                    const currentPresence = channel.presence.state();
+                    const hostFoundAfterDelay = Object.values(currentPresence).find(state => state.isHost === true);
+                    
+                    if (hostFoundAfterDelay) {
+                      const mode = hostFoundAfterDelay.mode || 'pursue';
+                      joinedModeDisplay.innerText = mode.charAt(0).toUpperCase() + mode.slice(1);
+                      realtimeBox.innerHTML = `<i class="fa-solid fa-check" style="color: var(--accent);"></i> Realtime Status: Player Joined PIN ${currentPin}. Host Found (Delayed).`;
+                      syncStatus.innerHTML = `<i class="fa-solid fa-check" style="color: var(--accent);"></i> Presence Sync: Host Active (Mode: ${mode}).`;
+                      
+                      gameActiveArea.style.display = 'block';
+                      gameGridSection.style.display = 'block';
+                    } else {
+                      console.error("REALTIME CONNECTION FAILED: Host ended (Race condition fixed - checked after 3s delay)");
+                      realtimeBox.innerHTML = `<i class="fa-solid fa-exclamation-triangle" style="color: var(--primary);"></i> Realtime Status: Host Ended (Leader Start New Game).`;
+                      syncStatus.innerHTML = `<i class="fa-solid fa-exclamation-triangle" style="color: var(--primary);"></i> Presence Sync: Host not found after 3s delay.`;
+                      realtimeBox.style.borderLeftColor = 'var(--primary)';
+                    }
+                  }, 3000);
+                }
+              })
+              .subscribe((status) => {
+                if (status === 'CHANNEL_ERROR' || status === 'CHANNEL_CLOSED') {
+                  console.error("❌ REALTIME CONNECTION FAILED");
+                  realtimeBox.innerHTML = `<i class="fa-solid fa-exclamation-triangle" style="color: var(--primary);"></i> Realtime Status: Connection Lost (Host Ended).`;
+                  realtimeBox.style.borderLeftColor = 'var(--primary)';
+                } else if (status === 'SUBSCRIBED') {
+                  realtimeBox.innerHTML = `<i class="fa-solid fa-check" style="color: var(--accent);"></i> Realtime Status: Player Joined PIN ${currentPin}. Waiting for Host Sync...`;
+                }
+              });
+          };
+
+        })
+        .catch(err => {
+          console.error("❌ Failed to load Supabase config:", err);
+          statusBox.innerHTML = `<i class="fa-solid fa-exclamation-triangle" style="color: var(--primary);"></i> Error: Failed to load config API.`;
+        });
     });
   </script>
 </body>

@@ -6,7 +6,7 @@
   <title>CHRISCO Bible Quizzes - Host (Pursue, Overtake, Recover All)</title>
   <!-- Premium Icons (Font Awesome Free via CDN) -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" />
-  <!-- Supabase JS CDN (Fallback to local if needed) -->
+  <!-- Supabase JS CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <style>
     :root {
@@ -45,7 +45,7 @@
     <!-- Phase 1: Config Exposure -->
     <section class="section">
       <h2><i class="fa-solid fa-gear"></i> Phase 1: Supabase Config (Public)</h2>
-      <p>Config loaded from <code>/public/config.js</code>. Premium icons and theme active.</p>
+      <p>Config loaded from <code>/api/config</code>. Premium icons and theme active.</p>
       <div class="status-box" id="config-status">
         Checking SUPABASE_URL and SUPABASE_ANON_KEY...
       </div>
@@ -108,8 +108,7 @@
     <p>&copy; 2026 CHRISCO Bible Quizzes. Theme: 1 Samuel 30:8 — Pursue, Overtake, Recover All. Premium icons by Font Awesome. Supabase Config Public.</p>
   </footer>
 
-  <!-- Phase 1: Load Config -->
-  <script src="./public/config.js"></script>
+  <!-- Phase 1: Load Config from Serverless API -->
   <script>
     let gamePin = '';
     let gameMode = 'pursue'; // Default
@@ -123,55 +122,59 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-      const { supabaseUrl, supabaseAnonKey } = window.CHRISCO_CONFIG;
       const statusBox = document.getElementById('config-status');
       const realtimeBox = document.getElementById('realtime-status');
       const pinDisplay = document.getElementById('pin-display');
       const startBtn = document.getElementById('start-game-btn');
       
-      if (supabaseUrl && supabaseAnonKey) {
-        statusBox.innerHTML = `<i class="fa-solid fa-check" style="color: var(--accent);"></i> Config Loaded: URL & Key exposed to browser.`;
-        
-        supabase = supabaseJs.createClient(supabaseUrl, supabaseAnonKey);
-        console.log("Supabase Client Initialized for 1 Samuel 30:8 Theme");
+      // FETCH CONFIG FROM /api/config
+      fetch('/api/config')
+        .then(res => res.json())
+        .then(config => {
+          const { url, key } = config;
+          statusBox.innerHTML = `<i class="fa-solid fa-check" style="color: var(--accent);"></i> Config Loaded from API: URL & Key exposed.`;
+          
+          const supabase = supabaseJs.createClient(url, key);
+          console.log("✅ Supabase Client Initialized");
 
-        // Phase 2: Generate Random PIN (4-6 digits)
-        gamePin = Math.floor(1000 + Math.random() * 90000).toString();
-        pinDisplay.innerHTML = `PIN: <strong>${gamePin}</strong>`;
-        
-        // Create Channel: room-${gamePin}
-        channel = supabase
-          .channel(`room-${gamePin}`)
-          // Phase 3: Better Logging
-          .on('presence', { event: 'SYNC' }, (payload) => {
-            console.log('Supabase Presence Synced:', payload);
-          })
-          .subscribe(async (status) => {
-            if (status === 'SUBSCRIBED') {
-              // PHASE 1 FIX: Track presence immediately after subscription
-              console.log("Host SUBSCRIBED. Tracking presence { isHost: true, status: 'LOBBY', mode: " + gameMode + " }");
-              await channel.track({ isHost: true, status: 'LOBBY', mode: gameMode });
-              
-              realtimeBox.innerHTML = `<i class="fa-solid fa-check" style="color: var(--accent);"></i> Realtime Status: Host Active (PIN: ${gamePin}). Channel Tracked.`;
-              startBtn.style.display = 'block';
-              
-              startBtn.onclick = () => {
-                console.log("Starting game mode:", gameMode);
-                // Logic to transition to game state would go here
-                realtimeBox.innerHTML = `<i class="fa-solid fa-play" style="color: var(--primary);"></i> Realtime Status: Game Started (Mode: ${gameMode}).`;
-              };
-            } else if (status === 'CHANNEL_ERROR' || status === 'CHANNEL_CLOSED') {
-              console.error("REALTIME CONNECTION FAILED");
-              realtimeBox.innerHTML = `<i class="fa-solid fa-exclamation-triangle" style="color: var(--primary);"></i> Realtime Status: Connection Lost.`;
-              realtimeBox.style.borderLeftColor = 'var(--primary)';
-            } else {
-              realtimeBox.innerHTML = `<i class="fa-solid fa-spinner fa-spin" style="color: var(--accent);"></i> Realtime Status: Connecting to ${gamePin}...`;
-            }
-          });
+          // Phase 2: Generate Random PIN (4-6 digits)
+          gamePin = Math.floor(1000 + Math.random() * 90000).toString();
+          pinDisplay.innerHTML = `PIN: <strong>${gamePin}</strong>`;
+          
+          // Create Channel: room-${gamePin}
+          channel = supabase
+            .channel(`room-${gamePin}`)
+            // Phase 3: Better Logging
+            .on('presence', { event: 'SYNC' }, (payload) => {
+              console.log('Supabase Presence Synced:', payload);
+            })
+            .subscribe(async (status) => {
+              if (status === 'SUBSCRIBED') {
+                // PHASE 1 FIX: Track presence immediately after subscription
+                console.log("Host SUBSCRIBED. Tracking presence { isHost: true, status: 'LOBBY', mode: " + gameMode + " }");
+                await channel.track({ isHost: true, status: 'LOBBY', mode: gameMode });
+                
+                realtimeBox.innerHTML = `<i class="fa-solid fa-check" style="color: var(--accent);"></i> Realtime Status: Host Active (PIN: ${gamePin}). Channel Tracked.`;
+                startBtn.style.display = 'block';
+                
+                startBtn.onclick = () => {
+                  console.log("Starting game mode:", gameMode);
+                  realtimeBox.innerHTML = `<i class="fa-solid fa-play" style="color: var(--primary);"></i> Realtime Status: Game Started (Mode: ${gameMode}).`;
+                };
+              } else if (status === 'CHANNEL_ERROR' || status === 'CHANNEL_CLOSED') {
+                console.error("❌ REALTIME CONNECTION FAILED");
+                realtimeBox.innerHTML = `<i class="fa-solid fa-exclamation-triangle" style="color: var(--primary);"></i> Realtime Status: Connection Lost.`;
+                realtimeBox.style.borderLeftColor = 'var(--primary)';
+              } else {
+                realtimeBox.innerHTML = `<i class="fa-solid fa-spinner fa-spin" style="color: var(--accent);"></i> Realtime Status: Connecting to ${gamePin}...`;
+              }
+            });
 
-      } else {
-        statusBox.innerHTML = `<i class="fa-solid fa-exclamation-triangle" style="color: var(--primary);"></i> Error: Config missing.`;
-      }
+        })
+        .catch(err => {
+          console.error("❌ Failed to load Supabase config:", err);
+          statusBox.innerHTML = `<i class="fa-solid fa-exclamation-triangle" style="color: var(--primary);"></i> Error: Failed to load config API.`;
+        });
     });
   </script>
 </body>
