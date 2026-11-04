@@ -1,5 +1,5 @@
 {
-  "framework": "none",
-  "buildCommand": null,
-  "outputDirectory": null
+  "framework": "container",
+  "buildCommand": "echo \"Static HTML deployment - Phase 1, 2, 3 Concept Explanation - no build required\"",
+  "outputDirectory": "."
 }
