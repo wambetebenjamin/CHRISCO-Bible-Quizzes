@@ -4,6 +4,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>CHRISCO Bible Quizzes - Host (Pursue, Overtake, Recover All)</title>
+  <meta name="description" content="Host a live multiplayer Bible quiz game. Share the PIN, answer questions, see the scoreboard. Theme: 1 Samuel 30:8 Pursue Overtake Recover All." />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="CHRISCO Bible Quizzes" />
+  <meta property="og:title" content="CHRISCO Bible Quizzes | Host a live Bible Quiz game" />
+  <meta property="og:description" content="Host a live multiplayer Bible quiz game. Share the PIN, answer questions, see the scoreboard. Theme: 1 Samuel 30:8 Pursue Overtake Recover All." />
+  <meta property="og:image" content="https://chrisco-bible-quizzes.vercel.app/image-search/david-bible-battle-victory-colorful-illu-1.jpg" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="CHRISCO Bible Quizzes | Host a live Bible Quiz game" />
+  <meta name="twitter:description" content="Host a live multiplayer Bible quiz game. Share the PIN, answer questions, see the scoreboard. Theme: 1 Samuel 30:8 Pursue Overtake Recover All." />
+  <meta name="twitter:image" content="https://chrisco-bible-quizzes.vercel.app/image-search/david-bible-battle-victory-colorful-illu-1.jpg" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <script src="vendor/supabase.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -69,6 +79,11 @@
     .player-list { list-style: none; margin: 1rem 0; display: grid; gap: 0.5rem; }
     .player-list li { display: flex; align-items: center; gap: 0.6rem; background: rgba(255,255,255,0.15); padding: 0.6rem 1rem; border-radius: 12px; font-weight: 600; }
     .player-list li .pavatar { width: 34px; height: 34px; border-radius: 50%; background: var(--yellow); color: #333; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.9rem; }
+    .icon-picker { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.6rem; }
+    .icon-opt { width: 46px; height: 46px; border-radius: 12px; border: 2px solid rgba(255,255,255,0.35); background: rgba(255,255,255,0.12); color: #fff; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.15s, box-shadow 0.15s, background 0.15s; font-family: inherit; }
+    .icon-opt:hover { transform: translateY(-2px); }
+    .icon-opt.selected { border-color: var(--yellow); box-shadow: 0 0 0 3px rgba(255,192,10,0.35); background: rgba(255,192,10,0.2); }
+    .icon-caption { font-size: 0.8rem; opacity: 0.85; margin-top: 0.4rem; }
     .player-list .empty { text-align: center; opacity: 0.8; font-style: italic; }
 
     /* Share buttons */
@@ -167,6 +182,11 @@
           <label for="host-name">Your Name</label>
           <input type="text" class="name-input" id="host-name" placeholder="e.g. Pastor David" maxlength="16" autocomplete="off" />
         </div>
+        <div class="field">
+          <label><i class="fa-solid fa-icons"></i> Pick your icon</label>
+          <div class="icon-picker" id="icon-picker"></div>
+          <div class="icon-caption" id="icon-caption">Shown to players on the scoreboard.</div>
+        </div>
         <button id="create-game-btn" class="btn btn--yellow btn--large btn--block"><i class="fa-solid fa-plus"></i> Create New Game</button>
         <p style="margin-top:1rem;font-size:0.85rem;opacity:0.85;"><i class="fa-solid fa-info-circle"></i> All games use the David Quiz (1 Samuel 30:8) question bank.</p>
       </div>
@@ -242,12 +262,31 @@
     const LETTERS = ['A','B','C','D'];
     const LOBBY_CHANNEL = 'chrisco-lobby';
     const state = {
-      hostName: 'Host', pin: '', mode: 'pursue',
+      hostName: 'Host', hostIcon: 'fa-solid fa-lion', pin: '', mode: 'pursue',
       lobbyChannel: null, gameChannel: null, supabase: null,
       players: {}, lobbyGames: {},
       questions: [], qIndex: 0, phase: 'setup',
       timer: null, timeLeft: 0, answers: {}, revealed: false
     };
+
+    function iconHtml(p) {
+      if (p && p.icon) return '<i class="' + p.icon + '"></i>';
+      return esc(p && p.name ? p.name.charAt(0) : '?');
+    }
+
+    function renderIconPicker() {
+      const grid = $('icon-picker');
+      grid.innerHTML = window.CHRISCO_ICONS.map(ic =>
+        '<button type="button" class="icon-opt' + (ic.icon === state.hostIcon ? ' selected' : '') + '" data-icon="' + ic.icon + '"><i class="' + ic.icon + '"></i></button>'
+      ).join('');
+      grid.querySelectorAll('.icon-opt').forEach(b => b.addEventListener('click', () => {
+        state.hostIcon = b.dataset.icon;
+        renderIconPicker();
+        const cap = $('icon-caption');
+        const ic = window.CHRISCO_ICONS.find(x => x.icon === state.hostIcon);
+        cap.textContent = 'Shown to players on the scoreboard. ' + (ic ? ic.label : '');
+      }));
+    }
     function $(id) { return document.getElementById(id); }
     function esc(s) { const d = document.createElement('div'); d.textContent = s == null ? '' : String(s); return d.innerHTML; }
     function statusPill(html, cls) { const p = $('status-pill'); p.className = 'status-pill ' + (cls||''); p.innerHTML = html; }
@@ -282,7 +321,7 @@
       const ul = $('player-list');
       const players = Object.values(state.players).filter(p => !p.isHost);
       if (players.length === 0) ul.innerHTML = '<li class="empty"><i class="fa-solid fa-user-plus"></i> Waiting for players to join with this PIN...</li>';
-      else ul.innerHTML = players.map(p => '<li><span class="pavatar">' + esc(p.name.charAt(0)) + '</span>' + esc(p.name) + '</li>').join('');
+      else ul.innerHTML = players.map(p => '<li><span class="pavatar">' + iconHtml(p) + '</span>' + esc(p.name) + '</li>').join('');
       $('start-game-btn').disabled = false;
     }
 
@@ -302,7 +341,7 @@
         return '<div class="game-tile ' + cls + '">' +
           '<div class="gt-pin">' + esc(g.pin) + '</div>' +
           '<div class="gt-mode"><i class="fa-solid ' + modeIcon + '"></i> ' + esc(modeName) + '</div>' +
-          '<div class="gt-host"><i class="fa-solid fa-user"></i> ' + esc(g.name || 'Host') + '</div>' +
+          '<div class="gt-host">' + (g.icon ? '<i class="' + g.icon + '"></i> ' : '<i class="fa-solid fa-user"></i> ') + esc(g.name || 'Host') + '</div>' +
           '<div class="gt-meta"><span>' + (g.players||[]).length + ' players</span>' + statusLabel + '</div>' +
           '</div>';
       }).join('');
@@ -311,25 +350,32 @@
     function renderScores() {
       const all = Object.values(state.players);
       all.sort((a,b) => (b.score||0) - (a.score||0));
-      $('live-scores').innerHTML = all.map((p,i) => '<div class="score-row' + (i===0?' winner':'') + '"><span class="pavatar">' + esc(p.name.charAt(0)) + '</span><span class="pname">' + esc(p.name) + '</span><span class="pscore">' + (p.score||0) + '</span></div>').join('');
+      $('live-scores').innerHTML = all.map((p,i) => '<div class="score-row' + (i===0?' winner':'') + '"><span class="pavatar">' + iconHtml(p) + '</span><span class="pname">' + esc(p.name) + '</span><span class="pscore">' + (p.score||0) + '</span></div>').join('');
+    }
+
+    function hostShareUrl() {
+      return window.location.origin + '/api/share?role=host' +
+        '&host=' + encodeURIComponent(state.hostName) +
+        '&pin=' + encodeURIComponent(state.pin) +
+        '&mode=' + encodeURIComponent(state.mode);
     }
 
     function shareGame(kind) {
-      const url = window.location.origin + '/player.html';
-      const text = 'Join my Bible Quiz game! PIN: ' + state.pin + '. Theme: 1 Samuel 30:8 Pursue Overtake Recover All. Play at ' + url;
+      const url = hostShareUrl();
+      const text = 'CHRISCO Bible Quiz! Join my game. PIN: ' + state.pin + '. Live multiplayer Bible quiz. Theme: 1 Samuel 30:8 Pursue Overtake Recover All. Play at ' + url;
       const enc = encodeURIComponent(text);
       const uenc = encodeURIComponent(url);
       if (kind === 'whatsapp') window.open('https://wa.me/?text=' + enc, '_blank');
       else if (kind === 'facebook') window.open('https://www.facebook.com/sharer/sharer.php?u=' + uenc + '&quote=' + enc, '_blank');
       else if (kind === 'x') window.open('https://twitter.com/intent/tweet?text=' + enc + '&url=' + uenc, '_blank');
       else if (kind === 'sms') window.open('sms:?body=' + enc, '_blank');
-      else if (kind === 'copy') { navigator.clipboard.writeText(text).then(() => { alert('Link copied! Share it with friends.'); }); }
+      else if (kind === 'copy') { navigator.clipboard.writeText(text).then(() => { alert('Link copied! Friends will see a preview card and can join with one tap.'); }); }
     }
 
     function updateLobbyPresence() {
       if (!state.lobbyChannel) return;
       state.lobbyChannel.track({
-        name: state.hostName, pin: state.pin || '', mode: state.mode,
+        name: state.hostName, icon: state.hostIcon, pin: state.pin || '', mode: state.mode,
         status: state.phase === 'end' ? 'ended' : (state.phase === 'lobby' ? 'lobby' : 'playing'),
         players: Object.values(state.players).map(p => p.name),
         isHost: true
@@ -350,7 +396,7 @@
         .on('broadcast', { event: 'answer' }, (payload) => { handleAnswer(payload.payload); })
         .subscribe(async (status) => {
           if (status === 'SUBSCRIBED') {
-            await state.gameChannel.track({ name: state.hostName, isHost: true, status: 'lobby', score: 0, mode: state.mode });
+            await state.gameChannel.track({ name: state.hostName, icon: state.hostIcon, isHost: true, status: 'lobby', score: 0, mode: state.mode });
             $('mygame-status').innerHTML = '<i class="fa-solid fa-circle-check"></i> Live! Room ' + state.pin + ' ready. Share the PIN!';
           } else if (status === 'CHANNEL_ERROR' || status === 'CHANNEL_CLOSED') {
             $('mygame-status').innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Connection to room ' + state.pin + ' lost.';
@@ -423,7 +469,7 @@
       const winner = all[0];
       $('end-title').textContent = 'Game Over!';
       $('end-sub').innerHTML = 'Theme: <strong>1 Samuel 30:8 Pursue Overtake Recover All</strong>';
-      $('end-scores').innerHTML = all.map((p,i) => '<div class="score-row' + (i===0?' winner':'') + '"><span class="pavatar">' + esc(p.name.charAt(0)) + '</span><span class="pname">' + esc(p.name) + '</span><span class="pscore">' + (p.score||0) + '</span></div>').join('');
+      $('end-scores').innerHTML = all.map((p,i) => '<div class="score-row' + (i===0?' winner':'') + '"><span class="pavatar">' + iconHtml(p) + '</span><span class="pname">' + esc(p.name) + '</span><span class="pscore">' + (p.score||0) + '</span></div>').join('');
       $('end-trophy').innerHTML = winner ? '<i class="fa-solid fa-trophy"></i> ' + esc(winner.name) + ' wins!' : '<i class="fa-solid fa-trophy"></i>';
       state.gameChannel.send({ type: 'broadcast', event: 'end', payload: { winner: winner ? winner.name : null } });
       updateLobbyPresence();
@@ -440,6 +486,7 @@
       const hash = window.location.hash.replace('#','');
       if (['pursue','overtake','recover'].includes(hash)) selectMode(hash);
       selectMode('pursue');
+      renderIconPicker();
 
       $('create-game-btn').addEventListener('click', createGame);
       $('start-game-btn').addEventListener('click', startGame);

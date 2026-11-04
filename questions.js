@@ -166,6 +166,19 @@ function pickQuestions(mode, count) {
   return pool.slice(0, count);
 }
 
+// Player avatar icons (Bible themed, Font Awesome) with share emojis
+const CHRISCO_ICONS = [
+  { icon: "fa-solid fa-lion",     emoji: "🦁", label: "Lion of Judah" },
+  { icon: "fa-solid fa-crown",    emoji: "👑", label: "Crown" },
+  { icon: "fa-solid fa-sword",    emoji: "⚔️", label: "Sword" },
+  { icon: "fa-solid fa-scroll",   emoji: "📜", label: "Scroll" },
+  { icon: "fa-solid fa-fire",     emoji: "🔥", label: "Fire" },
+  { icon: "fa-solid fa-sailboat", emoji: "⛵", label: "Boat" },
+  { icon: "fa-solid fa-harp",     emoji: "🎵", label: "Harp" },
+  { icon: "fa-solid fa-star",     emoji: "⭐", label: "Star" }
+];
+
 window.CHRISCO_QUESTIONS = CHRISCO_QUESTIONS;
 window.CHRISCO_MODES = CHRISCO_MODES;
+window.CHRISCO_ICONS = CHRISCO_ICONS;
 window.pickQuestions = pickQuestions;

@@ -4,6 +4,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>CHRISCO Bible Quizzes - Join (Pursue, Overtake, Recover All)</title>
+  <meta name="description" content="Join a live multiplayer Bible quiz game with a PIN. Answer questions, see the scoreboard, compete with friends. Theme: 1 Samuel 30:8 Pursue Overtake Recover All." />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="CHRISCO Bible Quizzes" />
+  <meta property="og:title" content="CHRISCO Bible Quizzes | Join a live Bible Quiz game" />
+  <meta property="og:description" content="Join a live multiplayer Bible quiz game with a PIN. Answer questions, see the scoreboard, compete with friends. Theme: 1 Samuel 30:8 Pursue Overtake Recover All." />
+  <meta property="og:image" content="https://chrisco-bible-quizzes.vercel.app/image-search/david-bible-battle-victory-colorful-illu-1.jpg" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="CHRISCO Bible Quizzes | Join a live Bible Quiz game" />
+  <meta name="twitter:description" content="Join a live multiplayer Bible quiz game with a PIN. Answer questions, see the scoreboard, compete with friends. Theme: 1 Samuel 30:8 Pursue Overtake Recover All." />
+  <meta name="twitter:image" content="https://chrisco-bible-quizzes.vercel.app/image-search/david-bible-battle-victory-colorful-illu-1.jpg" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <script src="vendor/supabase.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -63,6 +73,17 @@
     .pin-input { width: 100%; padding: 1.1rem; font-size: 1.8rem; font-weight: 800; text-align: center; letter-spacing: 8px; border: 2px dashed rgba(255,255,255,0.6); border-radius: 14px; background: rgba(255,255,255,0.12); color: #fff; outline: none; font-family: inherit; }
     .pin-input::placeholder { color: rgba(255,255,255,0.5); letter-spacing: 4px; font-size: 1.2rem; }
     .pin-input:focus { background: rgba(255,255,255,0.2); border-color: var(--yellow); }
+
+    .icon-picker { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.6rem; }
+    .icon-opt { width: 46px; height: 46px; border-radius: 12px; border: 2px solid rgba(255,255,255,0.35); background: rgba(255,255,255,0.12); color: #fff; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.15s, box-shadow 0.15s, background 0.15s; font-family: inherit; }
+    .icon-opt:hover { transform: translateY(-2px); }
+    .icon-opt.selected { border-color: var(--yellow); box-shadow: 0 0 0 3px rgba(255,192,10,0.35); background: rgba(255,192,10,0.2); }
+    .icon-caption { font-size: 0.8rem; opacity: 0.85; margin-top: 0.4rem; }
+
+    .player-list { list-style: none; padding: 0; margin: 0.5rem 0 0; display: flex; flex-direction: column; gap: 0.5rem; }
+    .player-list li { display: flex; align-items: center; gap: 0.7rem; background: rgba(255,255,255,0.12); padding: 0.5rem 0.8rem; border-radius: 12px; font-weight: 700; }
+    .player-list li.empty { justify-content: center; opacity: 0.8; font-weight: 500; }
+    .player-list li .pavatar { width: 34px; height: 34px; border-radius: 50%; background: var(--yellow); color: #333; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.9rem; flex-shrink: 0; }
 
     .section-head { margin: 1.5rem 0 0.8rem; }
     .section-head h2 { font-size: 1.3rem; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 0.5rem; }
@@ -137,6 +158,11 @@
           <label for="name-input">Your Name</label>
           <input type="text" class="name-input" id="name-input" placeholder="e.g. Mary" maxlength="16" autocomplete="off" />
         </div>
+        <div class="field">
+          <label><i class="fa-solid fa-icons"></i> Pick your icon</label>
+          <div class="icon-picker" id="icon-picker"></div>
+          <div class="icon-caption" id="icon-caption">Your icon shows on the scoreboard.</div>
+        </div>
       </div>
 
       <div class="section-head"><h2><i class="fa-solid fa-list-check" style="color:var(--secondary);"></i> Running Games</h2></div>
@@ -157,6 +183,13 @@
         <h2><i class="fa-solid fa-users"></i> Room PIN <span id="room-pin" style="color:var(--yellow);">----</span></h2>
         <p>Waiting for the host to start. You can see who else is here.</p>
         <ul class="player-list" id="player-list"><li class="empty">Waiting for players...</li></ul>
+        <div class="share-row" id="lobbywait-share">
+          <button class="share-btn share-whatsapp" onclick="shareLobby('whatsapp')"><i class="fa-brands fa-whatsapp"></i> WhatsApp</button>
+          <button class="share-btn share-facebook" onclick="shareLobby('facebook')"><i class="fa-brands fa-facebook-f"></i> Facebook</button>
+          <button class="share-btn share-x" onclick="shareLobby('x')"><i class="fa-brands fa-x-twitter"></i> X</button>
+          <button class="share-btn share-sms" onclick="shareLobby('sms')"><i class="fa-solid fa-comment-sms"></i> SMS</button>
+          <button class="share-btn share-copy" onclick="shareLobby('copy')"><i class="fa-solid fa-link"></i> Copy Link</button>
+        </div>
         <div id="waiting-hint" style="text-align:center;margin-top:0.8rem;"><i class="fa-solid fa-hourglass-half"></i> Waiting for host to start the game...</div>
       </div>
     </div>
@@ -203,9 +236,35 @@
     const LETTERS = ['A','B','C','D'];
     const LOBBY_CHANNEL = 'chrisco-lobby';
     const state = {
-      name: '', pin: '', channel: null, supabase: null, lobbyChannel: null,
+      name: '', icon: 'fa-solid fa-lion', emoji: '🦁', pin: '', hostName: '',
+      channel: null, supabase: null, lobbyChannel: null,
       players: {}, lobbyGames: {}, myAnswer: null, score: 0, phase: 'setup'
     };
+
+    function iconHtml(p) {
+      if (p && p.icon) return '<i class="' + p.icon + '"></i>';
+      return esc(p && p.name ? p.name.charAt(0) : '?');
+    }
+
+    function iconEmoji(icon) {
+      const ic = window.CHRISCO_ICONS && window.CHRISCO_ICONS.find(x => x.icon === icon);
+      return ic ? ic.emoji : '🦁';
+    }
+
+    function renderIconPicker() {
+      const grid = $('icon-picker');
+      grid.innerHTML = window.CHRISCO_ICONS.map(ic =>
+        '<button type="button" class="icon-opt' + (ic.icon === state.icon ? ' selected' : '') + '" data-icon="' + ic.icon + '"><i class="' + ic.icon + '"></i></button>'
+      ).join('');
+      grid.querySelectorAll('.icon-opt').forEach(b => b.addEventListener('click', () => {
+        state.icon = b.dataset.icon;
+        state.emoji = iconEmoji(state.icon);
+        renderIconPicker();
+        const cap = $('icon-caption');
+        const ic = window.CHRISCO_ICONS.find(x => x.icon === state.icon);
+        cap.textContent = 'Your icon shows on the scoreboard. ' + (ic ? ic.label : '');
+      }));
+    }
     function $(id) { return document.getElementById(id); }
     function esc(s) { const d = document.createElement('div'); d.textContent = s == null ? '' : String(s); return d.innerHTML; }
     function showScreen(id) {
@@ -231,9 +290,9 @@
         return '<div class="game-tile ' + cls + '">' +
           '<div class="gt-pin">' + esc(g.pin) + '</div>' +
           '<div class="gt-mode"><i class="fa-solid ' + modeIcon + '"></i> ' + esc(modeName) + '</div>' +
-          '<div class="gt-host"><i class="fa-solid fa-user"></i> ' + esc(g.name || 'Host') + '</div>' +
+          '<div class="gt-host">' + (g.icon ? '<i class="' + g.icon + '"></i> ' : '<i class="fa-solid fa-user"></i> ') + esc(g.name || 'Host') + '</div>' +
           '<div class="gt-meta"><span>' + (g.players||[]).length + ' players</span>' + statusLabel + '</div>' +
-          '<button class="btn btn--green btn--sm btn--block" style="margin-top:0.4rem;" onclick="joinGame(\'' + esc(g.pin) + '\')"><i class="fa-solid fa-right-to-bracket"></i> Join</button>' +
+          '<button class="btn btn--green btn--sm btn--block" style="margin-top:0.4rem;" onclick="joinGame(\'' + esc(g.pin) + '\', \'' + esc(g.name || 'Host') + '\')"><i class="fa-solid fa-right-to-bracket"></i> Join</button>' +
           '</div>';
       }).join('');
     }
@@ -242,7 +301,7 @@
       const ul = $('player-list');
       const players = Object.values(state.players);
       if (players.length === 0) ul.innerHTML = '<li class="empty"><i class="fa-solid fa-user-plus"></i> Waiting for players...</li>';
-      else ul.innerHTML = players.map(p => '<li' + (p.name === state.name ? ' style="outline:3px solid var(--yellow);outline-offset:2px;"' : '') + '><span class="pavatar">' + esc(p.name.charAt(0)) + '</span>' + esc(p.name) + (p.isHost ? ' <i class="fa-solid fa-crown" style="margin-left:auto;color:var(--yellow);"></i>' : '') + '</li>').join('');
+      else ul.innerHTML = players.map(p => '<li' + (p.name === state.name ? ' style="outline:3px solid var(--yellow);outline-offset:2px;"' : '') + '><span class="pavatar">' + iconHtml(p) + '</span>' + esc(p.name) + (p.isHost ? ' <i class="fa-solid fa-crown" style="margin-left:auto;color:var(--yellow);"></i>' : '') + '</li>').join('');
     }
 
     function lockInAnswer(choice) {
@@ -304,9 +363,30 @@
       showScreen('result');
     }
 
+    function playerShareUrl() {
+      return window.location.origin + '/api/share?role=player' +
+        '&name=' + encodeURIComponent(state.name) +
+        '&icon=' + encodeURIComponent(state.icon) +
+        '&emoji=' + encodeURIComponent(state.emoji) +
+        '&host=' + encodeURIComponent(state.hostName || 'Host') +
+        '&pin=' + encodeURIComponent(state.pin);
+    }
+
+    function shareLobby(kind) {
+      const url = playerShareUrl();
+      const text = state.emoji + ' ' + state.name + ' joined a CHRISCO Bible Quiz game! PIN: ' + state.pin + '. Come play with me! ' + url;
+      const enc = encodeURIComponent(text);
+      const uenc = encodeURIComponent(url);
+      if (kind === 'whatsapp') window.open('https://wa.me/?text=' + enc, '_blank');
+      else if (kind === 'facebook') window.open('https://www.facebook.com/sharer/sharer.php?u=' + uenc + '&quote=' + enc, '_blank');
+      else if (kind === 'x') window.open('https://twitter.com/intent/tweet?text=' + enc + '&url=' + uenc, '_blank');
+      else if (kind === 'sms') window.open('sms:?body=' + enc, '_blank');
+      else if (kind === 'copy') { navigator.clipboard.writeText(text).then(() => alert('Invite link copied! Friends will see a preview card and can join with one tap.')); }
+    }
+
     function shareResult(kind) {
-      const url = window.location.origin + '/player.html';
-      const text = 'I scored ' + state.score + ' points in a Bible Quiz game! Theme: 1 Samuel 30:8 Pursue Overtake Recover All. Play at ' + url;
+      const url = playerShareUrl();
+      const text = state.emoji + ' I scored ' + state.score + ' points in a CHRISCO Bible Quiz game! PIN: ' + state.pin + '. Come play too! ' + url;
       const enc = encodeURIComponent(text);
       const uenc = encodeURIComponent(url);
       if (kind === 'whatsapp') window.open('https://wa.me/?text=' + enc, '_blank');
@@ -315,11 +395,14 @@
       else if (kind === 'copy') { navigator.clipboard.writeText(text).then(() => alert('Score copied! Share it with friends.')); }
     }
 
-    function joinGame(pin) {
+    function joinGame(pin, hostName) {
       const name = $('name-input').value.trim();
       if (!name) { alert('Please enter your name first.'); return; }
       if (!pin) { alert('Please enter a PIN.'); return; }
+      if (hostName) state.hostName = hostName;
       state.name = name;
+      state.icon = state.icon || 'fa-solid fa-lion';
+      state.emoji = iconEmoji(state.icon);
       state.pin = pin;
       setupStatus('<i class="fa-solid fa-spinner fa-spin"></i> Joining room ' + pin + '...', 'warn');
 
@@ -334,7 +417,7 @@
         .on('broadcast', { event: 'reset' }, () => { state.phase = 'lobby'; showScreen('lobbywait'); lobbyStatus('<i class="fa-solid fa-rotate"></i> New game ready. Waiting for host to start...', 'warn'); })
         .subscribe(async (status) => {
           if (status === 'SUBSCRIBED') {
-            await state.channel.track({ name: state.name, isHost: false, status: 'lobby', score: 0 });
+            await state.channel.track({ name: state.name, icon: state.icon, isHost: false, status: 'lobby', score: 0 });
             $('room-pin').textContent = state.pin;
             lobbyStatus('<i class="fa-solid fa-circle-check"></i> Joined room ' + state.pin + '. Waiting for host...', 'ok');
             showScreen('lobbywait');
@@ -355,6 +438,7 @@
         setupStatus('<i class="fa-solid fa-circle-info"></i> Ready when you are', '');
         showScreen('setup');
       });
+      renderIconPicker();
 
       loadConfig().then(config => {
         const { url, key } = config;
@@ -366,6 +450,21 @@
             if (status === 'SUBSCRIBED') setupStatus('<i class="fa-solid fa-circle-check"></i> Connected. Pick a game below or enter a PIN.', 'ok');
             else if (status === 'CHANNEL_ERROR' || status === 'CHANNEL_CLOSED') setupStatus('<i class="fa-solid fa-triangle-exclamation"></i> Lobby connection lost. Reconnecting...', 'err');
           });
+
+        // One-tap join from a share link: player.html?pin=...&host=...&name=...&icon=...
+        const q = new URLSearchParams(window.location.search);
+        const sharePin = (q.get('pin') || '').trim();
+        const shareName = (q.get('name') || '').trim();
+        const shareIcon = q.get('icon') || '';
+        const shareHost = (q.get('host') || '').trim();
+        if (sharePin) {
+          if (shareName) $('name-input').value = shareName;
+          if (shareIcon && window.CHRISCO_ICONS.some(x => x.icon === shareIcon)) {
+            state.icon = shareIcon; state.emoji = iconEmoji(shareIcon); renderIconPicker();
+          }
+          state.hostName = shareHost;
+          joinGame(sharePin, shareHost || undefined);
+        }
       }).catch(err => {
         setupStatus('<i class="fa-solid fa-triangle-exclamation"></i> Could not reach the game server.', 'err');
       });
