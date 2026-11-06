@@ -140,6 +140,25 @@
     .section-sub { text-align: center; color: #666; max-width: 600px; margin: 0 auto 2.5rem; font-size: 1rem; line-height: 1.5; }
     .section-sub strong { color: var(--accent); }
 
+    /* ===== Running Games Lobby ===== */
+    .lobby-section { background: #fff; }
+    .lobby-grid { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; }
+    .game-tile { border-radius: 18px; padding: 1.2rem; color: #fff; background: linear-gradient(160deg, #46178f, #00008B); box-shadow: 0 8px 20px rgba(0,0,0,0.18); display: flex; flex-direction: column; gap: 0.5rem; }
+    .game-tile.waiting { background: linear-gradient(160deg, #6b4f1f, #3d2e0f); }
+    .game-tile.playing { background: linear-gradient(160deg, #006400, #003d00); }
+    .game-tile.gt-empty { background: #f0f0f0; color: #666; text-align: center; justify-content: center; align-items: center; min-height: 120px; font-weight: 600; }
+    .gt-pin { font-size: 1.6rem; font-weight: 900; letter-spacing: 3px; color: var(--yellow); }
+    .gt-mode { font-weight: 700; font-size: 0.95rem; }
+    .gt-host { font-size: 0.85rem; opacity: 0.9; display: flex; align-items: center; gap: 0.3rem; }
+    .gt-meta { display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; font-weight: 600; opacity: 0.95; margin-top: auto; }
+    .gt-join { margin-top: 0.5rem; }
+    .lobby-pin-row { max-width: 420px; margin: 1.5rem auto 0; display: flex; gap: 0.6rem; align-items: center; justify-content: center; flex-wrap: wrap; font-weight: 600; color: var(--text); }
+    .lobby-pin-input { font-size: 1.4rem; letter-spacing: 4px; text-align: center; width: 120px; padding: 0.5rem; border-radius: 10px; border: 2px solid var(--primary); font-weight: 800; }
+    .lobby-live-banner { max-width: 1100px; margin: 0 auto 1.5rem; padding: 1rem 1.4rem; border-radius: 16px; background: linear-gradient(120deg, #46178f, #00008B); color: #fff; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; box-shadow: 0 8px 20px rgba(0,0,0,0.2); }
+    .lobby-live-banner .llb-title { font-weight: 800; font-size: 1.05rem; display: flex; align-items: center; gap: 0.5rem; }
+    .lobby-live-banner .llb-sub { font-size: 0.85rem; opacity: 0.9; }
+    .lobby-live-banner .llb-pin { font-size: 1.8rem; font-weight: 900; letter-spacing: 4px; color: var(--yellow); }
+
     /* ===== Game Cards (Kahoot style) ===== */
     .games-grid {
       max-width: 1100px; margin: 0 auto;
@@ -168,6 +187,7 @@
     .game-card.pursue::before { background-image: url('./image-search/bright-colorful-worship-church-backgroun-1.jpg'); }
     .game-card.overtake::before { background-image: url('./image-search/david-bible-battle-victory-colorful-illu-3.jpg'); }
     .game-card.recover::before { background-image: url('./image-search/david-bible-battle-victory-colorful-illu-2.jpg'); }
+    .game-card.beauty::before { background-image: url('./image-search/bright-colorful-worship-church-backgroun-1.jpg'); }
     .game-card.pursue { background: linear-gradient(160deg, #00008B, #000051); }
     .game-card.overtake { background: linear-gradient(160deg, #FF8C00, #c75c00); }
     .game-card.recover { background: linear-gradient(160deg, #006400, #003d00); }
@@ -304,8 +324,9 @@
         <span class="brand-text">CHRISCO<small>BIBLE QUIZZES</small></span>
       </a>
       <div class="topbar-actions">
-        <a class="btn btn--outline" href="player.html"><i class="fa-solid fa-right-to-bracket"></i> Join</a>
-        <a class="btn btn--yellow" href="host.html"><i class="fa-solid fa-gamepad"></i> Host</a>
+        <div id="lang-select-wrap" class="topbar-lang"></div>
+        <a class="btn btn--outline" href="player.html"><i class="fa-solid fa-right-to-bracket"></i> <span data-i18n="join">Join</span></a>
+        <a class="btn btn--yellow" href="host.html"><i class="fa-solid fa-gamepad"></i> <span data-i18n="host">Host</span></a>
       </div>
     </div>
   </div>
@@ -314,74 +335,116 @@
   <section class="hero">
     <div class="hero-blobs"><span></span><span></span><span></span></div>
     <div class="hero-content">
-      <div class="hero-badge"><i class="fa-solid fa-bolt"></i> REAL-TIME MULTIPLAYER BIBLE GAMES</div>
-      <h1>Make Bible Learning<br><span class="gradient-text">Awesome!</span></h1>
-      <p class="hero-sub">Play together with friends and family. Host a game, share the PIN, and compete to <strong>Pursue Overtake Recover All</strong> from 1 Samuel 30:8.</p>
+      <div class="hero-badge" data-i18n="hero_badge"><i class="fa-solid fa-bolt"></i> REAL-TIME MULTIPLAYER BIBLE GAMES</div>
+      <h1 data-i18n="hero_title">Make Bible Learning Awesome!</h1>
+      <p class="hero-sub" data-i18n="hero_sub">Play together with friends and family. Host a game, share the PIN, and compete to Pursue Overtake Recover All from 1 Samuel 30:8.</p>
       <div class="hero-actions">
-        <a class="btn btn--yellow btn--large" href="host.html"><i class="fa-solid fa-gamepad"></i> Host a Game</a>
-        <a class="btn btn--outline btn--large" href="player.html"><i class="fa-solid fa-right-to-bracket"></i> Join with PIN</a>
+        <a class="btn btn--yellow btn--large" href="host.html"><i class="fa-solid fa-gamepad"></i> <span data-i18n="hero_cta_host">Host a Game</span></a>
+        <a class="btn btn--outline btn--large" href="player.html"><i class="fa-solid fa-right-to-bracket"></i> <span data-i18n="hero_cta_join">Join with PIN</span></a>
       </div>
       <div class="hero-stats">
-        <div class="hero-stat"><div class="num">3</div><div class="lbl">Game Modes</div></div>
-        <div class="hero-stat"><div class="num">4</div><div class="lbl">Digit PINs</div></div>
-        <div class="hero-stat"><div class="num">∞</div><div class="lbl">Fun with Friends</div></div>
+        <div class="hero-stat"><div class="num">4</div><div class="lbl" data-i18n="stat_modes">Game Modes</div></div>
+        <div class="hero-stat"><div class="num">4</div><div class="lbl" data-i18n="stat_pin">Digit PINs</div></div>
+        <div class="hero-stat"><div class="num">∞</div><div class="lbl" data-i18n="stat_fun">Fun with Friends</div></div>
       </div>
+    </div>
+  </section>
+
+  <!-- ===== Running Games Lobby ===== -->
+  <section class="section lobby-section">
+    <div class="section-title">
+      <h2><i class="fa-solid fa-users-line" style="color: var(--accent);"></i> <span data-i18n="lobby_title">Running Games</span></h2>
+      <p class="section-sub"><span data-i18n="lobby_sub">Join a running game with its PIN or pick one below.</span></p>
+    </div>
+    <div class="lobby-live-banner" id="lobby-live-banner" style="display:none;">
+      <div>
+        <div class="llb-title"><i class="fa-solid fa-circle-pulse"></i> <span data-i18n="auto_live_title">Beauty for Ashes Live Game</span></div>
+        <div class="llb-sub"><span data-i18n="auto_live_sub">A live game hosted by Presbyter David Kirui. Join with the PIN below.</span></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:0.8rem;">
+        <div class="llb-pin" id="lobby-live-pin">----</div>
+        <a class="btn btn--yellow" id="lobby-live-join" href="player.html"><i class="fa-solid fa-right-to-bracket"></i> <span data-i18n="join_now">Join Now</span></a>
+      </div>
+    </div>
+    <div class="lobby-grid" id="lobby-list">
+      <div class="game-tile gt-empty"><i class="fa-solid fa-hourglass-half"></i> <span data-i18n="lobby_empty_player">No games running yet. Ask a host to create one!</span></div>
+    </div>
+    <div class="lobby-pin-row">
+      <label data-i18n="lobby_pin_label">Have a PIN?</label>
+      <input id="lobby-pin-input" class="lobby-pin-input" data-i18n-placeholder="lobby_pin_ph" placeholder="0000" maxlength="5" inputmode="numeric" />
+      <button id="lobby-join-pin-btn" class="btn btn--green"><i class="fa-solid fa-right-to-bracket"></i> <span data-i18n="lobby_join_pin_btn">Join</span></button>
     </div>
   </section>
 
   <!-- ===== Game Selection Grid ===== -->
   <section class="section">
     <div class="section-title">
-      <h2><i class="fa-solid fa-gamepad" style="color: var(--secondary);"></i> Pick Your Game</h2>
-      <p class="section-sub">Three exciting modes inspired by <strong>1 Samuel 30:8</strong>. Host the one you want and invite players to join.</p>
+      <h2><i class="fa-solid fa-gamepad" style="color: var(--secondary);"></i> <span data-i18n="section_pick">Pick Your Game</span></h2>
+      <p class="section-sub" data-i18n="section_pick_sub">Three exciting modes inspired by 1 Samuel 30:8. Host the one you want and invite players to join.</p>
     </div>
     <div class="games-grid">
       <!-- Pursue -->
       <a class="game-card pursue" href="host.html#pursue">
         <div>
-          <span class="card-tag"><i class="fa-solid fa-arrow-right"></i> Practice Mode</span>
+          <span class="card-tag"><i class="fa-solid fa-arrow-right"></i> <span data-i18n="card_tag_practice">Practice Mode</span></span>
           <div class="card-icon"><i class="fa-solid fa-compass"></i></div>
-          <h3 class="card-title">Pursue</h3>
-          <p class="card-desc">Start your journey with David. Answer questions and pursue wisdom before the clock runs out.</p>
+          <h3 class="card-title" data-i18n="card_title_pursue">Pursue</h3>
+          <p class="card-desc" data-i18n="card_desc_pursue">Start your journey with David. Answer questions and pursue wisdom before the clock runs out.</p>
         </div>
         <div>
           <div class="card-meta">
             <span><i class="fa-solid fa-clock"></i> 5 mins</span>
-            <span><i class="fa-solid fa-mobile-screen"></i> Mobile Ready</span>
+            <span><i class="fa-solid fa-mobile-screen"></i> <span data-i18n="card_mobile">Mobile Ready</span></span>
           </div>
-          <span class="card-btn">Play Pursue <i class="fa-solid fa-arrow-right"></i></span>
+          <span class="card-btn"><i class="fa-solid fa-play"></i> <span data-i18n="card_btn_play">Play</span> <i class="fa-solid fa-arrow-right"></i></span>
         </div>
       </a>
       <!-- Overtake -->
       <a class="game-card overtake" href="host.html#overtake">
         <div>
-          <span class="card-tag"><i class="fa-solid fa-bolt"></i> Speed Mode</span>
+          <span class="card-tag"><i class="fa-solid fa-bolt"></i> <span data-i18n="card_tag_speed">Speed Mode</span></span>
           <div class="card-icon"><i class="fa-solid fa-running"></i></div>
-          <h3 class="card-title">Overtake</h3>
-          <p class="card-desc">Fast answers win the race. Overtake your opponents with lightning-fast Bible knowledge.</p>
+          <h3 class="card-title" data-i18n="card_title_overtake">Overtake</h3>
+          <p class="card-desc" data-i18n="card_desc_overtake">Fast answers win the race. Overtake your opponents with lightning-fast Bible knowledge.</p>
         </div>
         <div>
           <div class="card-meta">
             <span><i class="fa-solid fa-clock"></i> 3 mins</span>
-            <span><i class="fa-solid fa-mobile-screen"></i> Mobile Ready</span>
+            <span><i class="fa-solid fa-mobile-screen"></i> <span data-i18n="card_mobile">Mobile Ready</span></span>
           </div>
-          <span class="card-btn">Play Overtake <i class="fa-solid fa-arrow-right"></i></span>
+          <span class="card-btn"><i class="fa-solid fa-play"></i> <span data-i18n="card_btn_play">Play</span> <i class="fa-solid fa-arrow-right"></i></span>
         </div>
       </a>
       <!-- Recover All -->
       <a class="game-card recover" href="host.html#recover">
         <div>
-          <span class="card-tag"><i class="fa-solid fa-trophy"></i> Final Round</span>
+          <span class="card-tag"><i class="fa-solid fa-trophy"></i> <span data-i18n="card_tag_final">Final Round</span></span>
           <div class="card-icon"><i class="fa-solid fa-shield-halved"></i></div>
-          <h3 class="card-title">Recover All</h3>
-          <p class="card-desc">The ultimate victory. Recover all the points and claim the crown in the grand finale.</p>
+          <h3 class="card-title" data-i18n="card_title_recover">Recover All</h3>
+          <p class="card-desc" data-i18n="card_desc_recover">The ultimate victory. Recover all the points and claim the crown in the grand finale.</p>
         </div>
         <div>
           <div class="card-meta">
             <span><i class="fa-solid fa-clock"></i> 10 mins</span>
-            <span><i class="fa-solid fa-mobile-screen"></i> Mobile Ready</span>
+            <span><i class="fa-solid fa-mobile-screen"></i> <span data-i18n="card_mobile">Mobile Ready</span></span>
           </div>
-          <span class="card-btn">Play Recover All <i class="fa-solid fa-arrow-right"></i></span>
+          <span class="card-btn"><i class="fa-solid fa-play"></i> <span data-i18n="card_btn_play">Play</span> <i class="fa-solid fa-arrow-right"></i></span>
+        </div>
+      </a>
+      <!-- Beauty for Ashes -->
+      <a class="game-card beauty" href="host.html#beauty" style="background: linear-gradient(160deg, #46178f, #2a0d57);">
+        <div>
+          <span class="card-tag"><i class="fa-solid fa-dove"></i> <span data-i18n="card_tag_final">Teaching Quiz</span></span>
+          <div class="card-icon"><i class="fa-solid fa-dove"></i></div>
+          <h3 class="card-title" data-i18n="card_title_beauty">Beauty for Ashes</h3>
+          <p class="card-desc" data-i18n="card_desc_beauty">A full Bible quiz from the Beauty for Ashes teaching: Why am I going through this? The truth that sets you free.</p>
+        </div>
+        <div>
+          <div class="card-meta">
+            <span><i class="fa-solid fa-clock"></i> 10 rounds</span>
+            <span><i class="fa-solid fa-mobile-screen"></i> <span data-i18n="card_mobile">Mobile Ready</span></span>
+          </div>
+          <span class="card-btn"><i class="fa-solid fa-play"></i> <span data-i18n="card_btn_play">Play</span> <i class="fa-solid fa-arrow-right"></i></span>
         </div>
       </a>
     </div>
@@ -390,34 +453,34 @@
   <!-- ===== Use Cases Carousel ===== -->
   <section class="section" style="background: #fff;">
     <div class="section-title">
-      <h2><i class="fa-solid fa-star" style="color: var(--yellow);"></i> Play It Your Way</h2>
-      <p class="section-sub">From youth groups to family nights, CHRISCO Bible Quizzes brings everyone together.</p>
+      <h2><i class="fa-solid fa-star" style="color: var(--yellow);"></i> <span data-i18n="section_uses">Play It Your Way</span></h2>
+      <p class="section-sub" data-i18n="section_uses_sub">From youth groups to family nights, CHRISCO Bible Quizzes brings everyone together.</p>
     </div>
     <div class="carousel-wrap">
       <div class="carousel-track" id="carousel-track">
         <div class="carousel-card cc-1">
           <img src="./image-search/bible-study-colorful-books-rainbow-brigh-1.jpg" alt="Bible study" />
-          <div><h3>Sunday School</h3><p>Engage kids with interactive quizzes in class.</p></div>
+          <div><h3 data-i18n="carousel_1_title">Sunday School</h3><p data-i18n="carousel_1_desc">Engage kids with interactive quizzes in class.</p></div>
         </div>
         <div class="carousel-card cc-2">
           <img src="./image-search/bible-study-colorful-books-rainbow-brigh-2.jpg" alt="Bible study rainbow" />
-          <div><h3>Family Nights</h3><p>Turn dinner time into Bible trivia fun.</p></div>
+          <div><h3 data-i18n="carousel_2_title">Family Nights</h3><p data-i18n="carousel_2_desc">Turn dinner time into Bible trivia fun.</p></div>
         </div>
         <div class="carousel-card cc-3">
           <img src="./image-search/bible-study-colorful-books-rainbow-brigh-3.jpg" alt="Open Bible" />
-          <div><h3>Youth Groups</h3><p>Race against friends in speed mode.</p></div>
+          <div><h3 data-i18n="carousel_3_title">Youth Groups</h3><p data-i18n="carousel_3_desc">Race against friends in speed mode.</p></div>
         </div>
         <div class="carousel-card cc-4">
           <img src="./image-search/bright-colorful-worship-church-backgroun-2.jpg" alt="Worship" />
-          <div><h3>Small Groups</h3><p>Deepen your faith with group challenges.</p></div>
+          <div><h3 data-i18n="carousel_4_title">Small Groups</h3><p data-i18n="carousel_4_desc">Deepen your faith with group challenges.</p></div>
         </div>
         <div class="carousel-card cc-5">
           <img src="./image-search/bright-colorful-worship-church-backgroun-3.jpg" alt="Church" />
-          <div><h3>Church Events</h3><p>Live games on stage for everyone.</p></div>
+          <div><h3 data-i18n="carousel_5_title">Church Events</h3><p data-i18n="carousel_5_desc">Live games on stage for everyone.</p></div>
         </div>
         <div class="carousel-card cc-6">
           <img src="./image-search/1-samuel-30-8-pursue-overtake-recover-bi-2.jpg" alt="Bible theme" />
-          <div><h3>Personal Growth</h3><p>Practice solo and track your progress.</p></div>
+          <div><h3 data-i18n="carousel_6_title">Personal Growth</h3><p data-i18n="carousel_6_desc">Practice solo and track your progress.</p></div>
         </div>
       </div>
       <div class="carousel-nav">
@@ -430,8 +493,8 @@
   <!-- ===== Features (image cards like game cards) ===== -->
   <section class="section features-bg">
     <div class="section-title">
-      <h2><i class="fa-solid fa-heart" style="color: var(--red);"></i> Why Players Love It</h2>
-      <p class="section-sub">Three reasons CHRISCO Bible Quizzes keeps bringing people back to play.</p>
+      <h2><i class="fa-solid fa-heart" style="color: var(--red);"></i> <span data-i18n="section_features">Why Players Love It</span></h2>
+      <p class="section-sub" data-i18n="section_features_sub">Three reasons CHRISCO Bible Quizzes keeps bringing people back to play.</p>
     </div>
     <div class="features-grid">
       <div class="feature-card fc-1">
@@ -454,11 +517,11 @@
 
   <!-- ===== CTA ===== -->
   <section class="cta">
-    <h2>Ready to make learning awesome?</h2>
+    <h2 data-i18n="cta_title">Ready to make learning awesome?</h2>
     <p>Start a game now and share the PIN with your friends. Theme: <strong style="color: var(--yellow);">1 Samuel 30:8 Pursue Overtake Recover All</strong>.</p>
     <div class="hero-actions">
-      <a class="btn btn--yellow btn--large" href="host.html"><i class="fa-solid fa-gamepad"></i> Host a Game Now</a>
-      <a class="btn btn--outline btn--large" href="player.html"><i class="fa-solid fa-right-to-bracket"></i> I am a Player</a>
+      <a class="btn btn--yellow btn--large" href="host.html"><i class="fa-solid fa-gamepad"></i> <span data-i18n="cta_host">Host a Game Now</span></a>
+      <a class="btn btn--outline btn--large" href="player.html"><i class="fa-solid fa-right-to-bracket"></i> <span data-i18n="cta_player">I am a Player</span></a>
     </div>
   </section>
 
@@ -473,9 +536,14 @@
       <a href="player.html" aria-label="Join"><i class="fa-solid fa-right-to-bracket"></i></a>
       <a href="index.html" aria-label="Home"><i class="fa-solid fa-house"></i></a>
     </div>
-    <p>&copy; 2026 CHRISCO Bible Quizzes. Theme: 1 Samuel 30:8 Pursue Overtake Recover All.</p>
+    <p data-i18n="footer_copy">&copy; 2026 CHRISCO Bible Quizzes. Theme: 1 Samuel 30:8 Pursue Overtake Recover All.</p>
   </footer>
 
+  <script src="vendor/supabase.js"></script>
+  <script src="i18n.js"></script>
+  <script src="questions.js"></script>
+  <script src="questions-i18n.js"></script>
+  <script src="home-auto-host.js"></script>
   <script>
     // Carousel navigation
     const track = document.getElementById('carousel-track');

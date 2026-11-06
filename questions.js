@@ -294,8 +294,20 @@ const CHRISCO_ICONS = [
   { icon: "fa-solid fa-star",     emoji: "⭐", label: "Star" }
 ];
 
+// Localize a question for a display language. Looks up translations keyed by the
+// exact English question text in CHRISCO_BA_TRANS / CHRISCO_Q_TRANS (from
+// questions-i18n.js). Falls back to the original English when no translation.
+function localizeQuestion(q, lang) {
+  if (!q || !lang || lang === 'en') return q;
+  const byLang = (window.CHRISCO_BA_TRANS && window.CHRISCO_BA_TRANS[lang]) ||
+                 (window.CHRISCO_Q_TRANS && window.CHRISCO_Q_TRANS[lang]) || {};
+  const t = byLang[q.q];
+  return t ? Object.assign({}, q, t) : q;
+}
+
 window.CHRISCO_QUESTIONS = CHRISCO_QUESTIONS;
 window.CHRISCO_BA_QUESTIONS = CHRISCO_BA_QUESTIONS;
 window.CHRISCO_MODES = CHRISCO_MODES;
 window.CHRISCO_ICONS = CHRISCO_ICONS;
 window.pickQuestions = pickQuestions;
+window.localizeQuestion = localizeQuestion;
