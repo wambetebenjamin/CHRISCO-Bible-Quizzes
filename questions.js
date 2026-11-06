@@ -149,16 +149,132 @@ const CHRISCO_QUESTIONS = [
   }
 ];
 
+// Beauty for Ashes Quiz - from the teaching "Why am I going through this? The truth that sets you free"
+// Teaching by Presbyter David Kirui (BEAUTY FOR ASHES - YOU SHALL KNOW THE TRUTH). Key scripture: Isaiah 61:1 to 3.
+// All content is original and Bible based. No dashes in display text.
+const CHRISCO_BA_QUESTIONS = [
+  {
+    q: "The Beauty for Ashes teaching takes its key scripture from which book of the Bible?",
+    options: ["Genesis", "Isaiah", "Hosea", "John"],
+    correct: 1,
+    explain: "The key scripture is Isaiah chapter 61, verses 1 to 3, where the Lord promises beauty for ashes."
+  },
+  {
+    q: "According to Isaiah 61:3, what does the Lord give to those who mourn in Zion?",
+    options: ["Gold and silver", "Beauty for ashes", "Crowns and jewels", "Power and authority"],
+    correct: 1,
+    explain: "Isaiah 61:3 says the Lord gives beauty for ashes, the oil of joy for mourning and the garment of praise for the spirit of heaviness."
+  },
+  {
+    q: "In which book of the Bible does Jesus say, You shall know the truth, and the truth shall set you free?",
+    options: ["Matthew", "John", "Luke", "Acts"],
+    correct: 1,
+    explain: "This promise is found in John 8:32 and it is the key verse of the Beauty for Ashes teaching."
+  },
+  {
+    q: "According to Hosea 4:6, why are God's people destroyed?",
+    options: ["For lack of faith", "For lack of knowledge", "For lack of prayer", "For lack of giving"],
+    correct: 1,
+    explain: "Hosea 4:6 says, My people are destroyed for lack of knowledge, so knowing the truth matters."
+  },
+  {
+    q: "In Genesis 1:31, what did God see when He looked at everything He had made?",
+    options: ["That it was incomplete", "That it was very good", "That it needed improvement", "That it was perfect only in parts"],
+    correct: 1,
+    explain: "Genesis 1:31 says God saw everything that He had made, and indeed it was very good."
+  },
+  {
+    q: "What is the mission of the thief, the devil, according to John 10:10?",
+    options: ["To test and prove", "To warn and correct", "To steal, kill and destroy", "To teach and guide"],
+    correct: 2,
+    explain: "John 10:10 says the thief comes only to steal, kill and destroy, but Jesus came to give life abundantly."
+  },
+  {
+    q: "The teaching says the enemy destroys through three avenues. Which is the first avenue?",
+    options: ["Curses", "Sin", "Demonic possession", "Ignorance"],
+    correct: 1,
+    explain: "The first avenue of attack is sin, which is trespassing against the law and command of God."
+  },
+  {
+    q: "After the enemy lures a person into sin, what is the second avenue of attack?",
+    options: ["A blessing", "A curse", "A promotion", "A delay"],
+    correct: 1,
+    explain: "After sin, a curse in the form of judgment and punishment comes into the life, as with Cain in Genesis 4."
+  },
+  {
+    q: "What does Proverbs 26:2 teach about a curse?",
+    options: ["All curses come from God", "A curse must have a cause and cannot land where there is no cause", "Curses have no effect on people", "Curses can be removed by good works"],
+    correct: 1,
+    explain: "Proverbs 26:2 says a curse does not come without cause, so it must be justified by an action."
+  },
+  {
+    q: "After Cain killed his brother Abel, what did Cain become?",
+    options: ["A king", "A vagabond and a wanderer", "A priest", "A ruler of a city"],
+    correct: 1,
+    explain: "Genesis 4:12 says Cain became a fugitive and a vagabond, and the ground would not yield its strength to him."
+  },
+  {
+    q: "What did Cain say to the Lord after he was punished?",
+    options: ["My punishment is greater than I can bear", "I have sinned", "Am I my brother's keeper", "The ground is cursed"],
+    correct: 0,
+    explain: "Genesis 4:13 records Cain saying, My punishment is greater than I can bear."
+  },
+  {
+    q: "In Genesis 3, what was the serpent's first question to Eve?",
+    options: ["Why are you in the garden?", "Where is your husband?", "Are you hungry?", "Did God really say, You shall not eat of every tree of the garden?"],
+    correct: 3,
+    explain: "Genesis 3:1 records the serpent asking, Did God really say, You shall not eat of every tree of the garden?"
+  },
+  {
+    q: "According to the teaching, what comes as the third avenue of attack after sin and curse?",
+    options: ["Physical death", "Demonic possession and oppression", "Social rejection", "Financial loss"],
+    correct: 1,
+    explain: "After sin and curse, the third avenue is demonic possession and oppression, where a force drives a person against their will."
+  },
+  {
+    q: "What does 3 John 2 tell us the apostle prays for believers?",
+    options: ["That they may live long", "That they may prosper and be in health", "That they may be rich", "That they may be famous"],
+    correct: 1,
+    explain: "3 John 2 says, Beloved, I pray that you may prosper in all things and be in health, even as your soul prospers."
+  },
+  {
+    q: "What invitation does Jesus give in Matthew 11:28?",
+    options: ["Ask, and it shall be given to you", "Seek, and you shall find", "Come to me, all you who are weary and heavy laden, and I will give you rest", "Knock, and it shall be opened to you"],
+    correct: 2,
+    explain: "Matthew 11:28 says, Come to me, all you who labor and are heavy laden, and I will give you rest."
+  },
+  {
+    q: "According to the teaching, what is addiction?",
+    options: ["A medical problem only", "A lack of willpower only", "A spirit that possesses and oppresses the person", "A natural condition of youth"],
+    correct: 2,
+    explain: "The teaching says addiction is a spirit that possesses your life and oppresses you, forcing you to do what you do not want to do."
+  },
+  {
+    q: "In the Gerasene demoniac story, where did the man possessed by demons live?",
+    options: ["In a palace", "Among the dead in the graveyards", "On a mountain", "In a synagogue"],
+    correct: 1,
+    explain: "The Gerasene demoniac lived among the tombs and cut himself with stones, until Jesus cast the demons out of him."
+  },
+  {
+    q: "What is the final message of the Beauty for Ashes teaching?",
+    options: ["There is still hope, and the Lord is able to set you free upon knowing the truth", "There is no way out of bondage", "Only miracles can deliver people", "People must wait for God to act without knowledge"],
+    correct: 0,
+    explain: "The teaching closes with hope: the Lord is able to set you free and deliver you when you know the truth."
+  }
+];
+
 // Game mode configurations
 const CHRISCO_MODES = {
-  pursue: { name: "Pursue", rounds: 5, seconds: 20, color: "#00008B", icon: "fa-compass" },
-  overtake: { name: "Overtake", rounds: 5, seconds: 15, color: "#FF8C00", icon: "fa-running" },
-  recover: { name: "Recover All", rounds: 10, seconds: 20, color: "#006400", icon: "fa-shield-halved" }
+  pursue: { name: "Pursue", rounds: 5, seconds: 20, color: "#00008B", icon: "fa-compass", quiz: CHRISCO_QUESTIONS },
+  overtake: { name: "Overtake", rounds: 5, seconds: 15, color: "#FF8C00", icon: "fa-running", quiz: CHRISCO_QUESTIONS },
+  recover: { name: "Recover All", rounds: 10, seconds: 20, color: "#006400", icon: "fa-shield-halved", quiz: CHRISCO_QUESTIONS },
+  beauty: { name: "Beauty for Ashes", rounds: 10, seconds: 20, color: "#46178f", icon: "fa-dove", quiz: CHRISCO_BA_QUESTIONS }
 };
 
 // Pick random questions for a mode
 function pickQuestions(mode, count) {
-  const pool = [...CHRISCO_QUESTIONS];
+  const cfg = CHRISCO_MODES[mode];
+  const pool = [...(cfg && cfg.quiz ? cfg.quiz : CHRISCO_QUESTIONS)];
   for (let i = pool.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [pool[i], pool[j]] = [pool[j], pool[i]];
@@ -179,6 +295,7 @@ const CHRISCO_ICONS = [
 ];
 
 window.CHRISCO_QUESTIONS = CHRISCO_QUESTIONS;
+window.CHRISCO_BA_QUESTIONS = CHRISCO_BA_QUESTIONS;
 window.CHRISCO_MODES = CHRISCO_MODES;
 window.CHRISCO_ICONS = CHRISCO_ICONS;
 window.pickQuestions = pickQuestions;

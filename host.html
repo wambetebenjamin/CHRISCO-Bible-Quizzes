@@ -128,6 +128,8 @@
     .mc-overtake::before { background-image: url('./image-search/david-bible-battle-victory-colorful-illu-3.jpg'); }
     .mc-recover { background: linear-gradient(160deg, #006400, #003d00); }
     .mc-recover::before { background-image: url('./image-search/david-bible-battle-victory-colorful-illu-2.jpg'); }
+    .mc-beauty { background: linear-gradient(160deg, #46178f, #2a0e5c); }
+    .mc-beauty::before { background-image: url('./image-search/bright-colorful-worship-church-backgroun-2.jpg'); }
     .mode-card .mc-icon { font-size: 1.8rem; }
     .mode-card h3 { font-size: 1.15rem; font-weight: 800; }
     .mode-card p { font-size: 0.8rem; opacity: 0.95; }
@@ -192,8 +194,17 @@
           <div class="icon-picker" id="icon-picker"></div>
           <div class="icon-caption" id="icon-caption">Shown to players on the scoreboard.</div>
         </div>
+        <div class="field">
+          <label><i class="fa-solid fa-gamepad"></i> Choose your mode</label>
+          <div class="cards">
+            <button class="mode-card mc-pursue selected" id="mode-pursue" onclick="selectMode('pursue')"><div><div class="mc-icon"><i class="fa-solid fa-compass"></i></div><h3>Pursue</h3><p>5 rounds, 20s each.</p></div></button>
+            <button class="mode-card mc-overtake" id="mode-overtake" onclick="selectMode('overtake')"><div><div class="mc-icon"><i class="fa-solid fa-running"></i></div><h3>Overtake</h3><p>5 rounds, 15s each.</p></div></button>
+            <button class="mode-card mc-recover" id="mode-recover" onclick="selectMode('recover')"><div><div class="mc-icon"><i class="fa-solid fa-shield-halved"></i></div><h3>Recover All</h3><p>10 rounds, 20s each.</p></div></button>
+            <button class="mode-card mc-beauty" id="mode-beauty" onclick="selectMode('beauty')"><div><div class="mc-icon"><i class="fa-solid fa-dove"></i></div><h3>Beauty for Ashes</h3><p>10 rounds, 20s each.</p></div></button>
+          </div>
+        </div>
         <button id="create-game-btn" class="btn btn--yellow btn--large btn--block"><i class="fa-solid fa-plus"></i> Create New Game</button>
-        <p style="margin-top:1rem;font-size:0.85rem;opacity:0.85;"><i class="fa-solid fa-info-circle"></i> All games use the David Quiz (1 Samuel 30:8) question bank.</p>
+        <p style="margin-top:1rem;font-size:0.85rem;opacity:0.85;"><i class="fa-solid fa-info-circle"></i> Games use the David Quiz (1 Samuel 30:8) or the Beauty for Ashes quiz (Isaiah 61:1 to 3 teaching).</p>
       </div>
 
       <!-- Running Games Lobby -->
@@ -554,7 +565,7 @@
 
     document.addEventListener('DOMContentLoaded', () => {
       const hash = window.location.hash.replace('#','');
-      if (['pursue','overtake','recover'].includes(hash)) selectMode(hash);
+      if (['pursue','overtake','recover','beauty'].includes(hash)) selectMode(hash);
       selectMode('pursue');
       renderIconPicker();
 
