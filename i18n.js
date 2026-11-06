@@ -1865,6 +1865,7 @@ window.CHRISCO_UI = CHRISCO_UI;
 window.getLang = function () {
   return localStorage.getItem('chrisco_lang') || (navigator.language || 'en').slice(0, 2) || 'en';
 };
+const CHRISCO_TEXT_ORIGINAL = new WeakMap();
 window.L = function (key) {
   const lang = window.getLang();
   const dict = (window.CHRISCO_UI[lang] || window.CHRISCO_UI.en) || {};
@@ -1886,6 +1887,25 @@ window.applyLang = function (lang) {
     const k = el.getAttribute('data-i18n-title');
     if (dict[k] !== undefined) el.setAttribute('title', dict[k]);
   });
+  // Translate exact text nodes on host and player screens too, while preserving markup and icons.
+  const english = window.CHRISCO_UI.en || {};
+  const reverse = {};
+  Object.keys(english).forEach(function (key) { if (typeof english[key] === 'string') reverse[english[key].trim()] = key; });
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  let node;
+  while ((node = walker.nextNode())) {
+    const parent = node.parentElement;
+    if (!parent || parent.closest('script,style')) continue;
+    if (!CHRISCO_TEXT_ORIGINAL.has(node)) CHRISCO_TEXT_ORIGINAL.set(node, { text: node.nodeValue.trim(), leading: (node.nodeValue.match(/^\s*/) || [''])[0], trailing: (node.nodeValue.match(/\s*$/) || [''])[0] });
+    const saved = CHRISCO_TEXT_ORIGINAL.get(node);
+    const original = saved.text;
+    const key = reverse[original];
+    if (key && dict[key] !== undefined) {
+      node.nodeValue = saved.leading + dict[key] + saved.trailing;
+    } else if (key && english[key] !== undefined) {
+      node.nodeValue = node.nodeValue.replace(original, english[key]);
+    }
+  }
   document.dispatchEvent(new Event('chrisco-lang-change'));
 };
 window.setLang = function (lang) {
