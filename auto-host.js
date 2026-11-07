@@ -6,7 +6,7 @@ const hostName = process.env.AUTO_HOST_NAME || 'Presbyter David Kirui';
 const hostId = 'chrisco-presbyter-david-kirui';
 const persistentPin = '777777';
 const lobbyName = 'global-lobby';
-const gameSettings = { pacing:'self', answerVisibility:'immediate', timerSeconds:20, retries:'allow', privacy:'public' };
+const gameSettings = { pacing:'self', answerVisibility:'end', timerSeconds:20, retries:'allow', privacy:'public' };
 const standbyQuestions = [
   { q:'When the Amalekites captured David’s family at Ziklag, what did David do before pursuing them?', options:['He strengthened himself in the Lord and asked the Lord what to do','He immediately left without consulting anyone','He asked the Philistines for help','He waited for the Amalekites to return'], correct:0, explain:'David strengthened himself in the Lord and inquired of Him before pursuing the raiders (1 Samuel 30:6 to 8).' },
   { q:'When David faced Goliath, where did David say his confidence came from?', options:['His armor and weapons','The Lord of hosts, whom Goliath had defied','The size of Israel’s army','A promise of riches from Saul'], correct:1, explain:'David declared that the battle belonged to the Lord of hosts (1 Samuel 17:45 to 47).' },
@@ -76,7 +76,8 @@ async function revealAnswer() {
   const q = currentQuestion();
   Object.entries(answers).forEach(([name, choice]) => { if (choice === q.correct) scores[name] = (scores[name] || 0) + 100; });
   const ranking = currentRankings();
-  await send('reveal', { index: questionIndex, correct: q.correct, explain: q.explain, visibility:'immediate', scores:ranking });
+  const visibility = gameSettings.answerVisibility;
+  await send('reveal', { index: questionIndex, correct: visibility === 'immediate' ? q.correct : null, explain: visibility === 'immediate' ? q.explain : null, visibility, scores:ranking });
   await publishLeaderboard();
   if (gameSettings.pacing !== 'self') timer = setTimeout(() => advanceQuestion(), 3000);
 }
@@ -91,7 +92,10 @@ async function finishQuiz() {
   phase = 'end';
   const ranked = Object.entries(scores).sort((a,b) => b[1] - a[1]);
   state.winner = ranked.length ? ranked[0][0] : null;
-  await send('end', { winner: state.winner, scores: ranked.map(([name, score]) => ({name, score})) });
+  const answerKey = gameSettings.answerVisibility === 'end'
+    ? questions.map(q => ({ q:q.q, options:q.options, correct:q.correct, explain:q.explain }))
+    : undefined;
+  await send('end', { winner: state.winner, scores: ranked.map(([name, score]) => ({name, score})), answerKey });
   await updateLobby();
   // Keep the room and PIN listed. The next participant or an existing player's
   // restart request begins a fresh round, rather than leaving a dead room.
