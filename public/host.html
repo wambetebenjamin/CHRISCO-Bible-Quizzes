@@ -211,8 +211,8 @@
         <div class="settings-panel" style="margin:1.2rem 0;padding:1rem;border-radius:14px;background:rgba(255,255,255,.12);">
           <h3><i class="fa-solid fa-sliders"></i> Game Settings</h3>
           <div class="settings-grid">
-            <label>Pacing<select id="setting-pacing"><option value="host">Host-Controlled</option><option value="self">Self-Paced (Auto)</option></select></label>
-            <label>Answer Visibility<select id="setting-visibility"><option value="immediate">Immediate</option><option value="end">End of Game</option><option value="never">Never (Rankings Only)</option></select></label>
+            <label>Pacing<select id="setting-pacing"><option value="self" selected>Player-Controlled (No host approval)</option></select></label>
+            <label>Answer Visibility<select id="setting-visibility"><option value="end" selected>End of Game</option></select></label>
             <label>Time Limit<select id="setting-timer"><option value="10">10 seconds</option><option value="15">15 seconds</option><option value="20" selected>20 seconds</option><option value="30">30 seconds</option><option value="45">45 seconds</option><option value="60">60 seconds</option></select></label>
             <label>Retries<select id="setting-retries"><option value="allow">Allow Retries</option><option value="one">One Attempt Only</option></select></label>
             <label>Privacy<select id="setting-privacy" disabled><option value="private">Private PIN only</option></select></label>
@@ -500,9 +500,11 @@
         .on('broadcast', { event: 'player-ready' }, async (payload) => { const p=payload.payload||{}; if (!p.myId) return; if (state.phase === 'lobby') startGame(); else sendSync(p.myId); })
         .on('broadcast', { event: 'answer' }, (payload) => { const a=payload.payload; if (!handleAnswer(a) && a && a.myId) state.gameChannel.send({type:'broadcast',event:'answer-rejected',payload:{to:a.myId,message:'This device has already submitted an answer.'}}); })
         .on('broadcast', { event: 'advance-request' }, () => {
-          if (state.settings.pacing !== 'self') return;
-          if (state.phase === 'reveal') nextQuestion();
-          else if (state.phase === 'question') revealAnswer();
+          // A single player action submits the current answer and advances without host approval.
+          if (state.phase === 'question') {
+            revealAnswer();
+            if (state.phase === 'reveal') nextQuestion();
+          } else if (state.phase === 'reveal') nextQuestion();
         })
         .on('broadcast', { event: 'sync-request' }, (payload) => { if (payload.payload && payload.payload.myId) sendSync(payload.payload.myId); })
         .subscribe(async (status) => {
