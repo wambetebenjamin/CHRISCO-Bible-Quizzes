@@ -1878,7 +1878,7 @@ window.applyLang = function (lang) {
   const dict = (window.CHRISCO_UI[lang] || window.CHRISCO_UI.en) || {};
   document.querySelectorAll('[data-i18n]').forEach(function (el) {
     const k = el.getAttribute('data-i18n');
-    if (dict[k] !== undefined) el.textContent = dict[k];
+    if (dict[k] !== undefined && el.textContent !== dict[k]) el.textContent = dict[k];
   });
   document.querySelectorAll('[data-i18n-placeholder]').forEach(function (el) {
     const k = el.getAttribute('data-i18n-placeholder');
@@ -1943,3 +1943,17 @@ window.buildLangSelector = function (container) {
   style.textContent = css;
   document.head.appendChild(style);
 })();
+
+document.addEventListener('DOMContentLoaded', function () {
+  const selector = document.getElementById('lang-select-wrap');
+  if (selector) window.buildLangSelector(selector);
+  const lang = window.getLang();
+  window.applyLang(window.CHRISCO_UI[lang] ? lang : 'en');
+  // Re-translate UI inserted later by page scripts (lobby cards, game states, dialogs).
+  const observer = new MutationObserver(function (records) {
+    if (records.some(function (record) { return record.addedNodes && record.addedNodes.length; })) {
+      window.applyLang(window.getLang());
+    }
+  });
+  observer.observe(document.body, { childList: true, subtree: true });
+});

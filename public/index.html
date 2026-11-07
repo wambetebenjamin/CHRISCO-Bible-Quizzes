@@ -168,6 +168,10 @@
     .lobby-live-banner .llb-title { font-weight: 800; font-size: 1.05rem; display: flex; align-items: center; gap: 0.5rem; }
     .lobby-live-banner .llb-sub { font-size: 0.85rem; opacity: 0.9; }
     .lobby-live-banner .llb-pin { font-size: 1.8rem; font-weight: 900; letter-spacing: 4px; color: var(--yellow); }
+    .lobby-live-actions { display:flex; align-items:center; gap:1rem; }
+    .lobby-live-join { min-height:64px; min-width:220px; padding:1rem 2rem !important; font-size:1.35rem !important; font-weight:900 !important; border:3px solid #fff; box-shadow:0 0 0 4px rgba(255,255,255,.2),0 8px 24px rgba(0,0,0,.35); }
+    .lobby-live-join:focus-visible { outline:4px solid #fff; outline-offset:4px; }
+    @media (max-width:600px) { .lobby-live-actions { width:100%; flex-direction:column; align-items:stretch; } .lobby-live-join { width:100%; } .lobby-live-actions .llb-pin { text-align:center; } }
 
     /* ===== Game Cards (Kahoot style) ===== */
     .games-grid {
@@ -387,7 +391,7 @@
         <p>Public rooms currently accepting players.</p>
         <div class="lobby-live-banner" id="lobby-live-banner" style="display:none;">
           <div><div class="llb-title"><i class="fa-solid fa-circle-pulse"></i> Beauty for Ashes Live Game</div><div class="llb-sub">Hosted by Presbyter David Kirui</div></div>
-          <div style="display:flex;align-items:center;gap:.8rem;"><div class="llb-pin" id="lobby-live-pin">----</div><a class="btn btn--yellow" id="lobby-live-join" href="player.html?pin=777777" onclick="window.location.href = 'player.html?pin=777777';"><i class="fa-solid fa-right-to-bracket"></i> Join Now</a></div>
+          <div class="lobby-live-actions"><div class="llb-pin" id="lobby-live-pin">----</div><a class="btn btn--yellow lobby-live-join" id="lobby-live-join" href="player.html?pin=777777" onclick="window.location.href = 'player.html?pin=777777';"><i class="fa-solid fa-right-to-bracket"></i> <span data-i18n="join_now">Join Now</span></a></div>
         </div>
         <div class="lobby-grid" id="lobby-list"><div class="game-tile gt-empty"><i class="fa-solid fa-hourglass-half"></i> No public games are running right now.</div></div>
       </section>
@@ -444,22 +448,6 @@
         <div>
           <div class="card-meta">
             <span><i class="fa-solid fa-clock"></i> 10 mins</span>
-            <span><i class="fa-solid fa-mobile-screen"></i> <span data-i18n="card_mobile">Mobile Ready</span></span>
-          </div>
-          <span class="card-btn"><i class="fa-solid fa-play"></i> <span data-i18n="card_btn_play">Play</span> <i class="fa-solid fa-arrow-right"></i></span>
-        </div>
-      </a>
-      <!-- Beauty for Ashes -->
-      <a class="game-card beauty" href="host.html#beauty" style="background: linear-gradient(160deg, #46178f, #2a0d57);">
-        <div>
-          <span class="card-tag"><i class="fa-solid fa-dove"></i> <span data-i18n="card_tag_final">Teaching Quiz</span></span>
-          <div class="card-icon"><i class="fa-solid fa-dove"></i></div>
-          <h3 class="card-title" data-i18n="card_title_beauty">Beauty for Ashes</h3>
-          <p class="card-desc" data-i18n="card_desc_beauty">A full Bible quiz from the Beauty for Ashes teaching: Why am I going through this? The truth that sets you free.</p>
-        </div>
-        <div>
-          <div class="card-meta">
-            <span><i class="fa-solid fa-clock"></i> 10 rounds</span>
             <span><i class="fa-solid fa-mobile-screen"></i> <span data-i18n="card_mobile">Mobile Ready</span></span>
           </div>
           <span class="card-btn"><i class="fa-solid fa-play"></i> <span data-i18n="card_btn_play">Play</span> <i class="fa-solid fa-arrow-right"></i></span>
