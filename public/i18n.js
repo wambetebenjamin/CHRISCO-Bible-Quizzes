@@ -1860,10 +1860,91 @@ const CHRISCO_UI_ES = {
 
 const CHRISCO_UI = Object.assign({}, CHRISCO_UI_EN, { en: CHRISCO_UI_EN, sw: CHRISCO_UI_SW, ki: CHRISCO_UI_KI, luo: CHRISCO_UI_LUO, luh: CHRISCO_UI_LUH, kln: CHRISCO_UI_KLN, am: CHRISCO_UI_AM, om: CHRISCO_UI_OM, so: CHRISCO_UI_SO, ti: CHRISCO_UI_TI, fr: CHRISCO_UI_FR, ar: CHRISCO_UI_AR, pt: CHRISCO_UI_PT, es: CHRISCO_UI_ES });
 
+
+
 window.CHRISCO_LANGS = CHRISCO_LANGS;
 window.CHRISCO_UI = CHRISCO_UI;
 window.getLang = function () {
   return localStorage.getItem('chrisco_lang') || (navigator.language || 'en').slice(0, 2) || 'en';
+};
+// Common screen copy uses the same localized labels as the canonical controls below.
+// This bridges older, unmarked HTML text to the existing 14-language dictionaries.
+const CHRISCO_TEXT_ALIASES = {
+  'Join a Game': 'player_title',
+  'Create New Game': 'create_btn',
+  'Your Name': 'name_label',
+  'Pick your icon (optional)': 'icon_label',
+  'Choose your mode': 'mode_label',
+  'Running Games': 'lobby_title',
+  'Have a PIN?': 'lobby_pin_label',
+  'Back to Home': 'lobby_back',
+  'Join Game': 'lobby_join_pin_btn',
+  'No public games are running right now.': 'lobby_empty',
+  'Waiting for players to join with this PIN...': 'player_list_empty',
+  'Setting up your game room...': 'setup_status',
+  'Game Over!': 'end_title',
+  'New Game': 'play_again',
+  'Home': 'home',
+  'Join': 'join',
+  'Host': 'host',
+  'Loading...': 'setup_status',
+  'Loading running games...': 'setup_status',
+  'Question': 'getting_q',
+  'Your score': 'your_score',
+  'Your final score': 'your_final',
+  'WhatsApp': 'share_whatsapp',
+  'Facebook': 'share_facebook',
+  'Copy': 'share_copy',
+  'Live Open Games': 'lobby_title',
+  'Pick Your Game': 'section_pick',
+  'Practice Mode': 'card_tag_practice',
+  'Speed Mode': 'card_tag_speed',
+  'Final Round': 'card_tag_final',
+  'Mobile Ready': 'card_mobile',
+  'Play': 'card_btn_play',
+  'Host a Game Now': 'cta_host',
+  'I am a Player': 'cta_player',
+  'Join with PIN': 'hero_cta_join',
+  'Host a Game': 'hero_cta_host',
+  'Pursue': 'card_title_pursue',
+  'Overtake': 'card_title_overtake',
+  'Recover All': 'card_title_recover',
+  'Beauty for Ashes': 'card_title_beauty',
+  'Live Open Games': 'lobby_title',
+  'Join Private Game': 'lobby_pin_label',
+  'Join a private room by PIN, or explore open games that hosts have chosen to list publicly.': 'lobby_sub',
+  'Public rooms currently accepting players.': 'lobby_sub',
+  'Enter the PIN shared by your host. Private rooms do not appear in the public list.': 'lobby_pin_label',
+  'Welcome to CHRISCO Bible Quizzes': 'brand',
+  'Uplifting, reasoning based Bible quizzes that help players think deeply, learn Scripture, and grow together. Join an open room or enter a private game PIN.': 'hero_sub',
+  'Pick a running game below or enter a PIN. Theme:': 'player_sub',
+  'Pick a quiz mode or prepare custom source based questions, then create a private PIN room. Share the PIN so players can join.': 'host_sub',
+  'Create a Bible Quiz game, share the PIN, and play. Theme:': 'host_sub',
+  'Choose a source, add a topic or source link, then deduce a short reasoning quiz.': 'host_sub',
+  'No games running yet. Create one to get started!': 'lobby_empty',
+  'No public games are running right now.': 'lobby_empty',
+  'Waiting for players to join with this PIN...': 'player_list_empty',
+  'Your score will appear here.': 'your_score',
+  'Thank you for playing!': 'winner_done',
+  'Join Another Game': 'lobby_join_btn',
+  'Continue to Ready': 'join',
+  'Game PIN:': 'pin_bar',
+  'Question text appears here.': 'getting_q',
+  'Waiting for the next question...': 'getting_q',
+  'Live Scores': 'lobby_title',
+  'Live Leaderboard and Rankings': 'lobby_title',
+  'Connecting to lobby...': 'setup_status',
+  'Running Games on Server': 'lobby_title',
+  'Choose your mode': 'mode_label',
+  'Game Settings': 'mode_label',
+  'Question': 'getting_q',
+  '10 rounds, 20s each.': 'host_sub',
+  '5 rounds, 20s each.': 'host_sub',
+  '5 rounds, 15s each.': 'host_sub',
+  'BIBLE QUIZZES': 'brand',
+  '1 Samuel 30:8 Pursue Overtake Recover All': 'end_sub',
+  'Hosted by Presbyter David Kirui': 'auto_live_sub',
+  'Start a game now and share the PIN with your friends. Theme:': 'cta_sub'
 };
 const CHRISCO_TEXT_ORIGINAL = new WeakMap();
 window.L = function (key) {
@@ -1900,7 +1981,7 @@ window.applyLang = function (lang) {
     if (!CHRISCO_TEXT_ORIGINAL.has(node)) CHRISCO_TEXT_ORIGINAL.set(node, { text: node.nodeValue.trim(), leading: (node.nodeValue.match(/^\s*/) || [''])[0], trailing: (node.nodeValue.match(/\s*$/) || [''])[0] });
     const saved = CHRISCO_TEXT_ORIGINAL.get(node);
     const original = saved.text;
-    const key = reverse[original];
+    const key = reverse[original] || CHRISCO_TEXT_ALIASES[original];
     if (key && dict[key] !== undefined) {
       node.nodeValue = saved.leading + dict[key] + saved.trailing;
     } else if (key && english[key] !== undefined) {

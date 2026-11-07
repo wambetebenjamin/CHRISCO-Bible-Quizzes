@@ -371,14 +371,15 @@
       if (!data) return;
       const sameQ = state.qIndex === data.index && state.myAnswer !== null;
       state.settings = Object.assign({}, state.settings, data.settings || {});
+      state.settings.pacing = 'self';
+      state.settings.answerVisibility = 'end';
       state.qIndex = data.index;
       state.phase = 'question';
       if (!sameQ) state.myAnswer = null;
       $('q-counter').innerHTML = '<i class="fa-solid fa-list-ol"></i> Question ' + (data.index+1) + ' of ' + data.total;
-      const selfPaced = state.settings.pacing === 'self';
-      $('player-next-btn').style.display = selfPaced ? 'inline-flex' : 'none'; $('player-next-btn').disabled = false;
-      $('pacing-hint').style.display = selfPaced ? 'none' : 'block';
-      $('pacing-hint').innerHTML = '<i class="fa-solid fa-hourglass-half"></i> Waiting for the host to advance the question.';
+      // Players control progression; never wait for the host to approve an advance.
+      $('player-next-btn').style.display = 'inline-flex'; $('player-next-btn').disabled = false;
+      $('pacing-hint').style.display = 'none';
       const translated = window.localizeQuestion({q:data.q,options:data.options,explain:''}, (localStorage.getItem('chrisco_lang') || 'en'));
       state.currentQuestion = data.q;
       qStatus('<i class="fa-solid fa-circle-check"></i> Question received. Choose your answer.', 'ok');
@@ -397,7 +398,7 @@
     }
 
     function requestNextQuestion() {
-      if (!state.channel || !['question','reveal'].includes(state.phase) || state.settings.pacing !== 'self') return;
+      if (!state.channel || !['question','reveal'].includes(state.phase)) return;
       const button = $('player-next-btn'); button.disabled = true;
       $('feedback').className = 'feedback';
       $('feedback').innerHTML = '<i class="fa-solid fa-forward-step"></i> Moving to the next question…';
@@ -406,13 +407,11 @@
 
     function onReveal(data) {
       if (!data) return;
-      const canSelfAdvance = state.settings.pacing === 'self';
-      $('player-next-btn').style.display = canSelfAdvance ? 'inline-flex' : 'none'; $('player-next-btn').disabled = false;
-      $('pacing-hint').style.display = canSelfAdvance ? 'none' : 'block';
-      if (!canSelfAdvance) $('pacing-hint').innerHTML = '<i class=\"fa-solid fa-hourglass-half\"></i> Waiting for Host';
+      $('player-next-btn').style.display = 'inline-flex'; $('player-next-btn').disabled = false;
+      $('pacing-hint').style.display = 'none';
       if (state.phase === 'reveal' && state.qIndex === data.index) return;
       state.phase = 'reveal';
-      const visibility = data.visibility || state.settings.answerVisibility || 'immediate';
+      const visibility = 'end'; // Keep every answer and explanation hidden until the final review.
       const opts = $('q-options').querySelectorAll('.opt');
       if (visibility === 'immediate' && Number.isInteger(data.correct)) {
         opts.forEach((b,i) => { if (i === data.correct) b.classList.add('correct'); });
@@ -535,8 +534,10 @@
           if (status === 'SUBSCRIBED') {
             await state.channel.track({ name: state.name, icon: state.icon, myId: state.myId, deviceId:state.deviceId, isHost: false, status: 'lobby', score: 0, ready:true });
             $('player-pin-bar').textContent = state.pin;
-            qStatus('<i class="fa-solid fa-spinner fa-spin"></i> Sending your Ready signal to the host...', 'warn');
+            // The room is already running: show the game screen immediately and keep
+            // the readiness handshake invisible to the player while the first question arrives.
             showScreen('question');
+            qStatus('', '');
             await state.channel.send({ type:'broadcast', event:state.pin === '777777' ? 'PLAYER_READY' : 'player-ready', payload:{ name:state.name, pin:state.pin, myId:state.myId, deviceId:state.deviceId } });
           } else if (status === 'CHANNEL_ERROR' || status === 'CHANNEL_CLOSED') {
             qStatus('<i class="fa-solid fa-triangle-exclamation"></i> Lost connection to room ' + state.pin + '. Check the PIN and host status.', 'err');
@@ -549,11 +550,14 @@
       if (!p) return;
       p.className = 'status-pill ' + (cls || '');
       p.innerHTML = html;
+      p.style.display = html ? '' : 'none';
     }
 
     function onSync(data) {
       if (!data || data.to !== state.myId) return;
       state.settings = Object.assign({}, state.settings, data.settings || {});
+      state.settings.pacing = 'self';
+      state.settings.answerVisibility = 'end';
       if (data.phase === 'question') {
         onQuestion({ index: data.index, total: data.total, q: data.q, options: data.options, seconds: data.seconds });
         qStatus('<i class="fa-solid fa-circle-check"></i> You are live. Answer now!', 'ok');
