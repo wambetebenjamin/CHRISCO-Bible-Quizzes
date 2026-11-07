@@ -16,7 +16,6 @@
   <meta name="twitter:image" content="https://chrisco-bible-quizzes.vercel.app/image-search/bright-colorful-worship-church-backgroun-1.jpg" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <script src="vendor/supabase.js"></script>
-  <script src="i18n.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
@@ -146,7 +145,7 @@
   <div class="topbar">
     <div class="topbar-inner">
       <a class="brand" href="index.html"><span class="brand-logo"><i class="fa-solid fa-crosshairs"></i></span><span class="brand-text">CHRISCO<small>BIBLE QUIZZES</small></span></a>
-      <div class="topbar-actions"><div id="lang-select-wrap"></div><a class="btn btn--outline" href="player.html"><i class="fa-solid fa-right-to-bracket"></i> Join</a><a class="btn btn--yellow" href="host.html"><i class="fa-solid fa-gamepad"></i> Host</a></div>
+      <div class="topbar-actions"><a class="btn btn--outline" href="player.html"><i class="fa-solid fa-right-to-bracket"></i> Join</a><a class="btn btn--yellow" href="host.html"><i class="fa-solid fa-gamepad"></i> Host</a></div>
     </div>
   </div>
 
@@ -322,7 +321,7 @@
       state.phase = 'question';
       if (!sameQ) state.myAnswer = null;
       $('q-counter').innerHTML = '<i class="fa-solid fa-list-ol"></i> Question ' + (data.index+1) + ' of ' + data.total;
-      const translated = window.localizeQuestion({q:data.q,options:data.options,explain:''}, window.getLang());
+      const translated = window.localizeQuestion({q:data.q,options:data.options,explain:''}, (localStorage.getItem('chrisco_lang') || 'en'));
       state.currentQuestion = data.q;
       $('q-text').textContent = translated.q;
       $('q-options').innerHTML = translated.options.map((o,i) => '<button class="opt" data-i="'+i+'"><span class="letter">'+LETTERS[i]+'</span><span>'+esc(o)+'</span></button>').join('');
@@ -357,7 +356,7 @@
         $('feedback').className = 'feedback bad';
         $('feedback').innerHTML = '<i class="fa-solid fa-clock"></i> Time ran out. The right answer is highlighted.';
       }
-      const translated = window.localizeQuestion({q:state.currentQuestion || '',options:[],explain:data.explain || ''}, window.getLang());
+      const translated = window.localizeQuestion({q:state.currentQuestion || '',options:[],explain:data.explain || ''}, (localStorage.getItem('chrisco_lang') || 'en'));
       $('q-explain').innerHTML = '<i class="fa-solid fa-circle-info"></i> ' + esc(translated.explain || data.explain);
       $('q-explain').style.display = 'block';
       $('my-score').textContent = state.score;
@@ -497,7 +496,6 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-      const langWrap = document.getElementById('lang-select-wrap'); if (langWrap) window.buildLangSelector(langWrap); window.applyLang(window.getLang());
       $('join-pin-btn').addEventListener('click', () => {
         const pin = $('pin-input').value.trim();
         if (pin) joinGame(pin);
@@ -512,7 +510,8 @@
 
       loadConfig().then(config => {
         const { url, key } = config;
-        state.supabase = supabase.createClient(url, key);
+        if (!window.supabase || typeof window.supabase.createClient !== 'function') throw new Error('Supabase client library did not load');
+        state.supabase = window.supabase.createClient(url, key);
         state.lobbyChannel = state.supabase.channel(LOBBY_CHANNEL)
           .on('presence', { event: 'SYNC' }, (payload) => { state.lobbyGames = payload.presence || {}; buildLobbyList(); })
           .on('presence', { event: 'CHANGES' }, (payload) => { state.lobbyGames = Object.assign({}, state.lobbyGames, payload.events.leaves, payload.events.joins); buildLobbyList(); })
@@ -541,13 +540,13 @@
     });
 
     function loadConfig() {
-      return fetch('/api/config').then(r => r.json()).catch(() => null).then(cfg => {
+      return fetch('/api/config').then(r => { if (!r.ok) throw new Error('Config endpoint returned ' + r.status); return r.json(); }).catch(() => null).then(cfg => {
         if (cfg && cfg.url && cfg.key) return cfg;
         return new Promise((resolve, reject) => {
           const s = document.createElement('script');
           s.src = '/public/config.js';
           s.onload = () => {
-            if (window.CHRISCO_CONFIG && window.CHRISCO_CONFIG.supabaseUrl) resolve({ url: window.CHRISCO_CONFIG.supabaseUrl, key: window.CHRISCO_CONFIG.supabaseAnonKey });
+            if (window.CHRISCO_CONFIG && window.CHRISCO_CONFIG.supabaseUrl && window.CHRISCO_CONFIG.supabaseAnonKey) resolve({ url: window.CHRISCO_CONFIG.supabaseUrl, key: window.CHRISCO_CONFIG.supabaseAnonKey });
             else reject(new Error('No config available'));
           };
           s.onerror = () => reject(new Error('No config available'));

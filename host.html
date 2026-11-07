@@ -16,7 +16,6 @@
   <meta name="twitter:image" content="https://chrisco-bible-quizzes.vercel.app/image-search/bright-colorful-worship-church-backgroun-1.jpg" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <script src="vendor/supabase.js"></script>
-  <script src="i18n.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
@@ -173,7 +172,7 @@
   <div class="topbar">
     <div class="topbar-inner">
       <a class="brand" href="index.html"><span class="brand-logo"><i class="fa-solid fa-crosshairs"></i></span><span class="brand-text">CHRISCO<small>BIBLE QUIZZES</small></span></a>
-      <div class="topbar-actions"><div id="lang-select-wrap"></div><a class="btn btn--outline" href="player.html"><i class="fa-solid fa-right-to-bracket"></i> Join</a><a class="btn btn--yellow" href="host.html"><i class="fa-solid fa-gamepad"></i> Host</a></div>
+      <div class="topbar-actions"><a class="btn btn--outline" href="player.html"><i class="fa-solid fa-right-to-bracket"></i> Join</a><a class="btn btn--yellow" href="host.html"><i class="fa-solid fa-gamepad"></i> Host</a></div>
     </div>
   </div>
 
@@ -309,13 +308,13 @@
     }
 
     function loadConfig() {
-      return fetch('/api/config').then(r => r.json()).catch(() => null).then(cfg => {
+      return fetch('/api/config').then(r => { if (!r.ok) throw new Error('Config endpoint returned ' + r.status); return r.json(); }).catch(() => null).then(cfg => {
         if (cfg && cfg.url && cfg.key) return cfg;
         return new Promise((resolve, reject) => {
           const s = document.createElement('script');
           s.src = '/public/config.js';
           s.onload = () => {
-            if (window.CHRISCO_CONFIG && window.CHRISCO_CONFIG.supabaseUrl) resolve({ url: window.CHRISCO_CONFIG.supabaseUrl, key: window.CHRISCO_CONFIG.supabaseAnonKey });
+            if (window.CHRISCO_CONFIG && window.CHRISCO_CONFIG.supabaseUrl && window.CHRISCO_CONFIG.supabaseAnonKey) resolve({ url: window.CHRISCO_CONFIG.supabaseUrl, key: window.CHRISCO_CONFIG.supabaseAnonKey });
             else reject(new Error('No config available'));
           };
           s.onerror = () => reject(new Error('No config available'));
@@ -502,7 +501,7 @@
       const q = state.questions[state.qIndex];
       state.currentQ = { q: q.q, options: q.options, correct: q.correct, explain: q.explain };
       $('q-counter').innerHTML = '<i class="fa-solid fa-list-ol"></i> Question ' + (state.qIndex+1) + ' of ' + state.questions.length;
-      const localized = window.localizeQuestion(q, window.getLang());
+      const localized = window.localizeQuestion(q, (localStorage.getItem('chrisco_lang') || 'en'));
       $('q-text').textContent = localized.q;
       $('q-options').innerHTML = localized.options.map((o,i) => '<button class="opt" data-i="'+i+'"><span class="letter">'+LETTERS[i]+'</span><span>'+esc(o)+'</span></button>').join('');
       $('q-explain').style.display = 'none';
@@ -528,7 +527,7 @@
       clearInterval(state.timer);
       const q = state.questions[state.qIndex];
       $('q-options').querySelectorAll('.opt').forEach((b,i) => { if (i === q.correct) b.classList.add('correct'); });
-      const localized = window.localizeQuestion(q, window.getLang());
+      const localized = window.localizeQuestion(q, (localStorage.getItem('chrisco_lang') || 'en'));
       $('q-explain').innerHTML = '<i class="fa-solid fa-circle-info"></i> ' + esc(localized.explain);
       $('q-explain').style.display = 'block';
       $('reveal-btn').innerHTML = '<i class="fa-solid fa-arrow-right"></i> Next Question';
@@ -568,7 +567,6 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-      const langWrap = document.getElementById('lang-select-wrap'); if (langWrap) window.buildLangSelector(langWrap); window.applyLang(window.getLang());
       const hash = window.location.hash.replace('#','');
       if (['pursue','overtake','recover','beauty'].includes(hash)) selectMode(hash);
       selectMode('pursue');
@@ -583,7 +581,8 @@
 
       loadConfig().then(config => {
         const { url, key } = config;
-        state.supabase = supabase.createClient(url, key);
+        if (!window.supabase || typeof window.supabase.createClient !== 'function') throw new Error('Supabase client library did not load');
+        state.supabase = window.supabase.createClient(url, key);
 
         // Lobby channel: list running games
         state.lobbyChannel = state.supabase.channel(LOBBY_CHANNEL)

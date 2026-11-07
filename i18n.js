@@ -1858,7 +1858,7 @@ const CHRISCO_UI_ES = {
   share_copy: "Copiar"
 };
 
-const CHRISCO_UI = Object.assign({}, CHRISCO_UI_EN, { sw: CHRISCO_UI_SW, ki: CHRISCO_UI_KI, luo: CHRISCO_UI_LUO, luh: CHRISCO_UI_LUH, kln: CHRISCO_UI_KLN, am: CHRISCO_UI_AM, om: CHRISCO_UI_OM, so: CHRISCO_UI_SO, ti: CHRISCO_UI_TI, fr: CHRISCO_UI_FR, ar: CHRISCO_UI_AR, pt: CHRISCO_UI_PT, es: CHRISCO_UI_ES });
+const CHRISCO_UI = Object.assign({}, CHRISCO_UI_EN, { en: CHRISCO_UI_EN, sw: CHRISCO_UI_SW, ki: CHRISCO_UI_KI, luo: CHRISCO_UI_LUO, luh: CHRISCO_UI_LUH, kln: CHRISCO_UI_KLN, am: CHRISCO_UI_AM, om: CHRISCO_UI_OM, so: CHRISCO_UI_SO, ti: CHRISCO_UI_TI, fr: CHRISCO_UI_FR, ar: CHRISCO_UI_AR, pt: CHRISCO_UI_PT, es: CHRISCO_UI_ES });
 
 window.CHRISCO_LANGS = CHRISCO_LANGS;
 window.CHRISCO_UI = CHRISCO_UI;
@@ -1869,7 +1869,8 @@ const CHRISCO_TEXT_ORIGINAL = new WeakMap();
 window.L = function (key) {
   const lang = window.getLang();
   const dict = (window.CHRISCO_UI[lang] || window.CHRISCO_UI.en) || {};
-  return dict[key] !== undefined ? dict[key] : (window.CHRISCO_UI.en[key] !== undefined ? window.CHRISCO_UI.en[key] : key);
+  const fallback = window.CHRISCO_UI.en || CHRISCO_UI_EN;
+  return dict[key] !== undefined ? dict[key] : (fallback[key] !== undefined ? fallback[key] : key);
 };
 window.applyLang = function (lang) {
   document.documentElement.lang = lang;
