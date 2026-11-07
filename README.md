@@ -1,36 +1,38 @@
-# CHRISCO-Bible-Quizzes
+# CHRISCO Bible Quizzes
 
-## Theme
-1 Samuel 30:8 — Pursue, Overtake, Recover All
+A live Bible quiz site themed around 1 Samuel 30:8, with real Supabase Realtime multiplayer and a persistent Node auto host for Beauty for Ashes.
 
-## Architecture (Expert DevOps & Supabase)
-- **Phase 1: Config Exposure**
-  - `public/config.js` exposes `SUPABASE_URL` and `SUPABASE_ANON_KEY` to `host.html` and `player.html`.
-  - Supabase JS CDN v2 imported.
-- **Phase 2: Realtime Channels & State**
-  - Channel ID: `game-PIN` (PIN: 839204).
-  - Presence state maintained by Host.
-  - Players subscribe with `.subscribe((status) => { console.error(...) })` logging.
-  - **SQL Policies (Concept)**:
-    ```sql
-    ALTER TABLE games ENABLE ROW LEVEL SECURITY;
-    CREATE POLICY "public read/write" ON games FOR ALL TO public WITH CHECK (true);
-    ```
-  - **Fix "Host Ended"**: Leader starts new game, players join new PIN (839204). Concept demo explains flow without live person.
-- **Phase 3: Redeploy & Verify**
-  - Files: `index.html` (Concept Landing), `host.html`, `player.html`, `public/config.js`, `vercel.json`.
-  - Premium Icons: Font Awesome 6.
-  - Free Images: Local workspace `image-search/` (1 Samuel 30 8 theme).
+## Local development
 
-## Links (Ready to Click & Play Concept)
-- Main: https://chrisco-bible-quizzes.vercel.app
-- Pursue: https://chrisco-bible-quizzes-m5sgius6n-wambete-benjamin-s-projects.vercel.app
-- Overtake: https://chrisco-bible-quizzes-ekyofbfbp-wambete-benjamin-s-projects.vercel.app
-- Recover All: https://chrisco-bible-quizzes-pnhiwvhk3-wambete-benjamin-s-projects.vercel.app
+```sh
+npm ci
+npm start
+```
 
-## Theme
-1 Samuel 30:8 — Pursue, Overtake, Recover All
-Premium Icons: Font Awesome 6
-Free Images: Local workspace (1 Samuel 30 8 theme)
-Leader Start / Join PIN: 839204 (Concept Demo - No Live Person)
-Cards: Mobile optimized grid with badges for each stage
+The app is served from `public/` on `http://localhost:3000`. Without environment configuration, the static quiz still serves, but the persistent auto host is disabled and Mongo backed camp and combat endpoints return `503`.
+
+Copy `.env.example` to `.env` and set:
+
+* `SUPABASE_URL` and `SUPABASE_ANON_KEY` for the persistent Realtime host.
+* `MONGODB_URI` for persistent camp upgrades and pursuit action records.
+* `CORS_ORIGIN` to a comma separated allowlist of trusted website origins.
+* `PORT` is supplied by Render in production.
+
+The browser client only uses the public Supabase anon key. Never put a Supabase service role key in frontend code.
+
+## Always on Render deployment
+
+The repository includes `render.yaml`. Create a Render Blueprint from this repository and configure the secret environment values in the Render dashboard. The blueprint uses a paid always on web service, runs `npm ci && npm run build`, starts with `npm start`, and checks `/api/health`.
+
+The persistent worker joins the `chrisco-lobby` Supabase Realtime channel, advertises a Beauty for Ashes room as Presbyter David Kirui, starts a ten question game when players join, handles answers and advancement, and keeps the room listed for the next round. State for scores and round timers lives in the worker process for the current round; the process restarts automatically if it exits. The quiz room is hosted by this server, not by a visitor's homepage tab.
+
+The MongoDB URI is required for the `/api/camp/upgrade` and `/api/combat/pursue` endpoints. They persist changes and action records in MongoDB. These Unity oriented endpoints are a starting data API and should be combined with authenticated player identities and authorization before use with valuable player inventories.
+
+## Hosting providers
+
+* Render runs the persistent Node process and serves the site files from `public/`.
+* Vercel remains configured for static hosting from `public/` and the existing serverless `/api` functions.
+* Supabase Realtime transports lobby and live quiz events.
+* MongoDB stores camp and combat API data.
+
+The home, host, and player pages are in `public/`. Images, question data, the local Supabase client, and language resources are also served from that folder.

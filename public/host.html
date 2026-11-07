@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CHRISCO Bible Quizzes - Host (Pursue, Overtake, Recover All)</title>
+  <meta name="description" content="Host a live multiplayer Bible quiz game. Share the PIN, answer questions, see the scoreboard. Theme: 1 Samuel 30:8 Pursue Overtake Recover All." />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="CHRISCO Bible Quizzes" />
+  <meta property="og:title" content="CHRISCO Bible Quizzes | Host a live Bible Quiz game" />
+  <meta property="og:description" content="Host a live multiplayer Bible quiz game. Share the PIN, answer questions, see the scoreboard. Theme: 1 Samuel 30:8 Pursue Overtake Recover All." />
+  <meta property="og:image" content="https://chrisco-bible-quizzes.vercel.app/image-search/bright-colorful-worship-church-backgroun-1.jpg" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="CHRISCO Bible Quizzes | Host a live Bible Quiz game" />
+  <meta name="twitter:description" content="Host a live multiplayer Bible quiz game. Share the PIN, answer questions, see the scoreboard. Theme: 1 Samuel 30:8 Pursue Overtake Recover All." />
+  <meta name="twitter:image" content="https://chrisco-bible-quizzes.vercel.app/image-search/bright-colorful-worship-church-backgroun-1.jpg" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <script src="vendor/supabase.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --primary: #00008B; --secondary: #FF8C00; --accent: #006400; --bg: #F5F5F5;
+      --purple: #46178f; --yellow: #ffc00a; --red: #e21b3c; --green: #1a9e3a; --text: #333;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Montserrat', 'Segoe UI', Tahoma, sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; }
+    .topbar { position: sticky; top: 0; z-index: 100; background: var(--primary); color: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.25); }
+    .topbar-inner { max-width: 900px; margin: 0 auto; padding: 0.7rem 1rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+    .brand { display: flex; align-items: center; gap: 0.6rem; text-decoration: none; color: #fff; }
+    .brand-logo { width: 42px; height: 42px; border-radius: 12px; background: var(--secondary); display: flex; align-items: center; justify-content: center; font-size: 1.3rem; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+    .brand-text { font-weight: 900; font-size: 1.15rem; line-height: 1; }
+    .brand-text small { display: block; font-size: 0.65rem; font-weight: 500; color: var(--yellow); letter-spacing: 1px; }
+    .btn { display: inline-flex; align-items: center; gap: 0.4rem; font-weight: 700; font-size: 0.95rem; padding: 0.7rem 1.4rem; border-radius: 12px; border: none; cursor: pointer; text-decoration: none; transition: transform 0.2s, box-shadow 0.2s; color: #fff; }
+    .btn:active { transform: scale(0.96); }
+    .btn--yellow { background: var(--yellow); color: #333; }
+    .btn--yellow:hover { box-shadow: 0 6px 20px rgba(255,192,10,0.5); transform: translateY(-2px); }
+    .btn--outline { background: rgba(255,255,255,0.12); border: 2px solid #fff; }
+    .btn--outline:hover { background: #fff; color: var(--primary); }
+    .btn--green { background: var(--green); }
+    .btn--green:hover { box-shadow: 0 6px 20px rgba(26,158,58,0.5); transform: translateY(-2px); }
+    .btn--blue { background: var(--primary); }
+    .btn--blue:hover { box-shadow: 0 6px 20px rgba(0,0,139,0.5); transform: translateY(-2px); }
+    .btn--orange { background: var(--secondary); }
+    .btn--orange:hover { box-shadow: 0 6px 20px rgba(255,140,0,0.5); transform: translateY(-2px); }
+    .btn--large { padding: 0.9rem 2rem; font-size: 1.1rem; border-radius: 14px; }
+    .btn--block { width: 100%; justify-content: center; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+    .btn--sm { padding: 0.4rem 0.9rem; font-size: 0.85rem; border-radius: 10px; }
+
+    .hero { position: relative; overflow: hidden; color: #fff; text-align: center; background: radial-gradient(900px 400px at 80% 10%, rgba(255,140,0,0.35) 0%, transparent 60%), linear-gradient(120deg, #00008B 0%, #46178f 100%); padding: 2rem 1rem 2rem; }
+    .hero::before { content: ''; position: absolute; inset: 0; background: url('./image-search/bright-colorful-worship-church-backgroun-1.jpg') center/cover no-repeat; opacity: 0.15; mix-blend-mode: overlay; }
+    .hero-content { position: relative; z-index: 2; max-width: 700px; margin: 0 auto; }
+    .hero h1 { font-size: clamp(1.6rem, 4vw, 2.6rem); font-weight: 900; text-shadow: 0 4px 20px rgba(0,0,0,0.4); }
+    .hero p { margin-top: 0.5rem; opacity: 0.9; font-weight: 500; }
+    .hero p strong { color: var(--yellow); }
+
+    .container { max-width: 850px; margin: 1.5rem auto; padding: 0 1rem; }
+
+    .card { position: relative; border-radius: 24px; overflow: hidden; color: #fff; padding: 2rem 1.8rem; margin-bottom: 1.5rem; box-shadow: 0 14px 35px rgba(0,0,0,0.18); }
+    .card--blue { background: linear-gradient(160deg, #00008B 0%, #46178f 100%); }
+    .card--orange { background: linear-gradient(160deg, #FF8C00 0%, #e21b3c 100%); }
+    .card--green { background: linear-gradient(160deg, #006400 0%, #0aa3a3 100%); }
+    .card h2 { font-size: 1.5rem; font-weight: 800; display: flex; align-items: center; gap: 0.6rem; }
+    .card p { opacity: 0.95; margin: 0.5rem 0 1rem; }
+    .status-pill { display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 50px; font-size: 0.85rem; font-weight: 600; margin-bottom: 1rem; }
+    .status-pill.ok { background: rgba(0,100,0,0.5); }
+    .status-pill.err { background: rgba(226,27,60,0.6); }
+    .status-pill.warn { background: rgba(255,192,10,0.3); }
+
+    .field { margin-bottom: 1rem; }
+    .field label { display: block; font-size: 0.85rem; font-weight: 700; margin-bottom: 0.4rem; }
+    .name-input { width: 100%; padding: 0.9rem 1rem; font-size: 1.1rem; font-weight: 700; border-radius: 14px; border: 2px solid rgba(255,255,255,0.5); background: rgba(255,255,255,0.12); color: #fff; outline: none; font-family: inherit; }
+    .name-input::placeholder { color: rgba(255,255,255,0.6); }
+    .name-input:focus { background: rgba(255,255,255,0.2); border-color: var(--yellow); }
+
+    .pin-display { font-size: clamp(2.2rem, 7vw, 3.4rem); font-weight: 900; letter-spacing: 8px; text-align: center; background: rgba(255,255,255,0.15); border: 2px dashed rgba(255,255,255,0.5); padding: 1rem; border-radius: 16px; margin: 1rem 0; user-select: all; }
+    .player-list { list-style: none; margin: 1rem 0; display: grid; gap: 0.5rem; }
+    .player-list li { display: flex; align-items: center; gap: 0.6rem; background: rgba(255,255,255,0.15); padding: 0.6rem 1rem; border-radius: 12px; font-weight: 600; }
+    .player-list li .pavatar { width: 34px; height: 34px; border-radius: 50%; background: var(--yellow); color: #333; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.9rem; }
+    .icon-picker { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.6rem; }
+    .icon-opt { width: 46px; height: 46px; border-radius: 12px; border: 2px solid rgba(255,255,255,0.35); background: rgba(255,255,255,0.12); color: #fff; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.15s, box-shadow 0.15s, background 0.15s; font-family: inherit; }
+    .icon-opt:hover { transform: translateY(-2px); }
+    .icon-opt.selected { border-color: var(--yellow); box-shadow: 0 0 0 3px rgba(255,192,10,0.35); background: rgba(255,192,10,0.2); }
+    .icon-caption { font-size: 0.8rem; opacity: 0.85; margin-top: 0.4rem; }
+    .player-list .empty { text-align: center; opacity: 0.8; font-style: italic; }
+
+    /* Share buttons */
+    .share-row { display: flex; gap: 0.5rem; flex-wrap: wrap; margin: 1rem 0; }
+    .share-btn { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.6rem 1rem; border-radius: 12px; border: none; cursor: pointer; font-weight: 700; font-size: 0.85rem; color: #fff; transition: transform 0.2s, box-shadow 0.2s; font-family: inherit; }
+    .share-btn:active { transform: scale(0.95); }
+    .share-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,0.25); }
+    .share-whatsapp { background: #25d366; }
+    .share-facebook { background: #1877f2; }
+    .share-x { background: #000; }
+    .share-sms { background: #34c759; }
+    .share-copy { background: var(--primary); }
+    .game-bar { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; flex-wrap: wrap; background: rgba(0,0,0,0.28); padding: 0.7rem 1rem; border-radius: 14px; margin-bottom: 1rem; }
+    .gb-left { display: flex; align-items: center; gap: 0.4rem; font-weight: 700; font-size: 0.9rem; }
+    .gb-share { margin: 0; gap: 0.35rem; }
+    .gb-share .share-btn { padding: 0.45rem 0.7rem; font-size: 0.8rem; }
+    .gb-close { background: #e21b3c; }
+
+    /* Running games lobby */
+    .section-head { margin: 1.5rem 0 0.8rem; }
+    .section-head h2 { font-size: 1.3rem; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 0.5rem; }
+    .lobby-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1rem; }
+    .game-tile { background: #fff; border-radius: 18px; padding: 1.3rem; box-shadow: 0 8px 20px rgba(0,0,0,0.1); display: flex; flex-direction: column; gap: 0.5rem; border-top: 5px solid var(--primary); }
+    .game-tile.playing { border-top-color: var(--green); }
+    .game-tile.waiting { border-top-color: var(--secondary); }
+    .game-tile .gt-pin { font-size: 1.5rem; font-weight: 900; color: var(--primary); letter-spacing: 3px; }
+    .game-tile .gt-mode { font-weight: 700; color: var(--accent); display: flex; align-items: center; gap: 0.4rem; }
+    .game-tile .gt-host { font-size: 0.85rem; color: #666; }
+    .game-tile .gt-meta { display: flex; justify-content: space-between; font-size: 0.8rem; color: #888; }
+    .game-tile .gt-empty { text-align: center; padding: 2rem 1rem; color: #999; font-style: italic; grid-column: 1/-1; }
+
+    /* Mode cards */
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1rem 0; }
+    .mode-card { position: relative; border-radius: 20px; overflow: hidden; padding: 1.2rem; color: #fff; cursor: pointer; min-height: 140px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 8px 20px rgba(0,0,0,0.2); transition: transform 0.3s; border: none; text-align: left; font-family: inherit; }
+    .mode-card:hover { transform: translateY(-4px); }
+    .mode-card::before { content: ''; position: absolute; inset: 0; background-size: cover; background-position: center; }
+    .mode-card::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.6) 100%); }
+    .mode-card > * { position: relative; z-index: 2; }
+    .mc-pursue { background: linear-gradient(160deg, #00008B, #000051); }
+    .mc-pursue::before { background-image: url('./image-search/bright-colorful-worship-church-backgroun-1.jpg'); }
+    .mc-overtake { background: linear-gradient(160deg, #FF8C00, #c75c00); }
+    .mc-overtake::before { background-image: url('./image-search/david-bible-battle-victory-colorful-illu-3.jpg'); }
+    .mc-recover { background: linear-gradient(160deg, #006400, #003d00); }
+    .mc-recover::before { background-image: url('./image-search/david-bible-battle-victory-colorful-illu-2.jpg'); }
+    .mc-beauty { background: linear-gradient(160deg, #46178f, #2a0e5c); }
+    .mc-beauty::before { background-image: url('./image-search/bright-colorful-worship-church-backgroun-2.jpg'); }
+    .mode-card .mc-icon { font-size: 1.8rem; }
+    .mode-card h3 { font-size: 1.15rem; font-weight: 800; }
+    .mode-card p { font-size: 0.8rem; opacity: 0.95; }
+    .mode-card.selected { outline: 4px solid var(--yellow); outline-offset: 3px; }
+
+    /* Screens */
+    .screen { display: none; }
+    .screen.active { display: block; }
+    .question-card { background: #fff; border-radius: 24px; padding: 2rem 1.6rem; box-shadow: 0 14px 35px rgba(0,0,0,0.12); margin-bottom: 1.5rem; }
+    .q-counter { display: inline-flex; align-items: center; gap: 0.4rem; background: var(--primary); color: #fff; font-weight: 700; padding: 0.4rem 1rem; border-radius: 50px; font-size: 0.85rem; }
+    .q-text { font-size: clamp(1.1rem, 3vw, 1.6rem); font-weight: 800; color: var(--primary); margin: 1rem 0; line-height: 1.4; }
+    .timer-bar { height: 10px; background: #eee; border-radius: 6px; overflow: hidden; margin-bottom: 1.5rem; }
+    .timer-bar .fill { height: 100%; background: linear-gradient(90deg, var(--green), var(--secondary), var(--red)); width: 100%; transition: width 1s linear; }
+    .timer-num { text-align: right; font-weight: 800; color: var(--red); font-size: 1.1rem; margin-bottom: 1rem; }
+    .options { display: grid; gap: 0.8rem; }
+    .opt { display: flex; align-items: center; gap: 0.7rem; padding: 1rem 1.2rem; border-radius: 14px; background: #f4f6fa; font-weight: 600; text-align: left; border: 2px solid transparent; transition: background 0.2s; font-family: inherit; cursor: default; font-size: 1rem; color: var(--text); }
+    .opt:hover { background: #e8ecf5; }
+    .opt .letter { width: 30px; height: 30px; border-radius: 8px; background: var(--primary); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0; }
+    .opt.correct { background: rgba(26,158,58,0.15); border-color: var(--green); }
+    .opt.correct .letter { background: var(--green); }
+    .explain { background: #f0f7ff; border-left: 4px solid var(--primary); padding: 1rem 1.2rem; border-radius: 10px; margin-top: 1.2rem; font-size: 0.9rem; color: #444; }
+    .scoreboard { background: #fff; border-radius: 20px; padding: 1.5rem; box-shadow: 0 10px 25px rgba(0,0,0,0.08); margin-bottom: 1.5rem; }
+    .scoreboard h3 { font-size: 1.1rem; color: var(--primary); margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.4rem; }
+    .score-row { display: flex; align-items: center; gap: 0.6rem; padding: 0.5rem 0; border-bottom: 1px solid #f0f0f0; }
+    .score-row:last-child { border-bottom: none; }
+    .score-row .pavatar { width: 32px; height: 32px; border-radius: 50%; background: var(--purple); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.85rem; }
+    .score-row .pname { flex: 1; font-weight: 600; }
+    .score-row .pscore { font-weight: 800; color: var(--accent); }
+    .score-row.winner .pname { color: var(--yellow); font-weight: 800; }
+    .score-row.winner .pavatar { background: var(--secondary); }
+    .final-card { background: linear-gradient(160deg, #46178f, #00008B); color: #fff; border-radius: 24px; padding: 2.5rem 1.8rem; text-align: center; box-shadow: 0 14px 35px rgba(70,23,143,0.4); }
+    .final-card h2 { font-size: 1.8rem; font-weight: 900; }
+    .final-card .trophy { font-size: 3rem; color: var(--yellow); margin-bottom: 1rem; }
+    footer { text-align: center; padding: 1.5rem 1rem 2rem; color: #888; font-size: 0.8rem; }
+
+    .settings-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:.8rem; margin-top:.7rem; }
+    .settings-grid label { display:flex; flex-direction:column; gap:.35rem; font-size:.9rem; font-weight:700; }
+    .settings-grid select,.settings-grid input { min-width:0; padding:.65rem .7rem; border-radius:9px; border:1px solid rgba(255,255,255,.6); font:inherit; color:#222; background:#fff; }
+    .settings-panel h3 { margin-bottom:.45rem; }
+    .settings-panel p { margin:.4rem 0; }
+    @media (max-width: 600px) { .topbar-inner { flex-wrap: wrap; } .card { padding: 1.4rem 1.2rem; } .pin-display { letter-spacing: 4px; padding: 0.7rem; } .question-card { padding: 1.4rem 1.1rem; } .lobby-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html"><span class="brand-logo"><i class="fa-solid fa-crosshairs"></i></span><span class="brand-text">CHRISCO<small>BIBLE QUIZZES</small></span></a>
+      <div class="topbar-actions"><a class="btn btn--outline" href="player.html"><i class="fa-solid fa-right-to-bracket"></i> Join</a><a class="btn btn--yellow" href="host.html"><i class="fa-solid fa-gamepad"></i> Host</a></div>
+    </div>
+  </div>
+
+  <section class="hero"><div class="hero-content"><h1><i class="fa-solid fa-gamepad"></i> Host a Game</h1><p>Create a Bible Quiz game, share the PIN, and play. Theme: <strong>1 Samuel 30:8 Pursue Overtake Recover All</strong></p></div></section>
+
+  <div class="container">
+    <!-- Identity / Create Game -->
+    <div class="screen active" id="setup-screen">
+      <div class="card card--blue">
+        <div class="status-pill" id="status-pill"><i class="fa-solid fa-spinner fa-spin"></i> Setting up your game room...</div>
+        <h2><i class="fa-solid fa-user-tie"></i> Host a Game</h2>
+        <p>Enter your name, pick a mode, and create a game. Share the PIN so friends can join.</p>
+        <div class="field">
+          <label for="host-name">Your Name</label>
+          <input type="text" class="name-input" id="host-name" placeholder="e.g. Pastor David" maxlength="16" autocomplete="off" />
+        </div>
+        <div class="field">
+          <label><i class="fa-solid fa-icons"></i> Pick your icon (optional)</label>
+          <div class="icon-picker" id="icon-picker"></div>
+          <div class="icon-caption" id="icon-caption">Shown to players on the scoreboard.</div>
+        </div>
+        <div class="field">
+          <label><i class="fa-solid fa-gamepad"></i> Choose your mode</label>
+          <div class="cards">
+            <button class="mode-card mc-pursue selected" id="mode-pursue" onclick="selectMode('pursue')"><div><div class="mc-icon"><i class="fa-solid fa-compass"></i></div><h3>Pursue</h3><p>5 rounds, 20s each.</p></div></button>
+            <button class="mode-card mc-overtake" id="mode-overtake" onclick="selectMode('overtake')"><div><div class="mc-icon"><i class="fa-solid fa-running"></i></div><h3>Overtake</h3><p>5 rounds, 15s each.</p></div></button>
+            <button class="mode-card mc-recover" id="mode-recover" onclick="selectMode('recover')"><div><div class="mc-icon"><i class="fa-solid fa-shield-halved"></i></div><h3>Recover All</h3><p>10 rounds, 20s each.</p></div></button>
+            <button class="mode-card mc-beauty" id="mode-beauty" onclick="selectMode('beauty')"><div><div class="mc-icon"><i class="fa-solid fa-dove"></i></div><h3>Beauty for Ashes</h3><p>10 rounds, 20s each.</p></div></button>
+          </div>
+        </div>
+        <div class="settings-panel" style="margin:1.2rem 0;padding:1rem;border-radius:14px;background:rgba(255,255,255,.12);">
+          <h3><i class="fa-solid fa-sliders"></i> Game Settings</h3>
+          <div class="settings-grid">
+            <label>Pacing<select id="setting-pacing"><option value="host">Host-Controlled</option><option value="self">Self-Paced (Auto)</option></select></label>
+            <label>Answer Visibility<select id="setting-visibility"><option value="immediate">Immediate</option><option value="end">End of Game</option><option value="never">Never (Rankings Only)</option></select></label>
+            <label>Time Limit<select id="setting-timer"><option value="10">10 seconds</option><option value="15">15 seconds</option><option value="20" selected>20 seconds</option><option value="30">30 seconds</option><option value="45">45 seconds</option><option value="60">60 seconds</option></select></label>
+            <label>Retries<select id="setting-retries"><option value="allow">Allow Retries</option><option value="one">One Attempt Only</option></select></label>
+            <label>Privacy<select id="setting-privacy"><option value="private">Private (PIN only)</option><option value="public">Public (List on Dashboard)</option></select></label>
+          </div>
+        </div>
+        <div class="settings-panel" style="margin:1.2rem 0;padding:1rem;border-radius:14px;background:rgba(255,255,255,.12);">
+          <h3><i class="fa-solid fa-wand-magic-sparkles"></i> Tool Assisted Content Analysis</h3>
+          <p>Choose a source, add a topic or source link, then deduce a short reasoning quiz.</p>
+          <div class="settings-grid">
+            <label>Input Type<select id="content-type"><option value="topic">Topic</option><option value="link">Web Link</option><option value="video">Video Link</option><option value="document">Document</option></select></label>
+            <label>Topic or Link<input id="content-source" type="text" placeholder="Example: Wisdom and courage in Esther" /></label>
+            <label>Document<input id="content-document" type="file" accept=".doc,.docx,.txt,.pdf" /></label>
+          </div>
+          <button id="deduce-quiz-btn" type="button" class="btn btn--purple" style="margin-top:.7rem;"><i class="fa-solid fa-wand-magic-sparkles"></i> Deduce Quiz</button>
+          <span id="deduce-status" role="status" style="margin-left:.6rem;"></span>
+          <pre id="deduced-preview" style="display:none;max-height:220px;overflow:auto;margin-top:.8rem;padding:.8rem;border-radius:10px;background:#10162b;color:#d7f5db;"></pre>
+        </div>
+        <button id="create-game-btn" class="btn btn--yellow btn--large btn--block"><i class="fa-solid fa-plus"></i> Create New Game</button>
+        <p style="margin-top:1rem;font-size:0.85rem;opacity:0.85;"><i class="fa-solid fa-info-circle"></i> Games use the David Quiz (1 Samuel 30:8) or the Beauty for Ashes quiz (Isaiah 61:1 to 3 teaching).</p>
+      </div>
+
+      <!-- Running Games Lobby -->
+      <div class="section-head"><h2><i class="fa-solid fa-list-check" style="color:var(--secondary);"></i> Running Games on Server</h2></div>
+      <div class="lobby-grid" id="lobby-list"><div class="game-tile gt-empty"><i class="fa-solid fa-hourglass-half"></i> Connecting to lobby...</div></div>
+    </div>
+
+    <!-- Question Screen -->
+    <div class="screen" id="question-screen">
+      <div class="game-bar">
+        <div class="gb-left"><i class="fa-solid fa-key"></i> PIN <span id="game-pin-bar" style="font-weight:800;letter-spacing:2px;">----</span></div>
+        <div class="share-row gb-share">
+          <button class="share-btn share-whatsapp" onclick="shareGame('whatsapp')" title="WhatsApp"><i class="fa-brands fa-whatsapp"></i></button>
+          <button class="share-btn share-facebook" onclick="shareGame('facebook')" title="Facebook"><i class="fa-brands fa-facebook-f"></i></button>
+          <button class="share-btn share-x" onclick="shareGame('x')" title="X"><i class="fa-brands fa-x-twitter"></i></button>
+          <button class="share-btn share-sms" onclick="shareGame('sms')" title="SMS"><i class="fa-solid fa-comment-sms"></i></button>
+          <button class="share-btn share-copy" onclick="shareGame('copy')" title="Copy link"><i class="fa-solid fa-link"></i></button>
+          <button class="share-btn gb-close" onclick="closeGame()" title="Close game"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+      </div>
+      <div class="question-card">
+        <span class="q-counter" id="q-counter"><i class="fa-solid fa-list-ol"></i> Question 1 of 5</span>
+        <div class="timer-num" id="timer-num"><i class="fa-solid fa-clock"></i> 20s</div>
+        <div class="timer-bar"><div class="fill" id="timer-fill"></div></div>
+        <div class="q-text" id="q-text">Question text appears here.</div>
+        <div class="options" id="q-options"></div>
+        <div class="explain" id="q-explain" style="display:none;"></div>
+        <button id="reveal-btn" class="btn btn--green btn--block" style="display:none;margin-top:1.2rem;"></button>
+      </div>
+      <div class="scoreboard">
+        <h3><i class="fa-solid fa-ranking-star"></i> Live Scoreboard</h3>
+        <div id="live-scores"></div>
+      </div>
+    </div>
+
+    <!-- End Screen -->
+    <div class="screen" id="end-screen">
+      <div class="game-bar">
+        <div class="gb-left"><i class="fa-solid fa-key"></i> PIN <span id="game-pin-bar" style="font-weight:800;letter-spacing:2px;">----</span></div>
+        <div class="share-row gb-share">
+          <button class="share-btn share-whatsapp" onclick="shareGame('whatsapp')" title="WhatsApp"><i class="fa-brands fa-whatsapp"></i></button>
+          <button class="share-btn share-facebook" onclick="shareGame('facebook')" title="Facebook"><i class="fa-brands fa-facebook-f"></i></button>
+          <button class="share-btn share-x" onclick="shareGame('x')" title="X"><i class="fa-brands fa-x-twitter"></i></button>
+          <button class="share-btn share-sms" onclick="shareGame('sms')" title="SMS"><i class="fa-solid fa-comment-sms"></i></button>
+          <button class="share-btn share-copy" onclick="shareGame('copy')" title="Copy link"><i class="fa-solid fa-link"></i></button>
+          <button class="share-btn gb-close" onclick="closeGame()" title="Close game"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+      </div>
+      <div class="final-card">
+        <div class="trophy" id="end-trophy"><i class="fa-solid fa-trophy"></i></div>
+        <h2 id="end-title">Game Over!</h2>
+        <p id="end-sub" style="margin:0.5rem 0 1.5rem;opacity:0.9;">Theme: 1 Samuel 30:8 Pursue Overtake Recover All</p>
+        <div id="end-scores"></div>
+        <button id="play-again-btn" class="btn btn--yellow btn--large btn--block" style="margin-top:1.5rem;"><i class="fa-solid fa-rotate-left"></i> New Game</button>
+        <a class="btn btn--outline btn--block" style="margin-top:0.8rem;" href="index.html"><i class="fa-solid fa-house"></i> Back to Home</a>
+      </div>
+    </div>
+  </div>
+
+  <footer>&copy; 2026 CHRISCO Bible Quizzes. Theme: 1 Samuel 30:8 Pursue Overtake Recover All.</footer>
+
+  <script src="questions.js"></script>
+  <script src="questions-i18n.js"></script>
+  <script>
+    const LETTERS = ['A','B','C','D'];
+    const LOBBY_CHANNEL = 'chrisco-lobby';
+    const state = {
+      hostName: localStorage.getItem('chrisco_host_nickname') || 'Host', hostIcon: 'fa-solid fa-lion', hostId: '', hostToken: '', pin: '', mode: 'pursue',
+      lobbyChannel: null, gameChannel: null, supabase: null,
+      players: {}, lobbyGames: {}, settings: { pacing:'host', answerVisibility:'immediate', timerSeconds:20, retries:'allow', privacy:'private' },
+      questions: [], questionsOverride: null, qIndex: 0, phase: 'setup',
+      timer: null, timeLeft: 0, answers: {}, attemptedDevices: {}, revealed: false,
+      currentQ: null, winner: null
+    };
+    if (!state.hostId) state.hostId = 'h' + Math.random().toString(36).slice(2, 10);
+
+    function iconHtml(p) {
+      if (p && p.icon) return '<i class="' + p.icon + '"></i>';
+      return esc(p && p.name ? p.name.charAt(0) : '?');
+    }
+
+    function renderIconPicker() {
+      const grid = $('icon-picker');
+      grid.innerHTML = window.CHRISCO_ICONS.map(ic =>
+        '<button type="button" class="icon-opt' + (ic.icon === state.hostIcon ? ' selected' : '') + '" data-icon="' + ic.icon + '"><i class="' + ic.icon + '"></i></button>'
+      ).join('');
+      grid.querySelectorAll('.icon-opt').forEach(b => b.addEventListener('click', () => {
+        state.hostIcon = b.dataset.icon;
+        renderIconPicker();
+        const cap = $('icon-caption');
+        const ic = window.CHRISCO_ICONS.find(x => x.icon === state.hostIcon);
+        cap.textContent = 'Shown to players on the scoreboard. ' + (ic ? ic.label : '');
+      }));
+    }
+    function $(id) { return document.getElementById(id); }
+    function esc(s) { const d = document.createElement('div'); d.textContent = s == null ? '' : String(s); return d.innerHTML; }
+    function statusPill(html, cls) { const p = $('status-pill'); p.className = 'status-pill ' + (cls||''); p.innerHTML = html; }
+    function showScreen(id) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      $('' + id + '-screen').classList.add('active');
+    }
+
+    function loadConfig() {
+      return fetch('/api/config').then(r => { if (!r.ok) throw new Error('Config endpoint returned ' + r.status); return r.json(); }).catch(() => null).then(cfg => {
+        if (cfg && cfg.url && cfg.key) return cfg;
+        return new Promise((resolve, reject) => {
+          const s = document.createElement('script');
+          s.src = '/config.js';
+          s.onload = () => {
+            if (window.CHRISCO_CONFIG && window.CHRISCO_CONFIG.supabaseUrl && window.CHRISCO_CONFIG.supabaseAnonKey) resolve({ url: window.CHRISCO_CONFIG.supabaseUrl, key: window.CHRISCO_CONFIG.supabaseAnonKey });
+            else reject(new Error('No config available'));
+          };
+          s.onerror = () => reject(new Error('No config available'));
+          document.head.appendChild(s);
+        });
+      });
+    }
+
+    function selectMode(mode) {
+      state.mode = mode;
+      document.querySelectorAll('.mode-card').forEach(el => el.classList.remove('selected'));
+      $('mode-' + mode).classList.add('selected');
+    }
+    function readSettings() {
+      return { pacing:$('setting-pacing').value, answerVisibility:$('setting-visibility').value, timerSeconds:Number($('setting-timer').value), retries:$('setting-retries').value, privacy:$('setting-privacy').value };
+    }
+
+    function buildPlayerList() {
+      const ul = $('player-list');
+      if (!ul) return;
+      const players = Object.values(state.players).flat().filter(p => p && !p.isHost);
+      if (players.length === 0) ul.innerHTML = '<li class="empty"><i class="fa-solid fa-user-plus"></i> Waiting for players to join with this PIN...</li>';
+      else ul.innerHTML = players.map(p => '<li><span class="pavatar">' + iconHtml(p) + '</span>' + esc(p.name) + '</li>').join('');
+    }
+
+    function buildLobbyList() {
+      const grid = $('lobby-list');
+      const games = Object.values(state.lobbyGames).flat().filter(g => g && g.pin && g.status !== 'closed');
+      if (games.length === 0) {
+        grid.innerHTML = '<div class="game-tile gt-empty"><i class="fa-solid fa-mug-hot"></i> No games running yet. Create one to get started!</div>';
+        return;
+      }
+      games.sort((a,b) => (b.players||[]).length - (a.players||[]).length);
+      grid.innerHTML = games.map(g => {
+        const modeName = (window.CHRISCO_MODES[g.mode] && window.CHRISCO_MODES[g.mode].name) || g.mode || 'David Quiz';
+        const modeIcon = (window.CHRISCO_MODES[g.mode] && window.CHRISCO_MODES[g.mode].icon) || 'fa-gamepad';
+        const cls = g.status === 'playing' ? 'playing' : 'waiting';
+        const statusLabel = g.status === 'playing' ? '<span style="color:var(--green);font-weight:700;"><i class="fa-solid fa-play"></i> Playing</span>' : '<span style="color:var(--secondary);font-weight:700;"><i class="fa-solid fa-clock"></i> Waiting</span>';
+        return '<div class="game-tile ' + cls + '">' +
+          '<div class="gt-pin">' + esc(g.pin) + '</div>' +
+          '<div class="gt-mode"><i class="fa-solid ' + modeIcon + '"></i> ' + esc(modeName) + '</div>' +
+          '<div class="gt-host">' + (g.icon ? '<i class="' + g.icon + '"></i> ' : '<i class="fa-solid fa-user"></i> ') + esc(g.name || 'Host') + '</div>' +
+          '<div class="gt-meta"><span>' + (g.players||[]).length + ' players</span>' + statusLabel + '</div>' +
+          '</div>';
+      }).join('');
+    }
+
+    function renderScores() {
+      const all = Object.values(state.players).flat().filter(p => p && !p.isHost);
+      all.sort((a,b) => (b.score||0) - (a.score||0));
+      $('live-scores').innerHTML = all.map((p,i) => '<div class="score-row' + (i===0?' winner':'') + '"><span class="pavatar">' + iconHtml(p) + '</span><span class="pname">' + esc(p.name) + '</span><span class="pscore">' + (p.score||0) + '</span></div>').join('');
+    }
+
+    function hostShareUrl() {
+      return window.location.origin + '/api/share?role=host' +
+        '&host=' + encodeURIComponent(state.hostName) +
+        '&pin=' + encodeURIComponent(state.pin) +
+        '&mode=' + encodeURIComponent(state.mode);
+    }
+
+    function shareGame(kind) {
+      const url = hostShareUrl();
+      const text = 'CHRISCO Bible Quiz! Join my game. PIN: ' + state.pin + '. Live multiplayer Bible quiz. Theme: 1 Samuel 30:8 Pursue Overtake Recover All. Play at ' + url;
+      const enc = encodeURIComponent(text);
+      const uenc = encodeURIComponent(url);
+      if (kind === 'whatsapp') window.open('https://wa.me/?text=' + enc, '_blank');
+      else if (kind === 'facebook') window.open('https://www.facebook.com/sharer/sharer.php?u=' + uenc + '&quote=' + enc, '_blank');
+      else if (kind === 'x') window.open('https://twitter.com/intent/tweet?text=' + enc + '&url=' + uenc, '_blank');
+      else if (kind === 'sms') window.open('sms:?body=' + enc, '_blank');
+      else if (kind === 'copy') { navigator.clipboard.writeText(text).then(() => { alert('Link copied! Friends will see a preview card and can join with one tap.'); }); }
+    }
+
+    function updateLobbyPresence() {
+      if (!state.lobbyChannel) return;
+      const status = state.phase === 'setup' ? 'idle'
+        : (state.phase === 'end' ? 'lobby' : (state.phase === 'lobby' ? 'lobby' : 'playing'));
+      state.lobbyChannel.track({
+        name: state.hostName, icon: state.hostIcon, hostId: state.hostId,
+        pin: state.pin || '', mode: state.mode, status: status, privacy:state.settings.privacy, settings:state.settings,
+        players: Object.values(state.players).flat().filter(p => p && !p.isHost).map(p => p.name),
+        isHost: true
+      });
+    }
+
+    function deduceQuiz() {
+      const btn = $('deduce-quiz-btn'), status = $('deduce-status'), preview = $('deduced-preview');
+      const type = $('content-type').value;
+      const doc = $('content-document').files[0];
+      const source = $('content-source').value.trim() || (doc ? doc.name : 'Bible wisdom and faithful choices');
+      state.questionsOverride = null;
+      btn.disabled = true; preview.style.display = 'none'; status.textContent = 'Analyzing ' + type + ' source: ' + source + '…';
+      setTimeout(() => {
+        state.questionsOverride = [
+          {q:'In Jesus’ parable, why did the Samaritan’s actions define true neighborly love?',options:['He had a duty to protect his reputation','He showed costly compassion across a social boundary','He expected a reward from the injured man','He followed a request from the priest'],correct:1,explain:'The Samaritan crossed a social boundary and spent his own time and resources to care for a stranger.'},
+          {q:'James says faith without works is dead. Which response best demonstrates that principle?',options:['Agreeing that generosity is important','Waiting until someone asks for help','Providing practical help to a person in need','Explaining why another person should help'],correct:2,explain:'James connects genuine faith with practical action that meets a real need.'},
+          {q:'A leader receives advice that challenges their first plan. Which response best reflects biblical wisdom?',options:['Listen carefully, test the counsel, and seek understanding','Reject it immediately to appear decisive','Accept it without considering the evidence','Ignore the adviser and repeat the original plan'],correct:0,explain:'Proverbs commends listening to counsel and seeking wisdom rather than reacting from pride or haste.'}
+        ];
+        preview.textContent = JSON.stringify(state.questionsOverride, null, 2); preview.style.display = 'block';
+        status.textContent = 'Three reasoning questions are ready and will be used for the next room.'; btn.disabled = false;
+      }, 3000);
+    }
+
+    function createGame() {
+      const name = $('host-name').value.trim() || 'Host';
+      state.hostName = name;
+      localStorage.setItem('chrisco_host_nickname', name);
+      state.settings = readSettings();
+      state.hostToken = localStorage.getItem('host_token') || (window.crypto && crypto.randomUUID ? crypto.randomUUID() : 'ht-' + Math.random().toString(36).slice(2) + Date.now());
+      localStorage.setItem('host_token', state.hostToken);
+      if (!state.hostId) state.hostId = 'h' + Math.random().toString(36).slice(2, 10);
+
+      // Names cannot be repeated: reject if another host already runs a game with this name
+      const conflict = Object.values(state.lobbyGames).flat().some(g => g &&
+        g.name && g.name.toLowerCase() === name.toLowerCase() && g.status !== 'closed' && g.hostId !== state.hostId);
+      if (conflict) {
+        alert('That name is already used by a running game. Pick a different name so hosts stay unique.');
+        return;
+      }
+
+      // If this host had an earlier game running, close it first (only the host can stop their game)
+      if (state.gameChannel && state.pin) {
+        state.gameChannel.send({ type: 'broadcast', event: 'close', payload: { message: 'Host started a new game. This game is closed.' } });
+        state.gameChannel.unsubscribe();
+        state.gameChannel = null;
+      }
+
+      state.pin = Math.floor(1000 + Math.random() * 90000).toString();
+      state.phase = 'lobby';
+      $('game-pin-bar').textContent = state.pin;
+      updateLobbyPresence();
+      state.gameChannel = state.supabase.channel('quiz-' + state.pin)
+        .on('presence', { event: 'SYNC' }, (payload) => { state.players = payload.presence || {}; buildPlayerList(); updateLobbyPresence(); })
+        .on('presence', { event: 'CHANGES' }, (payload) => {
+          state.players = state.gameChannel.presenceState();
+          buildPlayerList(); updateLobbyPresence();
+          // New players join: send them the current game state so they can play immediately
+          const newPlayers = Object.values(payload.events.joins || {}).flat().filter(j => j && !j.isHost);
+          const accepted = newPlayers.filter(j => {
+            if (state.settings.retries !== 'one' || !j.deviceId) return true;
+            const duplicate = Object.values(state.players).flat().some(p => p && !p.isHost && p.deviceId === j.deviceId && p.myId !== j.myId);
+            if (duplicate) state.gameChannel.send({type:'broadcast',event:'device-rejected',payload:{to:j.myId,message:'Only one player per device is allowed in this game.'}});
+            return !duplicate;
+          });
+          if (accepted.length) {
+            if (state.phase === 'lobby') { startGame(); return; } // never let players wait: auto-start
+            accepted.forEach(j => sendSync(j.myId));
+          }
+        })
+        .on('broadcast', { event: 'answer' }, (payload) => { const a=payload.payload; if (!handleAnswer(a) && a && a.myId) state.gameChannel.send({type:'broadcast',event:'answer-rejected',payload:{to:a.myId,message:'This device has already submitted an answer.'}}); })
+        .on('broadcast', { event: 'advance-request' }, () => {
+          if (state.settings.pacing !== 'self') return;
+          if (state.phase === 'reveal') nextQuestion();
+          else if (state.phase === 'question') revealAnswer();
+        })
+        .on('broadcast', { event: 'sync-request' }, (payload) => { if (payload.payload && payload.payload.myId) sendSync(payload.payload.myId); })
+        .subscribe(async (status) => {
+          if (status === 'SUBSCRIBED') {
+            await state.gameChannel.track({ name: state.hostName, icon: state.hostIcon, hostId: state.hostId, isHost: true, status: 'lobby', score: 0, mode: state.mode, settings:state.settings });
+            // Start immediately: no waiting lobby. Host shares the PIN from the game bar.
+            startGame();
+          } else if (status === 'CHANNEL_ERROR' || status === 'CHANNEL_CLOSED') {
+            $('game-pin-bar').textContent = state.pin;
+          }
+        });
+      showScreen('question');
+    }
+
+    function sendSync(to) {
+      if (!state.gameChannel || !to) return;
+      const cur = state.currentQ;
+      const scores = Object.values(state.players).flat().filter(p => p && !p.isHost).map(p => ({ name: p.name, icon: p.icon, score: p.score || 0 }));
+      state.gameChannel.send({
+        type: 'broadcast', event: 'sync',
+        payload: {
+          to: to,
+          phase: state.phase,
+          index: state.qIndex,
+          total: state.questions.length,
+          q: cur ? cur.q : null,
+          options: cur ? cur.options : [],
+          correct: cur && state.settings.answerVisibility === 'immediate' ? cur.correct : null,
+          explain: cur && state.settings.answerVisibility === 'immediate' ? cur.explain : null,
+          seconds: state.timeLeft,
+          scores: scores,
+          winner: state.winner || null,
+          answerKey: state.phase === 'end' && state.settings.answerVisibility === 'end' ? state.questions.map(q=>({q:q.q,options:q.options,correct:q.correct,explain:q.explain})) : undefined,
+          mode: state.mode, settings:state.settings
+        }
+      });
+    }
+
+    function closeGame() {
+      if (!state.gameChannel) return;
+      if (!confirm('Close this game? Players will be told the game is closed and the room stops accepting new players.')) return;
+      state.gameChannel.send({ type: 'broadcast', event: 'close', payload: { message: 'Host closed this game.' } });
+      state.gameChannel.unsubscribe();
+      state.gameChannel = null;
+      state.phase = 'setup';
+      state.players = {};
+      state.pin = '';
+      state.questions = []; state.qIndex = 0; state.timer = null;
+      $('game-pin-bar').textContent = '----';
+      updateLobbyPresence();
+      showScreen('setup');
+    }
+
+    function startGame() {
+      if (!state.gameChannel || state.phase === 'question' || state.phase === 'reveal') return;
+      const cfg = window.CHRISCO_MODES[state.mode];
+      state.questions = state.questionsOverride ? state.questionsOverride.slice() : window.pickQuestions(state.mode, cfg.rounds);
+      state.questionsOverride = null;
+      state.qIndex = 0; state.phase = 'question'; state.answers = {}; state.revealed = false; state.winner = null;
+      Object.values(state.players).flat().filter(p => p && !p.isHost).forEach(p => { p.score = 0; p.answered = false; p.answer = null; });
+      renderScores();
+      state.gameChannel.send({ type: 'broadcast', event: 'start', payload: { mode: state.mode, rounds: state.questions.length, name: cfg.name, settings:state.settings } });
+      showScreen('question');
+      showQuestion();
+      updateLobbyPresence();
+    }
+
+    function showQuestion() {
+      const q = state.questions[state.qIndex];
+      state.currentQ = { q: q.q, options: q.options, correct: q.correct, explain: q.explain };
+      state.attemptedDevices = {};
+      $('q-counter').innerHTML = '<i class="fa-solid fa-list-ol"></i> Question ' + (state.qIndex+1) + ' of ' + state.questions.length;
+      const localized = window.localizeQuestion(q, (localStorage.getItem('chrisco_lang') || 'en'));
+      $('q-text').textContent = localized.q;
+      $('q-options').innerHTML = localized.options.map((o,i) => '<button class="opt" data-i="'+i+'"><span class="letter">'+LETTERS[i]+'</span><span>'+esc(o)+'</span></button>').join('');
+      $('q-explain').style.display = 'none';
+      $('reveal-btn').style.display = 'block';
+      $('reveal-btn').innerHTML = '<i class="fa-solid fa-eye"></i> Reveal Answer';
+      state.revealed = false;
+      state.timeLeft = state.settings.timerSeconds;
+      $('timer-num').innerHTML = '<i class="fa-solid fa-clock"></i> ' + state.timeLeft + 's';
+      $('timer-fill').style.width = '100%';
+      state.gameChannel.send({ type: 'broadcast', event: 'question', payload: { index: state.qIndex, total: state.questions.length, q: q.q, options: q.options, seconds: state.timeLeft, settings:state.settings } });
+      clearInterval(state.timer);
+      if (state.timeLeft > 0) state.timer = setInterval(tickTimer, 1000); else $('timer-num').innerHTML = '<i class="fa-solid fa-infinity"></i> No timer';
+    }
+
+    function tickTimer() {
+      state.timeLeft--;
+      $('timer-num').innerHTML = '<i class="fa-solid fa-clock"></i> ' + Math.max(0,state.timeLeft) + 's';
+      $('timer-fill').style.width = Math.max(0, state.timeLeft / Math.max(1,state.settings.timerSeconds) * 100) + '%';
+      if (state.timeLeft <= 0) { clearInterval(state.timer); revealAnswer(); }
+    }
+
+    function revealAnswer() {
+      if (state.phase !== 'question' || state.revealed) return;
+      clearInterval(state.timer);
+      state.phase = 'reveal';
+      const q = state.questions[state.qIndex];
+      $('q-options').querySelectorAll('.opt').forEach((b,i) => { if (i === q.correct) b.classList.add('correct'); });
+      const localized = window.localizeQuestion(q, (localStorage.getItem('chrisco_lang') || 'en'));
+      $('q-explain').innerHTML = '<i class="fa-solid fa-circle-info"></i> ' + esc(localized.explain);
+      $('q-explain').style.display = 'block';
+      $('reveal-btn').innerHTML = '<i class="fa-solid fa-arrow-right"></i> Next Question';
+      state.revealed = true;
+      Object.values(state.players).flat().filter(p => p && !p.isHost).forEach(p => { if (state.answers[p.deviceId || p.name] === q.correct) p.score = (p.score||0) + 100; p.answered = false; p.answer = null; });
+      renderScores();
+      const visibility = state.settings.answerVisibility;
+      const scores = Object.values(state.players).flat().filter(p => p && !p.isHost).map(p => ({name:p.name,score:p.score||0}));
+      state.gameChannel.send({ type: 'broadcast', event: 'reveal', payload: { index: state.qIndex, correct: visibility === 'immediate' ? q.correct : null, explain: visibility === 'immediate' ? q.explain : null, visibility, scores } });
+      updateLobbyPresence();
+    }
+
+    function nextQuestion() {
+      state.qIndex++; state.answers = {};
+      if (state.qIndex >= state.questions.length) { finishGame(); return; }
+      state.phase = 'question';
+      showQuestion();
+    }
+
+    function finishGame() {
+      state.phase = 'end';
+      const all = Object.values(state.players).flat().filter(p => p && !p.isHost);
+      all.sort((a,b) => (b.score||0) - (a.score||0));
+      const winner = all[0];
+      state.winner = winner ? winner.name : null;
+      $('end-title').textContent = 'Game Over!';
+      $('end-sub').innerHTML = 'Theme: <strong>1 Samuel 30:8 Pursue Overtake Recover All</strong>';
+      $('end-scores').innerHTML = all.map((p,i) => '<div class="score-row' + (i===0?' winner':'') + '"><span class="pavatar">' + iconHtml(p) + '</span><span class="pname">' + esc(p.name) + '</span><span class="pscore">' + (p.score||0) + '</span></div>').join('');
+      $('end-trophy').innerHTML = winner ? '<i class="fa-solid fa-trophy"></i> ' + esc(winner.name) + ' wins!' : '<i class="fa-solid fa-trophy"></i>';
+      const answerKey = state.settings.answerVisibility === 'end' ? state.questions.map(q=>({q:q.q,options:q.options,correct:q.correct,explain:q.explain})) : undefined;
+      state.gameChannel.send({ type: 'broadcast', event: 'end', payload: { winner: winner ? winner.name : null, scores:all.map(p=>({name:p.name,score:p.score||0})), answerKey } });
+      updateLobbyPresence();
+      showScreen('end');
+    }
+
+    function handleAnswer(a) {
+      if (!a || state.phase !== 'question' || !Number.isInteger(a.choice) || a.choice < 0 || a.choice > 3) return false;
+      const key = a.deviceId || a.name;
+      if (state.settings.retries === 'one') {
+        if (!a.deviceId || state.attemptedDevices[a.deviceId]) return false;
+        state.attemptedDevices[a.deviceId] = true;
+      }
+      state.answers[key] = a.choice;
+      const player = Object.values(state.players).flat().find(p => p && !p.isHost && (a.deviceId ? p.deviceId === a.deviceId : p.name === a.name));
+      if (player) { player.answered = true; player.answer = a.choice; }
+      if (state.settings.answerVisibility === 'immediate' && !state.revealed) revealAnswer();
+      return true;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      $('host-name').value = localStorage.getItem('chrisco_host_nickname') || '';
+      $('deduce-quiz-btn').addEventListener('click', deduceQuiz);
+      const hash = window.location.hash.replace('#','');
+      selectMode(['pursue','overtake','recover','beauty'].includes(hash) ? hash : 'pursue');
+      renderIconPicker();
+
+      $('create-game-btn').addEventListener('click', createGame);
+      $('reveal-btn').addEventListener('click', () => { if (!state.revealed) revealAnswer(); else nextQuestion(); });
+      $('play-again-btn').addEventListener('click', () => {
+        // New round starts immediately: players already in the room get the new questions live
+        startGame();
+      });
+
+      loadConfig().then(config => {
+        const { url, key } = config;
+        if (!window.supabase || typeof window.supabase.createClient !== 'function') throw new Error('Supabase client library did not load');
+        state.supabase = window.supabase.createClient(url, key);
+
+        // Lobby channel: list running games
+        state.lobbyChannel = state.supabase.channel(LOBBY_CHANNEL)
+          .on('presence', { event: 'SYNC' }, (payload) => { state.lobbyGames = payload.presence || {}; buildLobbyList(); })
+          .on('presence', { event: 'CHANGES' }, () => { state.lobbyGames = state.lobbyChannel.presenceState(); buildLobbyList(); })
+          .subscribe(async (status) => {
+            if (status === 'SUBSCRIBED') {
+              statusPill('<i class="fa-solid fa-circle-check"></i> Connected to lobby. Create a game to start!', 'ok');
+              await state.lobbyChannel.track({ name: state.hostName, icon: state.hostIcon, hostId: state.hostId, pin: '', mode: state.mode, status: 'idle', players: [], isHost: true });
+            } else if (status === 'CHANNEL_ERROR' || status === 'CHANNEL_CLOSED') {
+              statusPill('<i class="fa-solid fa-triangle-exclamation"></i> Lobby connection lost. Reconnecting...', 'err');
+            }
+          });
+      }).catch(err => {
+        statusPill('<i class="fa-solid fa-triangle-exclamation"></i> Could not reach the game server.', 'err');
+      });
+    });
+  </script>
+</body>
+</html>

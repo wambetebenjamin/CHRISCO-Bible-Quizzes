@@ -1,7 +1,15 @@
 {
   "name": "chrisco-bible-quizzes",
   "version": "1.0.0",
+  "private": true,
   "scripts": {
-    "build": "exit 0"
+    "start": "node server.js",
+    "build": "node --check server.js && node --check auto-host.js && node --check routes/camp.js && node --check routes/combat.js && node --check routes/share.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.119.0",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "mongoose": "^8.19.1"
   }
 }

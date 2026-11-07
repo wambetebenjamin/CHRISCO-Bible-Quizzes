@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CHRISCO Bible Quizzes - Join (Pursue, Overtake, Recover All)</title>
+  <meta name="description" content="Join a live multiplayer Bible quiz game with a PIN. Answer questions, see the scoreboard, compete with friends. Theme: 1 Samuel 30:8 Pursue Overtake Recover All." />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="CHRISCO Bible Quizzes" />
+  <meta property="og:title" content="CHRISCO Bible Quizzes | Join a live Bible Quiz game" />
+  <meta property="og:description" content="Join a live multiplayer Bible quiz game with a PIN. Answer questions, see the scoreboard, compete with friends. Theme: 1 Samuel 30:8 Pursue Overtake Recover All." />
+  <meta property="og:image" content="https://chrisco-bible-quizzes.vercel.app/image-search/bright-colorful-worship-church-backgroun-1.jpg" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="CHRISCO Bible Quizzes | Join a live Bible Quiz game" />
+  <meta name="twitter:description" content="Join a live multiplayer Bible quiz game with a PIN. Answer questions, see the scoreboard, compete with friends. Theme: 1 Samuel 30:8 Pursue Overtake Recover All." />
+  <meta name="twitter:image" content="https://chrisco-bible-quizzes.vercel.app/image-search/bright-colorful-worship-church-backgroun-1.jpg" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <script src="vendor/supabase.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --primary: #00008B; --secondary: #FF8C00; --accent: #006400; --bg: #F5F5F5;
+      --purple: #46178f; --yellow: #ffc00a; --red: #e21b3c; --green: #1a9e3a; --text: #333;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Montserrat', 'Segoe UI', Tahoma, sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; }
+    .topbar { position: sticky; top: 0; z-index: 100; background: var(--primary); color: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.25); }
+    .topbar-inner { max-width: 600px; margin: 0 auto; padding: 0.7rem 1rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+    .brand { display: flex; align-items: center; gap: 0.6rem; text-decoration: none; color: #fff; }
+    .brand-logo { width: 42px; height: 42px; border-radius: 12px; background: var(--secondary); display: flex; align-items: center; justify-content: center; font-size: 1.3rem; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+    .brand-text { font-weight: 900; font-size: 1.15rem; line-height: 1; }
+    .brand-text small { display: block; font-size: 0.65rem; font-weight: 500; color: var(--yellow); letter-spacing: 1px; }
+    .btn { display: inline-flex; align-items: center; gap: 0.4rem; font-weight: 700; font-size: 0.95rem; padding: 0.7rem 1.4rem; border-radius: 12px; border: none; cursor: pointer; text-decoration: none; transition: transform 0.2s, box-shadow 0.2s; color: #fff; }
+    .btn:active { transform: scale(0.96); }
+    .btn--yellow { background: var(--yellow); color: #333; }
+    .btn--yellow:hover { box-shadow: 0 6px 20px rgba(255,192,10,0.5); transform: translateY(-2px); }
+    .btn--outline { background: rgba(255,255,255,0.12); border: 2px solid #fff; }
+    .btn--outline:hover { background: #fff; color: var(--primary); }
+    .btn--green { background: var(--green); }
+    .btn--green:hover { box-shadow: 0 6px 20px rgba(26,158,58,0.5); transform: translateY(-2px); }
+    .btn--blue { background: var(--primary); }
+    .btn--large { padding: 0.9rem 2rem; font-size: 1.1rem; border-radius: 14px; }
+    .btn--block { width: 100%; justify-content: center; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+    .btn--sm { padding: 0.4rem 0.9rem; font-size: 0.85rem; border-radius: 10px; }
+
+    .hero { position: relative; overflow: hidden; color: #fff; text-align: center; background: radial-gradient(900px 400px at 80% 10%, rgba(255,140,0,0.35) 0%, transparent 60%), linear-gradient(120deg, #006400 0%, #00008B 100%); padding: 2rem 1rem 2rem; }
+    .hero::before { content: ''; position: absolute; inset: 0; background: url('./image-search/bright-colorful-worship-church-backgroun-1.jpg') center/cover no-repeat; opacity: 0.15; mix-blend-mode: overlay; }
+    .hero-content { position: relative; z-index: 2; max-width: 700px; margin: 0 auto; }
+    .hero h1 { font-size: clamp(1.6rem, 4vw, 2.6rem); font-weight: 900; text-shadow: 0 4px 20px rgba(0,0,0,0.4); }
+    .hero p { margin-top: 0.5rem; opacity: 0.9; font-weight: 500; }
+    .hero p strong { color: var(--yellow); }
+
+    .container { max-width: 650px; margin: 1.5rem auto; padding: 0 1rem; }
+    .card { position: relative; border-radius: 24px; overflow: hidden; color: #fff; padding: 2rem 1.8rem; margin-bottom: 1.5rem; box-shadow: 0 14px 35px rgba(0,0,0,0.18); }
+    .card--blue { background: linear-gradient(160deg, #00008B 0%, #46178f 100%); }
+    .card--orange { background: linear-gradient(160deg, #FF8C00 0%, #e21b3c 100%); }
+    .card--green { background: linear-gradient(160deg, #006400 0%, #0aa3a3 100%); }
+    .card h2 { font-size: 1.5rem; font-weight: 800; display: flex; align-items: center; gap: 0.6rem; }
+    .card p { opacity: 0.95; margin: 0.5rem 0 1rem; }
+    .status-pill { display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 50px; font-size: 0.85rem; font-weight: 600; margin-bottom: 1rem; }
+    .status-pill.ok { background: rgba(0,100,0,0.5); }
+    .status-pill.err { background: rgba(226,27,60,0.6); }
+    .status-pill.warn { background: rgba(255,192,10,0.3); }
+
+    .field { margin-bottom: 1rem; }
+    .field label { display: block; font-size: 0.85rem; font-weight: 700; margin-bottom: 0.4rem; }
+    .name-input { width: 100%; padding: 0.9rem 1rem; font-size: 1.1rem; font-weight: 700; border-radius: 14px; border: 2px solid rgba(255,255,255,0.5); background: rgba(255,255,255,0.12); color: #fff; outline: none; font-family: inherit; }
+    .name-input::placeholder { color: rgba(255,255,255,0.6); }
+    .name-input:focus { background: rgba(255,255,255,0.2); border-color: var(--yellow); }
+    .pin-input { width: 100%; padding: 1.1rem; font-size: 1.8rem; font-weight: 800; text-align: center; letter-spacing: 8px; border: 2px dashed rgba(255,255,255,0.6); border-radius: 14px; background: rgba(255,255,255,0.12); color: #fff; outline: none; font-family: inherit; }
+    .pin-input::placeholder { color: rgba(255,255,255,0.5); letter-spacing: 4px; font-size: 1.2rem; }
+    .pin-input:focus { background: rgba(255,255,255,0.2); border-color: var(--yellow); }
+
+    .icon-picker { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.6rem; }
+    .icon-opt { width: 46px; height: 46px; border-radius: 12px; border: 2px solid rgba(255,255,255,0.35); background: rgba(255,255,255,0.12); color: #fff; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.15s, box-shadow 0.15s, background 0.15s; font-family: inherit; }
+    .icon-opt:hover { transform: translateY(-2px); }
+    .icon-opt.selected { border-color: var(--yellow); box-shadow: 0 0 0 3px rgba(255,192,10,0.35); background: rgba(255,192,10,0.2); }
+    .icon-caption { font-size: 0.8rem; opacity: 0.85; margin-top: 0.4rem; }
+
+    .player-list { list-style: none; padding: 0; margin: 0.5rem 0 0; display: flex; flex-direction: column; gap: 0.5rem; }
+    .player-list li { display: flex; align-items: center; gap: 0.7rem; background: rgba(255,255,255,0.12); padding: 0.5rem 0.8rem; border-radius: 12px; font-weight: 700; }
+    .player-list li.empty { justify-content: center; opacity: 0.8; font-weight: 500; }
+    .player-list li .pavatar { width: 34px; height: 34px; border-radius: 50%; background: var(--yellow); color: #333; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.9rem; flex-shrink: 0; }
+
+    .section-head { margin: 1.5rem 0 0.8rem; }
+    .section-head h2 { font-size: 1.3rem; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 0.5rem; }
+    .lobby-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; }
+    .game-tile { background: #fff; border-radius: 18px; padding: 1.2rem; box-shadow: 0 8px 20px rgba(0,0,0,0.1); display: flex; flex-direction: column; gap: 0.5rem; border-top: 5px solid var(--secondary); }
+    .game-tile.playing { border-top-color: var(--green); }
+    .game-tile .gt-pin { font-size: 1.4rem; font-weight: 900; color: var(--primary); letter-spacing: 3px; }
+    .game-tile .gt-mode { font-weight: 700; color: var(--accent); display: flex; align-items: center; gap: 0.4rem; }
+    .game-tile .gt-host { font-size: 0.8rem; color: #666; }
+    .game-tile .gt-meta { display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: #888; }
+    .game-tile .gt-empty { text-align: center; padding: 2rem 1rem; color: #999; font-style: italic; grid-column: 1/-1; }
+
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    /* Question screen */
+    .question-card { background: #fff; border-radius: 24px; padding: 2rem 1.5rem; box-shadow: 0 14px 35px rgba(0,0,0,0.12); margin-bottom: 1.5rem; }
+    .q-counter { display: inline-flex; align-items: center; gap: 0.4rem; background: var(--primary); color: #fff; font-weight: 700; padding: 0.4rem 1rem; border-radius: 50px; font-size: 0.85rem; }
+    .q-text { font-size: clamp(1.1rem, 3vw, 1.5rem); font-weight: 800; color: var(--primary); margin: 1rem 0; line-height: 1.4; }
+    .timer-num { text-align: right; font-weight: 800; color: var(--red); font-size: 1.1rem; margin-bottom: 0.8rem; }
+    .options { display: grid; gap: 0.8rem; }
+    .opt { display: flex; align-items: center; gap: 0.7rem; padding: 1rem 1.2rem; border-radius: 14px; background: #f4f6fa; font-weight: 600; text-align: left; border: 2px solid transparent; transition: background 0.2s, transform 0.1s; font-family: inherit; cursor: pointer; font-size: 1rem; color: var(--text); width: 100%; }
+    .opt:hover:not(:disabled) { background: #e8ecf5; }
+    .opt:disabled { cursor: default; }
+    .opt .letter { width: 30px; height: 30px; border-radius: 8px; background: var(--primary); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0; }
+    .opt.correct { background: rgba(26,158,58,0.15); border-color: var(--green); animation: answer-pop .55s ease-out; }
+    .opt.correct .letter { background: var(--green); }
+    .thank-you-title { animation: answer-pop .7s ease-out; }
+    .score-card .big { transition: transform .2s ease; }
+    .score-card.score-bump .big { animation: score-bump .5s ease; }
+    @keyframes answer-pop { 0% { transform: scale(.92); opacity:.65; } 70% { transform: scale(1.04); } 100% { transform: scale(1); opacity:1; } }
+    @keyframes score-bump { 50% { transform: scale(1.22); color: var(--yellow); } }
+    .opt.wrong { background: rgba(226,27,60,0.12); border-color: var(--red); }
+    .opt.wrong .letter { background: var(--red); }
+    .opt.my-choice { outline: 3px solid var(--secondary); outline-offset: 2px; }
+    .explain { background: #f0f7ff; border-left: 4px solid var(--primary); padding: 1rem 1.2rem; border-radius: 10px; margin-top: 1.2rem; font-size: 0.9rem; color: #444; }
+    .feedback { text-align: center; font-weight: 800; font-size: 1.1rem; margin-top: 1rem; }
+    .feedback.good { color: var(--green); }
+    .feedback.bad { color: var(--red); }
+
+    .score-card { text-align: center; }
+    .score-card .big { font-size: 4rem; font-weight: 900; color: var(--yellow); }
+    .score-card .label { font-weight: 700; opacity: 0.9; }
+    .winner-banner { background: rgba(255,192,10,0.2); border: 2px dashed var(--yellow); color: var(--yellow); font-weight: 900; font-size: 1.2rem; padding: 1rem; border-radius: 14px; margin-top: 1rem; }
+    .share-row { display: flex; gap: 0.5rem; flex-wrap: wrap; margin: 1rem 0; }
+    .share-btn { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.6rem 1rem; border-radius: 12px; border: none; cursor: pointer; font-weight: 700; font-size: 0.85rem; color: #fff; transition: transform 0.2s, box-shadow 0.2s; font-family: inherit; }
+    .share-btn:active { transform: scale(0.95); }
+    .share-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,0.25); }
+    .share-whatsapp { background: #25d366; }
+    .share-facebook { background: #1877f2; }
+    .share-x { background: #000; }
+    .share-sms { background: #34c759; }
+    .share-copy { background: var(--primary); }
+    .game-bar { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; flex-wrap: wrap; background: rgba(0,0,0,0.28); padding: 0.7rem 1rem; border-radius: 14px; margin-bottom: 1rem; }
+    .gb-left { display: flex; align-items: center; gap: 0.4rem; font-weight: 700; font-size: 0.9rem; }
+    .gb-share { margin: 0; gap: 0.35rem; }
+    .gb-share .share-btn { padding: 0.45rem 0.7rem; font-size: 0.8rem; }
+    footer { text-align: center; padding: 1.5rem 1rem 2rem; color: #888; font-size: 0.8rem; }
+
+    @media (max-width: 600px) { .topbar-inner { flex-wrap: wrap; } .card { padding: 1.4rem 1.2rem; } .pin-input { font-size: 1.5rem; letter-spacing: 4px; } .question-card { padding: 1.4rem 1.1rem; } .lobby-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html"><span class="brand-logo"><i class="fa-solid fa-crosshairs"></i></span><span class="brand-text">CHRISCO<small>BIBLE QUIZZES</small></span></a>
+      <div class="topbar-actions"><a class="btn btn--outline" href="player.html"><i class="fa-solid fa-right-to-bracket"></i> Join</a><a class="btn btn--yellow" href="host.html"><i class="fa-solid fa-gamepad"></i> Host</a></div>
+    </div>
+  </div>
+
+  <section class="hero"><div class="hero-content"><h1><i class="fa-solid fa-right-to-bracket"></i> Join a Game</h1><p>Pick a running game below or enter a PIN. Theme: <strong>1 Samuel 30:8 Pursue Overtake Recover All</strong></p></div></section>
+
+  <div class="container">
+    <!-- Join Lobby -->
+    <div class="screen active" id="setup-screen">
+      <div class="card card--blue">
+        <div class="status-pill" id="setup-status"><i class="fa-solid fa-spinner fa-spin"></i> Loading running games...</div>
+        <h2><i class="fa-solid fa-users"></i> Join a Game</h2>
+        <p>Enter your name, pick a running game, and play. Games use the David Quiz (1 Samuel 30:8) or the Beauty for Ashes quiz (Isaiah 61:1 to 3 teaching).</p>
+        <div class="field">
+          <label for="name-input">Your Name</label>
+          <input type="text" class="name-input" id="name-input" placeholder="e.g. Mary" maxlength="16" autocomplete="off" />
+        </div>
+        <div class="field">
+          <label><i class="fa-solid fa-icons"></i> Pick your icon (optional)</label>
+          <div class="icon-picker" id="icon-picker"></div>
+          <div class="icon-caption" id="icon-caption">Skip this and a profile image will be assigned automatically.</div>
+        </div>
+      </div>
+
+      <div class="section-head"><h2><i class="fa-solid fa-list-check" style="color:var(--secondary);"></i> Running Games</h2></div>
+      <div class="lobby-grid" id="lobby-list"><div class="game-tile gt-empty"><i class="fa-solid fa-hourglass-half"></i> Loading...</div></div>
+
+      <div class="card card--green" style="margin-top:1rem;">
+        <h2><i class="fa-solid fa-key"></i> Have a PIN?</h2>
+        <p>Enter the PIN your host shared.</p>
+        <input type="text" class="pin-input" id="pin-input" placeholder="000000" maxlength="6" inputmode="numeric" autocomplete="off" />
+        <button id="join-pin-btn" class="btn btn--yellow btn--large btn--block" style="margin-top:1rem;"><i class="fa-solid fa-right-to-bracket"></i> Join with PIN</button>
+      </div>
+    </div>
+
+    <!-- Question Screen (join and play immediately) -->
+    <div class="screen" id="question-screen">
+      <div class="game-bar">
+        <div class="gb-left"><i class="fa-solid fa-key"></i> PIN <span id="player-pin-bar" style="font-weight:800;letter-spacing:2px;">----</span></div>
+        <div class="share-row gb-share">
+          <button class="share-btn share-whatsapp" onclick="shareLobby('whatsapp')" title="WhatsApp"><i class="fa-brands fa-whatsapp"></i></button>
+          <button class="share-btn share-facebook" onclick="shareLobby('facebook')" title="Facebook"><i class="fa-brands fa-facebook-f"></i></button>
+          <button class="share-btn share-x" onclick="shareLobby('x')" title="X"><i class="fa-brands fa-x-twitter"></i></button>
+          <button class="share-btn share-sms" onclick="shareLobby('sms')" title="SMS"><i class="fa-solid fa-comment-sms"></i></button>
+          <button class="share-btn share-copy" onclick="shareLobby('copy')" title="Copy link"><i class="fa-solid fa-link"></i></button>
+        </div>
+      </div>
+      <div class="question-card">
+        <div class="status-pill" id="q-status"><i class="fa-solid fa-spinner fa-spin"></i> Getting the current question...</div>
+        <span class="q-counter" id="q-counter"><i class="fa-solid fa-list-ol"></i> Question</span>
+        <div class="timer-num" id="timer-num"><i class="fa-solid fa-clock"></i> ---</div>
+        <div class="q-text" id="q-text">Waiting for the next question...</div>
+        <div class="options" id="q-options"></div>
+        <div class="feedback" id="feedback"></div>
+        <div class="explain" id="q-explain" style="display:none;"></div>
+        <div id="pacing-hint" class="status-pill" style="display:none;margin-top:1rem;"></div>
+        <button id="player-next-btn" class="btn btn--yellow btn--block" type="button" style="display:none;margin-top:1rem;"><i class="fa-solid fa-forward-step"></i> Next Question</button>
+      </div>
+      <div class="card" style="margin-top:1rem;">
+        <h3><i class="fa-solid fa-ranking-star"></i> Live Scores</h3>
+        <ol id="player-scoreboard" style="margin-top:0.7rem;padding-left:1.4rem;"><li>Your score will appear here.</li></ol>
+      </div>
+      <div class="card card--green score-card">
+        <div class="big" id="my-score">0</div>
+        <div class="label">Your score</div>
+      </div>
+    </div>
+
+    <!-- Thank You Screen -->
+    <div class="screen" id="result-screen">
+      <div class="card card--blue score-card">
+        <h2 class="thank-you-title"><i class="fa-solid fa-heart"></i> Thank you for playing!</h2>
+        <div class="big" id="final-score">0</div>
+        <div class="label">Your final score</div>
+        <div class="winner-banner" id="winner-banner" style="display:none;"></div>
+        <div id="answer-review" style="display:none;margin-top:1rem;text-align:left;"></div>
+        <p id="result-sub" style="margin-top:1rem;opacity:0.9;">Theme: 1 Samuel 30:8 Pursue Overtake Recover All</p>
+        <div class="share-row" id="result-share">
+          <button class="share-btn share-whatsapp" onclick="shareResult('whatsapp')"><i class="fa-brands fa-whatsapp"></i> WhatsApp</button>
+          <button class="share-btn share-facebook" onclick="shareResult('facebook')"><i class="fa-brands fa-facebook-f"></i> Facebook</button>
+          <button class="share-btn share-x" onclick="shareResult('x')"><i class="fa-brands fa-x-twitter"></i> X</button>
+          <button class="share-btn share-copy" onclick="shareResult('copy')"><i class="fa-solid fa-link"></i> Copy</button>
+        </div>
+        <button id="play-again-btn" class="btn btn--yellow btn--large btn--block" style="margin-top:1rem;"><i class="fa-solid fa-rotate-left"></i> Join Another Game</button>
+        <a class="btn btn--outline btn--block" style="margin-top:0.8rem;" href="index.html"><i class="fa-solid fa-house"></i> Back to Home</a>
+      </div>
+    </div>
+  </div>
+
+  <footer>&copy; 2026 CHRISCO Bible Quizzes. Theme: 1 Samuel 30:8 Pursue Overtake Recover All.</footer>
+
+  <script src="questions.js"></script>
+  <script src="questions-i18n.js"></script>
+  <script>
+    const LETTERS = ['A','B','C','D'];
+    const LOBBY_CHANNEL = 'chrisco-lobby';
+    const state = {
+      name: '', icon: 'fa-solid fa-lion', emoji: '🦁', pin: '', hostName: '',
+      myId: '', deviceId: '', qIndex: -1, settings:{pacing:'host',answerVisibility:'immediate',retries:'allow'},
+      channel: null, supabase: null, lobbyChannel: null,
+      players: {}, lobbyGames: {}, myAnswer: null, score: 0, phase: 'setup'
+    };
+    if (!state.myId) state.myId = 'p' + Math.random().toString(36).slice(2, 10);
+    state.deviceId = localStorage.getItem('device_id');
+    if (!state.deviceId) {
+      state.deviceId = window.crypto && crypto.randomUUID ? crypto.randomUUID() : 'dev-' + Math.random().toString(36).slice(2) + '-' + Date.now();
+      localStorage.setItem('device_id', state.deviceId);
+    }
+
+    function iconHtml(p) {
+      if (p && p.icon) return '<i class="' + p.icon + '"></i>';
+      return esc(p && p.name ? p.name.charAt(0) : '?');
+    }
+
+    function iconEmoji(icon) {
+      const ic = window.CHRISCO_ICONS && window.CHRISCO_ICONS.find(x => x.icon === icon);
+      return ic ? ic.emoji : '🦁';
+    }
+
+    function renderIconPicker() {
+      const grid = $('icon-picker');
+      grid.innerHTML = window.CHRISCO_ICONS.map(ic =>
+        '<button type="button" class="icon-opt' + (ic.icon === state.icon ? ' selected' : '') + '" data-icon="' + ic.icon + '"><i class="' + ic.icon + '"></i></button>'
+      ).join('');
+      grid.querySelectorAll('.icon-opt').forEach(b => b.addEventListener('click', () => {
+        state.icon = b.dataset.icon;
+        state.emoji = iconEmoji(state.icon);
+        renderIconPicker();
+        const cap = $('icon-caption');
+        const ic = window.CHRISCO_ICONS.find(x => x.icon === state.icon);
+        cap.textContent = 'Your icon shows on the scoreboard. ' + (ic ? ic.label : '');
+      }));
+    }
+    function $(id) { return document.getElementById(id); }
+    function esc(s) { const d = document.createElement('div'); d.textContent = s == null ? '' : String(s); return d.innerHTML; }
+    function showScreen(id) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      $('' + id + '-screen').classList.add('active');
+    }
+    function setupStatus(html, cls) { const p = $('setup-status'); p.className = 'status-pill ' + (cls||''); p.innerHTML = html; }
+    function renderScoreboard() {
+      const list = $('player-scoreboard'); if (!list) return;
+      const entries = Object.values(state.players || {}).flat().filter(p => p && !p.isHost);
+      const scores = entries.map(p => ({ name: p.name || 'Player', score: p.name === state.name ? state.score : (p.score || 0) }));
+      if (!scores.some(p => p.name === state.name)) scores.push({name:state.name || 'You',score:state.score});
+      scores.sort((a,b)=>b.score-a.score);
+      list.innerHTML = scores.map(p=>'<li>' + esc(p.name) + ' <strong style="float:right;">' + p.score + '</strong></li>').join('');
+    }
+
+    function buildLobbyList() {
+      const grid = $('lobby-list');
+      const games = Object.values(state.lobbyGames).flat().filter(g => g && g.pin && g.status !== 'closed' && (g.privacy === 'public' || !g.privacy));
+      if (games.length === 0) {
+        grid.innerHTML = '<div class="game-tile gt-empty"><i class="fa-solid fa-mug-hot"></i> No games running yet. Ask a host to create one!</div>';
+        return;
+      }
+      games.sort((a,b) => (b.players||[]).length - (a.players||[]).length);
+      grid.innerHTML = games.map(g => {
+        const modeName = (window.CHRISCO_MODES[g.mode] && window.CHRISCO_MODES[g.mode].name) || g.mode || 'David Quiz';
+        const modeIcon = (window.CHRISCO_MODES[g.mode] && window.CHRISCO_MODES[g.mode].icon) || 'fa-gamepad';
+        const cls = g.status === 'playing' ? 'playing' : 'waiting';
+        const statusLabel = g.status === 'playing' ? '<span style="color:var(--green);font-weight:700;"><i class="fa-solid fa-play"></i> Playing</span>' : '<span style="color:var(--secondary);font-weight:700;"><i class="fa-solid fa-clock"></i> Waiting</span>';
+        return '<div class="game-tile ' + cls + '">' +
+          '<div class="gt-pin">' + esc(g.pin) + '</div>' +
+          '<div class="gt-mode"><i class="fa-solid ' + modeIcon + '"></i> ' + esc(modeName) + '</div>' +
+          '<div class="gt-host">' + (g.icon ? '<i class="' + g.icon + '"></i> ' : '<i class="fa-solid fa-user"></i> ') + esc(g.name || 'Host') + '</div>' +
+          '<div class="gt-meta"><span>' + (g.players||[]).length + ' players</span>' + statusLabel + '</div>' +
+          '<button class="btn btn--green btn--sm btn--block" style="margin-top:0.4rem;" onclick="joinGame(\'' + esc(g.pin) + '\', \'' + esc(g.name || 'Host') + '\')"><i class="fa-solid fa-right-to-bracket"></i> Join</button>' +
+          '</div>';
+      }).join('');
+    }
+
+    function buildPlayerList() {
+      const ul = $('player-list');
+      if (!ul) return;
+      const players = Object.values(state.players).flat().filter(Boolean);
+      if (players.length === 0) ul.innerHTML = '<li class="empty"><i class="fa-solid fa-user-plus"></i> Waiting for players...</li>';
+      else ul.innerHTML = players.map(p => '<li' + (p.name === state.name ? ' style="outline:3px solid var(--yellow);outline-offset:2px;"' : '') + '><span class="pavatar">' + iconHtml(p) + '</span>' + esc(p.name) + (p.isHost ? ' <i class="fa-solid fa-crown" style="margin-left:auto;color:var(--yellow);"></i>' : '') + '</li>').join('');
+    }
+
+    function lockInAnswer(choice) {
+      if (state.phase !== 'question' || (state.myAnswer !== null && state.settings.retries === 'one')) return;
+      $('q-options').querySelectorAll('.opt').forEach(b => { b.disabled = state.settings.retries === 'one'; b.classList.remove('my-choice'); });
+      state.myAnswer = choice;
+      $('q-options').querySelectorAll('.opt')[choice].classList.add('my-choice');
+      state.channel.send({ type: 'broadcast', event: 'answer', payload: { name:state.name, choice, deviceId:state.deviceId, myId:state.myId } });
+      $('feedback').className = 'feedback';
+      $('feedback').innerHTML = state.settings.retries === 'one' ? '<i class="fa-solid fa-lock"></i> One attempt recorded.' : '<i class="fa-solid fa-rotate"></i> Answer saved. You may change it before the question closes.';
+    }
+
+    function onQuestion(data) {
+      if (!data) return;
+      const sameQ = state.qIndex === data.index && state.myAnswer !== null;
+      state.settings = Object.assign({}, state.settings, data.settings || {});
+      state.qIndex = data.index;
+      state.phase = 'question';
+      if (!sameQ) state.myAnswer = null;
+      $('q-counter').innerHTML = '<i class="fa-solid fa-list-ol"></i> Question ' + (data.index+1) + ' of ' + data.total;
+      const selfPaced = state.settings.pacing === 'self';
+      $('player-next-btn').style.display = selfPaced ? 'inline-flex' : 'none'; $('player-next-btn').disabled = false;
+      $('pacing-hint').style.display = selfPaced ? 'none' : 'block';
+      $('pacing-hint').innerHTML = '<i class="fa-solid fa-hourglass-half"></i> Waiting for the host to advance the question.';
+      const translated = window.localizeQuestion({q:data.q,options:data.options,explain:''}, (localStorage.getItem('chrisco_lang') || 'en'));
+      state.currentQuestion = data.q;
+      $('q-text').textContent = translated.q;
+      $('q-options').innerHTML = translated.options.map((o,i) => '<button class="opt" data-i="'+i+'"><span class="letter">'+LETTERS[i]+'</span><span>'+esc(o)+'</span></button>').join('');
+      $('q-options').querySelectorAll('.opt').forEach(b => b.addEventListener('click', () => lockInAnswer(parseInt(b.dataset.i, 10))));
+      if (sameQ) {
+        const locked = $('q-options').querySelectorAll('.opt')[state.myAnswer];
+        if (locked) locked.classList.add('my-choice');
+        if (state.settings.retries === 'one') $('q-options').querySelectorAll('.opt').forEach(b=>b.disabled=true);
+      }
+      $('feedback').innerHTML = '';
+      $('q-explain').style.display = 'none';
+      $('timer-num').innerHTML = '<i class="fa-solid fa-clock"></i> ' + (data.seconds||20) + 's';
+      showScreen('question');
+    }
+
+    function requestNextQuestion() {
+      if (!state.channel || !['question','reveal'].includes(state.phase) || state.settings.pacing !== 'self') return;
+      const button = $('player-next-btn'); button.disabled = true;
+      $('feedback').className = 'feedback';
+      $('feedback').innerHTML = '<i class="fa-solid fa-forward-step"></i> Moving to the next question…';
+      state.channel.send({ type:'broadcast', event:'advance-request', payload:{ name:state.name, index:state.qIndex } });
+    }
+
+    function onReveal(data) {
+      if (!data) return;
+      const canSelfAdvance = state.settings.pacing === 'self';
+      $('player-next-btn').style.display = canSelfAdvance ? 'inline-flex' : 'none'; $('player-next-btn').disabled = false;
+      $('pacing-hint').style.display = canSelfAdvance ? 'none' : 'block';
+      if (!canSelfAdvance) $('pacing-hint').innerHTML = '<i class=\"fa-solid fa-hourglass-half\"></i> Waiting for Host';
+      if (state.phase === 'reveal' && state.qIndex === data.index) return;
+      state.phase = 'reveal';
+      const visibility = data.visibility || state.settings.answerVisibility || 'immediate';
+      const opts = $('q-options').querySelectorAll('.opt');
+      if (visibility === 'immediate' && Number.isInteger(data.correct)) {
+        opts.forEach((b,i) => { if (i === data.correct) b.classList.add('correct'); });
+        if (state.myAnswer === data.correct) {
+          opts[state.myAnswer].classList.add('correct');
+          $('feedback').className = 'feedback good'; $('feedback').innerHTML = '<i class="fa-solid fa-circle-check"></i> Correct!';
+          const scoreCard = document.querySelector('.score-card'); scoreCard.classList.remove('score-bump'); void scoreCard.offsetWidth; scoreCard.classList.add('score-bump'); setTimeout(()=>scoreCard.classList.remove('score-bump'),600);
+        } else if (state.myAnswer !== null) {
+          opts[state.myAnswer].classList.add('wrong'); $('feedback').className = 'feedback bad'; $('feedback').innerHTML = '<i class="fa-solid fa-circle-xmark"></i> Not correct this time.';
+        } else { $('feedback').className='feedback bad'; $('feedback').innerHTML='<i class="fa-solid fa-clock"></i> Time ran out.'; }
+        const translated = window.localizeQuestion({q:state.currentQuestion || '',options:[],explain:data.explain || ''}, (localStorage.getItem('chrisco_lang') || 'en'));
+        $('q-explain').innerHTML = '<i class="fa-solid fa-circle-info"></i> ' + esc(translated.explain || data.explain); $('q-explain').style.display='block';
+      } else {
+        $('q-explain').style.display='none';
+        $('feedback').className='feedback';
+        $('feedback').innerHTML = visibility === 'never' ? '<i class="fa-solid fa-lock"></i> Answer recorded. Rankings only.' : '<i class="fa-solid fa-check"></i> Answer recorded. Review opens after the game.';
+      }
+      const mine = (data.scores || []).find(x=>x.name===state.name);
+      if (mine) state.score = Number(mine.score)||0;
+      else if (!data.scores && visibility === 'immediate' && state.myAnswer === data.correct) state.score += 100;
+      $('my-score').textContent=state.score;
+      if (state.channel) state.channel.track({ name:state.name, icon:state.icon, myId:state.myId, deviceId:state.deviceId, isHost:false, status:'playing', score:state.score });
+      renderScoreboard();
+    }
+
+    function onEnd(data) {
+      state.phase = 'end';
+      const mine = (data && data.scores || []).find(x=>x.name===state.name); if (mine) state.score = Number(mine.score)||0;
+      $('final-score').textContent = state.score;
+      const review=$('answer-review');
+      if (state.settings.answerVisibility === 'end' && data && Array.isArray(data.answerKey)) {
+        review.style.display='block'; review.innerHTML='<h3>Answer Review</h3>'+data.answerKey.map((q,i)=>'<section style="margin:.8rem 0;padding:.7rem;border-radius:10px;background:#f4f5fa;"><strong>Question '+(i+1)+': '+esc(q.q)+'</strong><p>'+esc(q.options[q.correct])+'</p><small>'+esc(q.explain)+'</small></section>').join('');
+      } else { review.style.display='none'; review.innerHTML=''; }
+      if (data && data.winner) {
+        $('winner-banner').style.display = 'block';
+        $('winner-banner').innerHTML = data.winner === state.name ? '<i class="fa-solid fa-trophy"></i> You win! Pursue Overtake Recover All!' : '<i class="fa-solid fa-trophy"></i> ' + esc(data.winner) + ' wins!';
+      } else {
+        $('winner-banner').style.display = 'block';
+        $('winner-banner').innerHTML = '<i class="fa-solid fa-trophy"></i> Game complete!';
+      }
+      showScreen('result');
+    }
+
+    function playerShareUrl() {
+      return window.location.origin + '/api/share?role=player' +
+        '&name=' + encodeURIComponent(state.name) +
+        '&icon=' + encodeURIComponent(state.icon) +
+        '&emoji=' + encodeURIComponent(state.emoji) +
+        '&host=' + encodeURIComponent(state.hostName || 'Host') +
+        '&pin=' + encodeURIComponent(state.pin);
+    }
+
+    function shareLobby(kind) {
+      const url = playerShareUrl();
+      const text = state.emoji + ' ' + state.name + ' joined a CHRISCO Bible Quiz game! PIN: ' + state.pin + '. Come play with me! ' + url;
+      const enc = encodeURIComponent(text);
+      const uenc = encodeURIComponent(url);
+      if (kind === 'whatsapp') window.open('https://wa.me/?text=' + enc, '_blank');
+      else if (kind === 'facebook') window.open('https://www.facebook.com/sharer/sharer.php?u=' + uenc + '&quote=' + enc, '_blank');
+      else if (kind === 'x') window.open('https://twitter.com/intent/tweet?text=' + enc + '&url=' + uenc, '_blank');
+      else if (kind === 'sms') window.open('sms:?body=' + enc, '_blank');
+      else if (kind === 'copy') { navigator.clipboard.writeText(text).then(() => alert('Invite link copied! Friends will see a preview card and can join with one tap.')); }
+    }
+
+    function shareResult(kind) {
+      const url = playerShareUrl();
+      const text = state.emoji + ' I scored ' + state.score + ' points in a CHRISCO Bible Quiz game! PIN: ' + state.pin + '. Come play too! ' + url;
+      const enc = encodeURIComponent(text);
+      const uenc = encodeURIComponent(url);
+      if (kind === 'whatsapp') window.open('https://wa.me/?text=' + enc, '_blank');
+      else if (kind === 'facebook') window.open('https://www.facebook.com/sharer/sharer.php?u=' + uenc + '&quote=' + enc, '_blank');
+      else if (kind === 'x') window.open('https://twitter.com/intent/tweet?text=' + enc + '&url=' + uenc, '_blank');
+      else if (kind === 'copy') { navigator.clipboard.writeText(text).then(() => alert('Score copied! Share it with friends.')); }
+    }
+
+    function nameTakenInRoom() {
+      return Object.values(state.players).flat().some(p =>
+        p && p.name && p.name.toLowerCase() === state.name.toLowerCase() && p.myId !== state.myId);
+    }
+
+    function joinGame(pin, hostName) {
+      const name = $('name-input').value.trim();
+      if (!name) { alert('Please enter your name first.'); return; }
+      if (!pin) { alert('Please enter a PIN.'); return; }
+      // Names cannot be repeated: a player cannot take a host's name of a running game
+      const hostNameConflict = Object.values(state.lobbyGames).some(g =>
+        g.name && g.name.toLowerCase() === name.toLowerCase() && g.status !== 'closed');
+      if (hostNameConflict) {
+        alert('That name is already used by a host of a running game. Pick a different name.');
+        return;
+      }
+      if (hostName) state.hostName = hostName;
+      state.name = name;
+      localStorage.setItem('chrisco_nickname', name);
+      state.icon = state.icon || 'fa-solid fa-lion';
+      state.emoji = iconEmoji(state.icon);
+      state.pin = pin;
+      setupStatus('<i class="fa-solid fa-spinner fa-spin"></i> Joining room ' + pin + '...', 'warn');
+
+      if (state.channel) { state.channel.unsubscribe(); state.channel = null; }
+      state.channel = state.supabase.channel('quiz-' + state.pin)
+        .on('presence', { event: 'SYNC' }, (payload) => { state.players = payload.presence || {}; buildPlayerList(); renderScoreboard(); if (nameTakenInRoom()) leaveRoom('That name is already taken in this room. Pick a different name.'); })
+        .on('presence', { event: 'CHANGES' }, () => { state.players = state.channel.presenceState(); buildPlayerList(); renderScoreboard(); if (nameTakenInRoom()) leaveRoom('That name is already taken in this room. Pick a different name.'); })
+        .on('broadcast', { event: 'start' }, (payload) => { qStatus('<i class="fa-solid fa-play"></i> New round started: ' + esc(payload.payload.name || 'David Quiz') + '. Get ready!', 'warn'); })
+        .on('broadcast', { event: 'question' }, (payload) => onQuestion(payload.payload))
+        .on('broadcast', { event: 'reveal' }, (payload) => onReveal(payload.payload))
+        .on('broadcast', { event: 'end' }, (payload) => onEnd(payload.payload))
+        .on('broadcast', { event: 'sync' }, (payload) => onSync(payload.payload))
+        .on('broadcast', { event: 'reset' }, () => { qStatus('<i class="fa-solid fa-rotate"></i> New round ready. Get ready for the next question!', 'warn'); showScreen('question'); })
+        .on('broadcast', { event: 'device-rejected' }, (payload) => { if(payload.payload && payload.payload.to===state.myId) leaveRoom(payload.payload.message || 'This device is already in the room.'); })
+        .on('broadcast', { event: 'answer-rejected' }, (payload) => { if(payload.payload && payload.payload.to===state.myId) { $('feedback').textContent=payload.payload.message || 'Answer rejected.'; } })
+        .on('broadcast', { event: 'close' }, (payload) => {
+          leaveRoom((payload.payload && payload.payload.message) || 'Host closed this game.');
+        })
+        .subscribe(async (status) => {
+          if (status === 'SUBSCRIBED') {
+            await state.channel.track({ name: state.name, icon: state.icon, myId: state.myId, deviceId:state.deviceId, isHost: false, status: 'lobby', score: 0 });
+            $('player-pin-bar').textContent = state.pin;
+            // Play immediately: no waiting lobby. Ask the host for the current question.
+            qStatus('<i class="fa-solid fa-spinner fa-spin"></i> Getting the current question...', 'warn');
+            showScreen('question');
+            state.channel.send({ type: 'broadcast', event: 'sync-request', payload: { myId: state.myId } });
+          } else if (status === 'CHANNEL_ERROR' || status === 'CHANNEL_CLOSED') {
+            qStatus('<i class="fa-solid fa-triangle-exclamation"></i> Lost connection to room ' + state.pin + '. Check the PIN and host status.', 'err');
+          }
+        });
+    }
+
+    function qStatus(html, cls) {
+      const p = $('q-status');
+      if (!p) return;
+      p.className = 'status-pill ' + (cls || '');
+      p.innerHTML = html;
+    }
+
+    function onSync(data) {
+      if (!data || data.to !== state.myId) return;
+      state.settings = Object.assign({}, state.settings, data.settings || {});
+      if (data.phase === 'question') {
+        onQuestion({ index: data.index, total: data.total, q: data.q, options: data.options, seconds: data.seconds });
+        qStatus('<i class="fa-solid fa-circle-check"></i> You are live. Answer now!', 'ok');
+      } else if (data.phase === 'reveal') {
+        onQuestion({ index: data.index, total: data.total, q: data.q, options: data.options, seconds: data.seconds });
+        onReveal({ index:data.index, correct:data.correct, explain:data.explain, visibility:data.settings && data.settings.answerVisibility, scores:data.scores });
+        qStatus('<i class="fa-solid fa-circle-info"></i> Answer revealed. Next question coming.', 'ok');
+      } else if (data.phase === 'end') {
+        const mine = (data.scores || []).find(s => s.name === state.name);
+        if (mine) state.score = mine.score || 0;
+        onEnd(data);
+      } else {
+        qStatus('<i class="fa-solid fa-hourglass-half"></i> Waiting for the host to start the next question...', 'warn');
+        showScreen('question');
+      }
+    }
+
+    function leaveRoom(message) {
+      if (state.channel) { state.channel.unsubscribe(); state.channel = null; }
+      state.phase = 'setup';
+      state.players = {};
+      state.pin = '';
+      state.name = '';
+      $('name-input').value = localStorage.getItem('chrisco_nickname') || '';
+      $('pin-input').value = '';
+      setupStatus('<i class="fa-solid fa-circle-info"></i> ' + esc(message || 'Left the room.'), '');
+      showScreen('setup');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      $('name-input').value = localStorage.getItem('chrisco_nickname') || '';
+      $('player-next-btn').addEventListener('click', requestNextQuestion);
+      $('join-pin-btn').addEventListener('click', () => {
+        const pin = $('pin-input').value.trim();
+        if (pin) joinGame(pin);
+      });
+      $('play-again-btn').addEventListener('click', () => {
+        if (state.channel) state.channel.send({ type:'broadcast', event:'restart-request', payload:{ name:state.name } });
+        state.phase = 'setup'; state.players = {}; state.myAnswer = null; state.score = 0;
+        $('name-input').value = localStorage.getItem('chrisco_nickname') || ''; $('pin-input').value = '';
+        setupStatus('<i class="fa-solid fa-circle-info"></i> Ready when you are', '');
+        showScreen('setup');
+      });
+      renderIconPicker();
+
+      loadConfig().then(config => {
+        const { url, key } = config;
+        if (!window.supabase || typeof window.supabase.createClient !== 'function') throw new Error('Supabase client library did not load');
+        state.supabase = window.supabase.createClient(url, key);
+        state.lobbyChannel = state.supabase.channel(LOBBY_CHANNEL)
+          .on('presence', { event: 'SYNC' }, (payload) => { state.lobbyGames = payload.presence || {}; buildLobbyList(); })
+          .on('presence', { event: 'CHANGES' }, () => { state.lobbyGames = state.lobbyChannel.presenceState(); buildLobbyList(); })
+          .subscribe((status) => {
+            if (status === 'SUBSCRIBED') setupStatus('<i class="fa-solid fa-circle-check"></i> Connected. Pick a game below or enter a PIN.', 'ok');
+            else if (status === 'CHANNEL_ERROR' || status === 'CHANNEL_CLOSED') setupStatus('<i class="fa-solid fa-triangle-exclamation"></i> Lobby connection lost. Reconnecting...', 'err');
+          });
+
+        // One-tap join from a share link: player.html?pin=...&host=...&name=...&icon=...
+        const q = new URLSearchParams(window.location.search);
+        const sharePin = (q.get('pin') || '').trim();
+        const shareName = (q.get('name') || '').trim();
+        const shareIcon = q.get('icon') || '';
+        const shareHost = (q.get('host') || '').trim();
+        if (sharePin) {
+          if (shareName) $('name-input').value = shareName;
+          if (shareIcon && window.CHRISCO_ICONS.some(x => x.icon === shareIcon)) {
+            state.icon = shareIcon; state.emoji = iconEmoji(shareIcon); renderIconPicker();
+          }
+          state.hostName = shareHost;
+          joinGame(sharePin, shareHost || undefined);
+        }
+      }).catch(err => {
+        setupStatus('<i class="fa-solid fa-triangle-exclamation"></i> Could not reach the game server.', 'err');
+      });
+    });
+
+    function loadConfig() {
+      return fetch('/api/config').then(r => { if (!r.ok) throw new Error('Config endpoint returned ' + r.status); return r.json(); }).catch(() => null).then(cfg => {
+        if (cfg && cfg.url && cfg.key) return cfg;
+        return new Promise((resolve, reject) => {
+          const s = document.createElement('script');
+          s.src = '/config.js';
+          s.onload = () => {
+            if (window.CHRISCO_CONFIG && window.CHRISCO_CONFIG.supabaseUrl && window.CHRISCO_CONFIG.supabaseAnonKey) resolve({ url: window.CHRISCO_CONFIG.supabaseUrl, key: window.CHRISCO_CONFIG.supabaseAnonKey });
+            else reject(new Error('No config available'));
+          };
+          s.onerror = () => reject(new Error('No config available'));
+          document.head.appendChild(s);
+        });
+      });
+    }
+  </script>
+</body>
+</html>
