@@ -183,17 +183,7 @@
         <h2><i class="fa-solid fa-key"></i> Have a PIN?</h2>
         <p>Enter the PIN your host shared.</p>
         <input type="text" class="pin-input" id="pin-input" placeholder="000000" maxlength="6" inputmode="numeric" autocomplete="off" />
-        <button id="join-pin-btn" class="btn btn--yellow btn--large btn--block" style="margin-top:1rem;"><i class="fa-solid fa-arrow-right"></i> Continue to Ready</button>
-      </div>
-    </div>
-
-    <div class="screen" id="ready-screen">
-      <div class="card card--blue" style="text-align:center;">
-        <div class="status-pill ok"><i class="fa-solid fa-circle-check"></i> Ready</div>
-        <h2><i class="fa-solid fa-hourglass-start"></i> Ready to start?</h2>
-        <p><strong id="ready-player-name"></strong>, your player profile is ready to join.</p>
-        <p>Game PIN: <strong id="ready-pin"></strong></p>
-        <button id="ready-start-btn" class="btn btn--yellow btn--large btn--block" type="button"><i class="fa-solid fa-play"></i> Ready</button>
+        <button id="join-pin-btn" class="btn btn--yellow btn--large btn--block" style="margin-top:1rem;"><i class="fa-solid fa-right-to-bracket"></i> Join Game</button>
       </div>
     </div>
 
@@ -263,7 +253,7 @@
       name: '', icon: 'fa-solid fa-lion', emoji: '🦁', pin: '', hostName: '',
       myId: '', deviceId: '', qIndex: -1, settings:{pacing:'host',answerVisibility:'immediate',retries:'allow'},
       channel: null, supabase: null, lobbyChannel: null, readyRetryTimer: null, readyAttempts: 0,
-      players: {}, lobbyGames: {}, myAnswer: null, score: 0, phase: 'setup', pendingPin:'', rankings:[]
+      players: {}, lobbyGames: {}, myAnswer: null, score: 0, phase: 'setup', rankings:[]
     };
     if (!state.myId) state.myId = 'p' + Math.random().toString(36).slice(2, 10);
     state.deviceId = localStorage.getItem('device_id');
@@ -302,17 +292,10 @@
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
       $('' + id + '-screen').classList.add('active');
     }
-    function showReadyScreen(pin, hostName) {
-      const name = $('name-input').value.trim();
+    function joinSelectedGame(pin, hostName) {
       const normalizedPin = String(pin || '').trim();
-      if (!name) { alert('Please enter your nickname first.'); $('name-input').focus(); return; }
       if (!/^\d{4,6}$/.test(normalizedPin)) { alert('Please enter a valid game PIN.'); return; }
-      state.name = name; state.pendingPin = normalizedPin; state.pin = normalizedPin;
-      if (hostName) state.hostName = hostName;
-      localStorage.setItem('chrisco_nickname', name);
-      $('ready-player-name').textContent = name;
-      $('ready-pin').textContent = normalizedPin;
-      showScreen('ready');
+      joinGame(normalizedPin, hostName);
     }
     function setupStatus(html, cls) { const p = $('setup-status'); p.className = 'status-pill ' + (cls||''); p.innerHTML = html; }
     function renderScoreboard() {
@@ -346,7 +329,7 @@
           '<button class="btn btn--green btn--sm btn--block game-join-btn" type="button" style="margin-top:0.4rem;" data-pin="' + esc(g.pin) + '" data-host="' + esc(g.name || 'Host') + '"><i class="fa-solid fa-right-to-bracket"></i> Join</button>' +
           '</div>';
       }).join('');
-      grid.querySelectorAll('.game-join-btn').forEach(button => button.addEventListener('click', () => showReadyScreen(button.dataset.pin, button.dataset.host)));
+      grid.querySelectorAll('.game-join-btn').forEach(button => button.addEventListener('click', () => joinSelectedGame(button.dataset.pin, button.dataset.host)));
     }
 
     function buildPlayerList() {
@@ -510,6 +493,10 @@
     }
 
     function joinGame(pin, hostName) {
+      if (!state.supabase) {
+        setupStatus('<i class="fa-solid fa-spinner fa-spin"></i> Connecting to the game server...', 'warn');
+        return;
+      }
       const name = $('name-input').value.trim();
       if (!name) { alert('Please enter your name first.'); return; }
       if (!pin) { alert('Please enter a PIN.'); return; }
@@ -629,11 +616,8 @@
     document.addEventListener('DOMContentLoaded', () => {
       $('name-input').value = localStorage.getItem('chrisco_nickname') || '';
       $('player-next-btn').addEventListener('click', requestNextQuestion);
-      $('join-pin-btn').addEventListener('click', () => showReadyScreen($('pin-input').value, state.hostName));
-      $('ready-start-btn').addEventListener('click', () => {
-        if (!state.supabase) { setupStatus('<i class="fa-solid fa-spinner fa-spin"></i> Connecting to the game server...', 'warn'); return; }
-        joinGame(state.pendingPin, state.hostName || undefined);
-      });
+      $('join-pin-btn').addEventListener('click', () => joinSelectedGame($('pin-input').value, state.hostName));
+      $('pin-input').addEventListener('keydown', event => { if (event.key === 'Enter') joinSelectedGame($('pin-input').value, state.hostName); });
       $('play-again-btn').addEventListener('click', () => {
         if (state.channel) state.channel.send({ type:'broadcast', event:'restart-request', payload:{ name:state.name } });
         state.phase = 'setup'; state.players = {}; state.myAnswer = null; state.score = 0;
@@ -645,7 +629,6 @@
       const query = new URLSearchParams(window.location.search);
       const queryPin = (query.get('pin') || '').trim();
       if (queryPin) {
-        state.pendingPin = queryPin;
         state.pin = queryPin;
         state.hostName = (query.get('host') || '').trim();
         $('pin-input').value = queryPin;
@@ -662,6 +645,7 @@
         const { url, key } = config;
         if (!window.supabase || typeof window.supabase.createClient !== 'function') throw new Error('Supabase client library did not load');
         state.supabase = window.supabase.createClient(url, key);
+        if (queryPin && $('name-input').value.trim()) joinGame(queryPin, state.hostName || undefined);
         state.lobbyChannel = state.supabase.channel(LOBBY_CHANNEL)
           .on('presence', { event: 'SYNC' }, (payload) => { state.lobbyGames = payload.presence || {}; buildLobbyList(); })
           .on('presence', { event: 'CHANGES' }, () => { state.lobbyGames = state.lobbyChannel.presenceState(); buildLobbyList(); })
