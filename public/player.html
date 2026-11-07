@@ -369,6 +369,16 @@
 
     function onQuestion(data) {
       if (!data) return;
+      const nestedQuestion = data.question && typeof data.question === 'object' ? data.question : null;
+      const questionText = typeof data.q === 'string' ? data.q
+        : (typeof data.question === 'string' ? data.question : (nestedQuestion && nestedQuestion.q));
+      const options = Array.isArray(data.options) ? data.options : (nestedQuestion && nestedQuestion.options);
+      if (typeof questionText !== 'string' || !Array.isArray(options) || options.length < 2) {
+        qStatus('<i class="fa-solid fa-triangle-exclamation"></i> The game sent an incomplete question. Reconnecting…', 'warn');
+        sendReadySignal();
+        return;
+      }
+      data = Object.assign({}, data, { q: questionText, options });
       clearTimeout(state.readyRetryTimer);
       state.readyRetryTimer = null;
       state.readyAttempts = 0;
@@ -527,8 +537,8 @@
         .on('presence', { event: 'CHANGES' }, () => { state.players = state.channel.presenceState(); buildPlayerList(); renderScoreboard(); if (nameTakenInRoom()) leaveRoom('That name is already taken in this room. Pick a different name.'); })
         .on('broadcast', { event: 'start' }, (payload) => { qStatus('<i class="fa-solid fa-play"></i> New round started: ' + esc(payload.payload.name || 'David Quiz') + '. Get ready!', 'warn'); })
         .on('broadcast', { event: 'leaderboard' }, (payload) => { state.rankings = (payload.payload && payload.payload.scores) || []; const mine=state.rankings.find(x=>x.name===state.name); if(mine) state.score=Number(mine.score)||0; $('my-score').textContent=state.score; renderScoreboard(); })
-        .on('broadcast', { event: 'NEW_QUESTION' }, (payload) => { const data=payload.payload||{}; if(data.to && data.to!==state.myId) return; onQuestion(data); if(data.phase==='reveal') onReveal(data); else if(data.phase==='end') onEnd(data); })
-        .on('broadcast', { event: 'question' }, (payload) => onQuestion(payload.payload))
+        .on('broadcast', { event: 'NEW_QUESTION' }, (message) => { const data=message && message.payload && typeof message.payload === 'object' ? message.payload : (message || {}); if(data.to && data.to!==state.myId) return; if (data.phase === 'end') return onEnd(data); onQuestion(data); if(data.phase==='reveal') onReveal(data); })
+        .on('broadcast', { event: 'question' }, (message) => onQuestion(message && message.payload ? message.payload : message))
         .on('broadcast', { event: 'reveal' }, (payload) => onReveal(payload.payload))
         .on('broadcast', { event: 'end' }, (payload) => onEnd(payload.payload))
         .on('broadcast', { event: 'sync' }, (payload) => onSync(payload.payload))
@@ -545,7 +555,7 @@
             // The room is already running: show the game screen immediately and keep
             // the readiness handshake invisible to the player while the first question arrives.
             showScreen('question');
-            qStatus('', '');
+            qStatus('<i class="fa-solid fa-spinner fa-spin"></i> ' + esc(window.L('setup_status')), 'warn');
             state.readyAttempts = 0;
             sendReadySignal();
           } else if (status === 'CHANNEL_ERROR' || status === 'CHANNEL_CLOSED') {
@@ -563,7 +573,11 @@
     }
 
     function sendReadySignal() {
-      if (!state.channel || ['question','reveal','end'].includes(state.phase) || state.readyAttempts >= 5) return;
+      if (!state.channel || ['question','reveal','end'].includes(state.phase)) return;
+      if (state.readyAttempts >= 10) {
+        qStatus('<i class="fa-solid fa-triangle-exclamation"></i> ' + esc(window.L('lost_conn')), 'err');
+        return;
+      }
       state.readyAttempts++;
       state.channel.send({
         type:'broadcast',
@@ -571,7 +585,7 @@
         payload:{ name:state.name, pin:state.pin, myId:state.myId, deviceId:state.deviceId }
       });
       clearTimeout(state.readyRetryTimer);
-      if (state.readyAttempts < 5) state.readyRetryTimer = setTimeout(sendReadySignal, 1800);
+      if (state.readyAttempts < 10) state.readyRetryTimer = setTimeout(sendReadySignal, 2000);
     }
 
     function onSync(data) {
