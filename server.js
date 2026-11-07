@@ -14,6 +14,7 @@ app.get('/api/health', (_req, res) => {
   const database = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
   res.status(200).json({ ok: true, service: 'chrisco-master-server', database, autoHost: autoHost.state });
 });
+app.use('/api/share', require('./routes/share'));
 app.use('/api/camp', require('./routes/camp'));
 app.use('/api/combat', require('./routes/combat'));
 
@@ -32,9 +33,16 @@ if (MONGODB_URI) {
   console.warn('MONGODB_URI is not set. Quiz static files will work; camp and combat APIs return 503.');
 }
 
-app.listen(PORT, '0.0.0.0', () => {
+const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`✅ 24/7 Master Server running on port ${PORT}`);
   autoHost.startAutoHost();
 });
+async function stopServer() {
+  await autoHost.shutdown();
+  server.close(() => process.exit(0));
+  setTimeout(() => process.exit(1), 10000).unref();
+}
+process.on('SIGTERM', stopServer);
+process.on('SIGINT', stopServer);
 
 module.exports = app;

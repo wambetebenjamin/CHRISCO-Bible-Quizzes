@@ -109,7 +109,15 @@ function startAutoHost() {
       const existing = flattenPresence(lobbyChannel.presenceState()).find(p => p.hostId === hostId && p.pin);
       if (existing) {
         state.status = 'already-hosted'; state.pin = existing.pin;
-        console.warn('A persistent host with this identity is already present; not creating a duplicate room.');
+        console.warn('Another process currently owns the persistent host identity; waiting to take over safely.');
+        const retryTakeover = () => setTimeout(async () => {
+          if (state.status !== 'already-hosted') return;
+          const stillPresent = flattenPresence(lobbyChannel.presenceState()).some(p => p.hostId === hostId && p.pin);
+          if (stillPresent) return retryTakeover();
+          await client.removeAllChannels(); lobbyChannel = null; gameChannel = null; state.pin = null;
+          state.status = 'connecting'; startAutoHost();
+        }, 10000);
+        retryTakeover();
         return;
       }
       state.pin = String(Math.floor(10000 + Math.random() * 90000));
@@ -141,8 +149,6 @@ function startAutoHost() {
           }
         });
     });
-  process.on('SIGTERM', shutdown);
-  process.on('SIGINT', shutdown);
 }
 async function shutdown() {
   clearTimeout(timer);
