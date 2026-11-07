@@ -46,7 +46,7 @@ async function publishLeaderboard() {
 function currentQuestion() { return questions[questionIndex] || null; }
 function syncPlayer(to) {
   const q = currentQuestion();
-  send('sync', { to, phase, index: questionIndex, total: questions.length, q: q && q.q, options: q && q.options, correct: phase === 'reveal' ? q && q.correct : null, explain: phase === 'reveal' ? q && q.explain : null, seconds: Math.max(1, Math.ceil(((state.deadline || Date.now()) - Date.now()) / 1000)), settings:gameSettings, scores: Object.entries(scores).map(([name, score]) => ({name, score})), winner: state.winner || null, mode: 'beauty' });
+  send('NEW_QUESTION', { to, phase, index: questionIndex, total: questions.length, question:q, q: q && q.q, options: q && q.options, correct: phase === 'reveal' ? q && q.correct : null, explain: phase === 'reveal' ? q && q.explain : null, seconds: Math.max(1, Math.ceil(((state.deadline || Date.now()) - Date.now()) / 1000)), settings:gameSettings, scores: currentRankings(), winner: state.winner || null, mode: 'beauty' });
 }
 async function startQuiz() {
   if (phase !== 'lobby' || !gameChannel) return;
@@ -64,7 +64,7 @@ async function showQuestion() {
   if (!q) return finishQuiz();
   phase = 'question'; answers = {};
   state.deadline = Date.now() + 20000;
-  await send('question', { index: questionIndex, total: questions.length, q: q.q, options: q.options, seconds: 20, settings:gameSettings });
+  await send('NEW_QUESTION', { index:questionIndex, total:questions.length, question:q, q:q.q, options:q.options, seconds:20, settings:gameSettings });
   await updateLobby();
   clearTimeout(timer);
   timer = setTimeout(() => revealAnswer(), 20000);
@@ -99,7 +99,7 @@ async function finishQuiz() {
   await updateLobby();
 }
 
-function startAutoHost() {
+function startAutoHost({ onPlayerReady, roomChannelName = 'room-777777' } = {}) {
   let fallback = {};
   try {
     const source = fs.readFileSync(path.join(__dirname, 'public', 'config.js'), 'utf8');
@@ -140,15 +140,16 @@ function startAutoHost() {
       state.pin = persistentPin;
       phase = 'lobby'; readyPlayers = {}; scores = {}; answers = {};
       await lobbyChannel.track({ isPublic:true, name:'Beauty for Ashes', hostName, icon:'fa-solid fa-dove', hostId, pin:state.pin, mode:'beauty', status:'LOBBY', privacy:'public', settings:gameSettings, players:[], isHost:true });
-      gameChannel = client.channel('quiz-' + state.pin, { config: { presence: { key: hostId } } })
+      gameChannel = client.channel(roomChannelName, { config: { presence: { key: hostId } } })
         .on('presence', { event: 'SYNC' }, payload => { players = payload.presence || {}; const ready=publicPlayers().filter(p=>p.ready); ready.forEach(p=>{if(p.name){readyPlayers[p.name]={myId:p.myId,deviceId:p.deviceId};scores[p.name]=Number(scores[p.name])||0;}}); updateLobby(); if (phase === 'lobby' && ready.length) startQuiz(); })
         .on('presence', { event: 'CHANGES' }, () => {
           players = gameChannel.presenceState();
           updateLobby();
         })
-        .on('broadcast', { event: 'player-ready' }, async payload => {
+        .on('broadcast', { event: 'PLAYER_READY' }, async payload => {
           const ready = payload.payload;
           if (!ready || !ready.name || !ready.myId) return;
+          if (onPlayerReady) onPlayerReady();
           readyPlayers[ready.name] = { myId:ready.myId, deviceId:ready.deviceId || null };
           if (!Number.isFinite(scores[ready.name])) scores[ready.name] = 0;
           if (phase === 'lobby') await startQuiz();
