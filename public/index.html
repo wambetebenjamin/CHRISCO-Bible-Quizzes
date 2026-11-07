@@ -159,6 +159,8 @@
     .gt-mode { font-weight: 700; font-size: 0.95rem; }
     .gt-host { font-size: 0.85rem; opacity: 0.9; display: flex; align-items: center; gap: 0.3rem; }
     .gt-meta { display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; font-weight: 600; opacity: 0.95; margin-top: auto; }
+    .gt-rankings { display:grid; gap:.2rem; padding:.55rem .65rem; border-radius:10px; background:rgba(255,255,255,.12); font-size:.78rem; }
+    .gt-rankings strong { color:var(--yellow); }
     .gt-join { margin-top: 0.5rem; }
     .lobby-pin-row { max-width: 420px; margin: 1.5rem auto 0; display: flex; gap: 0.6rem; align-items: center; justify-content: center; flex-wrap: wrap; font-weight: 600; color: var(--text); }
     .lobby-pin-input { font-size: 1.4rem; letter-spacing: 4px; text-align: center; width: 120px; padding: 0.5rem; border-radius: 10px; border: 2px solid var(--primary); font-weight: 800; }
@@ -385,7 +387,7 @@
         <p>Public rooms currently accepting players.</p>
         <div class="lobby-live-banner" id="lobby-live-banner" style="display:none;">
           <div><div class="llb-title"><i class="fa-solid fa-circle-pulse"></i> Beauty for Ashes Live Game</div><div class="llb-sub">Hosted by Presbyter David Kirui</div></div>
-          <div style="display:flex;align-items:center;gap:.8rem;"><div class="llb-pin" id="lobby-live-pin">----</div><a class="btn btn--yellow" id="lobby-live-join" href="player.html"><i class="fa-solid fa-right-to-bracket"></i> Join Now</a></div>
+          <div style="display:flex;align-items:center;gap:.8rem;"><div class="llb-pin" id="lobby-live-pin">----</div><a class="btn btn--yellow" id="lobby-live-join" href="player.html?pin=777777"><i class="fa-solid fa-right-to-bracket"></i> Join Now</a></div>
         </div>
         <div class="lobby-grid" id="lobby-list"><div class="game-tile gt-empty"><i class="fa-solid fa-hourglass-half"></i> No public games are running right now.</div></div>
       </section>
