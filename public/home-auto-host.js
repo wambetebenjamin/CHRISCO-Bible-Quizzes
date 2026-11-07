@@ -63,7 +63,7 @@
     if(inp&&btn) btn.addEventListener('click',()=>{const p=inp.value.trim();if(/^\d{4,5}$/.test(p))location.href='player.html?pin='+encodeURIComponent(p);});
     const wrap=$('lang-select-wrap'); if(wrap) window.buildLangSelector(wrap);
     window.applyLang(window.getLang());
-    fetch('/api/config').then(r=>r.ok?r.json():Promise.reject()).catch(()=>fetch('/public/config.js').then(r=>r.text()).then(t=>{const m=t.match(/SUPABASE_URL\s*=\s*['"]([^'"]+)['"][\s\S]*?SUPABASE_ANON_KEY\s*=\s*['"]([^'"]+)['"]/);if(!m)throw Error('config unavailable');return {url:m[1],key:m[2]};})).then(connect).catch(e=>console.error('Lobby connection unavailable:',e));
+    fetch('/api/config').then(r=>r.ok?r.json():Promise.reject()).catch(()=>fetch('/config.js').then(r=>r.text()).then(t=>{const m=t.match(/SUPABASE_URL\s*=\s*['"]([^'"]+)['"][\s\S]*?SUPABASE_ANON_KEY\s*=\s*['"]([^'"]+)['"]/);if(!m)throw Error('config unavailable');return {url:m[1],key:m[2]};})).then(connect).catch(e=>console.error('Lobby connection unavailable:',e));
   });
   window.addEventListener('beforeunload',()=>{clearInterval(timer);if(game)game.unsubscribe();if(lobby)lobby.unsubscribe();});
 })();

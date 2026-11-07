@@ -109,8 +109,13 @@
     .opt:hover:not(:disabled) { background: #e8ecf5; }
     .opt:disabled { cursor: default; }
     .opt .letter { width: 30px; height: 30px; border-radius: 8px; background: var(--primary); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0; }
-    .opt.correct { background: rgba(26,158,58,0.15); border-color: var(--green); }
+    .opt.correct { background: rgba(26,158,58,0.15); border-color: var(--green); animation: answer-pop .55s ease-out; }
     .opt.correct .letter { background: var(--green); }
+    .thank-you-title { animation: answer-pop .7s ease-out; }
+    .score-card .big { transition: transform .2s ease; }
+    .score-card.score-bump .big { animation: score-bump .5s ease; }
+    @keyframes answer-pop { 0% { transform: scale(.92); opacity:.65; } 70% { transform: scale(1.04); } 100% { transform: scale(1); opacity:1; } }
+    @keyframes score-bump { 50% { transform: scale(1.22); color: var(--yellow); } }
     .opt.wrong { background: rgba(226,27,60,0.12); border-color: var(--red); }
     .opt.wrong .letter { background: var(--red); }
     .opt.my-choice { outline: 3px solid var(--secondary); outline-offset: 2px; }
@@ -163,9 +168,9 @@
           <input type="text" class="name-input" id="name-input" placeholder="e.g. Mary" maxlength="16" autocomplete="off" />
         </div>
         <div class="field">
-          <label><i class="fa-solid fa-icons"></i> Pick your icon</label>
+          <label><i class="fa-solid fa-icons"></i> Pick your icon (optional)</label>
           <div class="icon-picker" id="icon-picker"></div>
-          <div class="icon-caption" id="icon-caption">Your icon shows on the scoreboard.</div>
+          <div class="icon-caption" id="icon-caption">Skip this and a profile image will be assigned automatically.</div>
         </div>
       </div>
 
@@ -200,6 +205,11 @@
         <div class="options" id="q-options"></div>
         <div class="feedback" id="feedback"></div>
         <div class="explain" id="q-explain" style="display:none;"></div>
+        <button id="player-next-btn" class="btn btn--yellow btn--block" type="button" style="display:none;margin-top:1rem;"><i class="fa-solid fa-forward-step"></i> Next Question</button>
+      </div>
+      <div class="card" style="margin-top:1rem;">
+        <h3><i class="fa-solid fa-ranking-star"></i> Live Scores</h3>
+        <ol id="player-scoreboard" style="margin-top:0.7rem;padding-left:1.4rem;"><li>Your score will appear here.</li></ol>
       </div>
       <div class="card card--green score-card">
         <div class="big" id="my-score">0</div>
@@ -207,9 +217,10 @@
       </div>
     </div>
 
-    <!-- Result Screen -->
+    <!-- Thank You Screen -->
     <div class="screen" id="result-screen">
       <div class="card card--blue score-card">
+        <h2 class="thank-you-title"><i class="fa-solid fa-heart"></i> Thank you for playing!</h2>
         <div class="big" id="final-score">0</div>
         <div class="label">Your final score</div>
         <div class="winner-banner" id="winner-banner" style="display:none;"></div>
@@ -272,10 +283,18 @@
       $('' + id + '-screen').classList.add('active');
     }
     function setupStatus(html, cls) { const p = $('setup-status'); p.className = 'status-pill ' + (cls||''); p.innerHTML = html; }
+    function renderScoreboard() {
+      const list = $('player-scoreboard'); if (!list) return;
+      const entries = Object.values(state.players || {}).flat().filter(p => p && !p.isHost);
+      const scores = entries.map(p => ({ name: p.name || 'Player', score: p.name === state.name ? state.score : (p.score || 0) }));
+      if (!scores.some(p => p.name === state.name)) scores.push({name:state.name || 'You',score:state.score});
+      scores.sort((a,b)=>b.score-a.score);
+      list.innerHTML = scores.map(p=>'<li>' + esc(p.name) + ' <strong style="float:right;">' + p.score + '</strong></li>').join('');
+    }
 
     function buildLobbyList() {
       const grid = $('lobby-list');
-      const games = Object.values(state.lobbyGames).filter(g => g.pin && g.status !== 'closed');
+      const games = Object.values(state.lobbyGames).flat().filter(g => g && g.pin && g.status !== 'closed');
       if (games.length === 0) {
         grid.innerHTML = '<div class="game-tile gt-empty"><i class="fa-solid fa-mug-hot"></i> No games running yet. Ask a host to create one!</div>';
         return;
@@ -299,7 +318,7 @@
     function buildPlayerList() {
       const ul = $('player-list');
       if (!ul) return;
-      const players = Object.values(state.players);
+      const players = Object.values(state.players).flat().filter(Boolean);
       if (players.length === 0) ul.innerHTML = '<li class="empty"><i class="fa-solid fa-user-plus"></i> Waiting for players...</li>';
       else ul.innerHTML = players.map(p => '<li' + (p.name === state.name ? ' style="outline:3px solid var(--yellow);outline-offset:2px;"' : '') + '><span class="pavatar">' + iconHtml(p) + '</span>' + esc(p.name) + (p.isHost ? ' <i class="fa-solid fa-crown" style="margin-left:auto;color:var(--yellow);"></i>' : '') + '</li>').join('');
     }
@@ -311,7 +330,7 @@
       $('q-options').querySelectorAll('.opt')[choice].classList.add('my-choice');
       state.channel.send({ type: 'broadcast', event: 'answer', payload: { name: state.name, choice: choice } });
       $('feedback').className = 'feedback';
-      $('feedback').innerHTML = '<i class="fa-solid fa-lock"></i> Answer locked in. Wait for the host to reveal.';
+      $('feedback').innerHTML = '<i class="fa-solid fa-lock"></i> Answer locked in. You can move on when ready.';
     }
 
     function onQuestion(data) {
@@ -321,6 +340,7 @@
       state.phase = 'question';
       if (!sameQ) state.myAnswer = null;
       $('q-counter').innerHTML = '<i class="fa-solid fa-list-ol"></i> Question ' + (data.index+1) + ' of ' + data.total;
+      $('player-next-btn').style.display = 'inline-flex'; $('player-next-btn').disabled = false;
       const translated = window.localizeQuestion({q:data.q,options:data.options,explain:''}, (localStorage.getItem('chrisco_lang') || 'en'));
       state.currentQuestion = data.q;
       $('q-text').textContent = translated.q;
@@ -337,8 +357,17 @@
       showScreen('question');
     }
 
+    function requestNextQuestion() {
+      if (!state.channel || state.phase !== 'question') return;
+      const button = $('player-next-btn'); button.disabled = true;
+      $('feedback').className = 'feedback';
+      $('feedback').innerHTML = '<i class="fa-solid fa-forward-step"></i> Moving to the next question…';
+      state.channel.send({ type:'broadcast', event:'advance-request', payload:{ name:state.name, index:state.qIndex } });
+    }
+
     function onReveal(data) {
       if (!data) return;
+      $('player-next-btn').style.display = 'none';
       if (state.phase === 'reveal' && state.qIndex === data.index) return; // already applied
       state.phase = 'reveal';
       const opts = $('q-options').querySelectorAll('.opt');
@@ -348,6 +377,8 @@
         $('feedback').className = 'feedback good';
         $('feedback').innerHTML = '<i class="fa-solid fa-circle-check"></i> Correct! +100 points';
         state.score += 100;
+        const scoreCard = document.querySelector('.score-card'); scoreCard.classList.remove('score-bump'); void scoreCard.offsetWidth; scoreCard.classList.add('score-bump');
+        setTimeout(()=>scoreCard.classList.remove('score-bump'),600);
       } else if (state.myAnswer !== null) {
         opts[state.myAnswer].classList.add('wrong');
         $('feedback').className = 'feedback bad';
@@ -360,6 +391,8 @@
       $('q-explain').innerHTML = '<i class="fa-solid fa-circle-info"></i> ' + esc(translated.explain || data.explain);
       $('q-explain').style.display = 'block';
       $('my-score').textContent = state.score;
+      if (state.channel) state.channel.track({ name:state.name, icon:state.icon, myId:state.myId, isHost:false, status:'playing', score:state.score });
+      renderScoreboard();
     }
 
     function onEnd(data) {
@@ -408,8 +441,8 @@
     }
 
     function nameTakenInRoom() {
-      return Object.values(state.players).some(p =>
-        p.name && p.name.toLowerCase() === state.name.toLowerCase() && p.myId !== state.myId);
+      return Object.values(state.players).flat().some(p =>
+        p && p.name && p.name.toLowerCase() === state.name.toLowerCase() && p.myId !== state.myId);
     }
 
     function joinGame(pin, hostName) {
@@ -425,6 +458,7 @@
       }
       if (hostName) state.hostName = hostName;
       state.name = name;
+      localStorage.setItem('chrisco_nickname', name);
       state.icon = state.icon || 'fa-solid fa-lion';
       state.emoji = iconEmoji(state.icon);
       state.pin = pin;
@@ -432,8 +466,8 @@
 
       if (state.channel) { state.channel.unsubscribe(); state.channel = null; }
       state.channel = state.supabase.channel('quiz-' + state.pin)
-        .on('presence', { event: 'SYNC' }, (payload) => { state.players = payload.presence || {}; buildPlayerList(); if (nameTakenInRoom()) leaveRoom('That name is already taken in this room. Pick a different name.'); })
-        .on('presence', { event: 'CHANGES' }, (payload) => { state.players = Object.assign({}, state.players, payload.events.leaves, payload.events.joins); buildPlayerList(); if (nameTakenInRoom()) leaveRoom('That name is already taken in this room. Pick a different name.'); })
+        .on('presence', { event: 'SYNC' }, (payload) => { state.players = payload.presence || {}; buildPlayerList(); renderScoreboard(); if (nameTakenInRoom()) leaveRoom('That name is already taken in this room. Pick a different name.'); })
+        .on('presence', { event: 'CHANGES' }, () => { state.players = state.channel.presenceState(); buildPlayerList(); renderScoreboard(); if (nameTakenInRoom()) leaveRoom('That name is already taken in this room. Pick a different name.'); })
         .on('broadcast', { event: 'start' }, (payload) => { qStatus('<i class="fa-solid fa-play"></i> New round started: ' + esc(payload.payload.name || 'David Quiz') + '. Get ready!', 'warn'); })
         .on('broadcast', { event: 'question' }, (payload) => onQuestion(payload.payload))
         .on('broadcast', { event: 'reveal' }, (payload) => onReveal(payload.payload))
@@ -496,13 +530,16 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
+      $('name-input').value = localStorage.getItem('chrisco_nickname') || '';
+      $('player-next-btn').addEventListener('click', requestNextQuestion);
       $('join-pin-btn').addEventListener('click', () => {
         const pin = $('pin-input').value.trim();
         if (pin) joinGame(pin);
       });
       $('play-again-btn').addEventListener('click', () => {
+        if (state.channel) state.channel.send({ type:'broadcast', event:'restart-request', payload:{ name:state.name } });
         state.phase = 'setup'; state.players = {}; state.myAnswer = null; state.score = 0;
-        $('name-input').value = ''; $('pin-input').value = '';
+        $('name-input').value = localStorage.getItem('chrisco_nickname') || ''; $('pin-input').value = '';
         setupStatus('<i class="fa-solid fa-circle-info"></i> Ready when you are', '');
         showScreen('setup');
       });
@@ -514,7 +551,7 @@
         state.supabase = window.supabase.createClient(url, key);
         state.lobbyChannel = state.supabase.channel(LOBBY_CHANNEL)
           .on('presence', { event: 'SYNC' }, (payload) => { state.lobbyGames = payload.presence || {}; buildLobbyList(); })
-          .on('presence', { event: 'CHANGES' }, (payload) => { state.lobbyGames = Object.assign({}, state.lobbyGames, payload.events.leaves, payload.events.joins); buildLobbyList(); })
+          .on('presence', { event: 'CHANGES' }, () => { state.lobbyGames = state.lobbyChannel.presenceState(); buildLobbyList(); })
           .subscribe((status) => {
             if (status === 'SUBSCRIBED') setupStatus('<i class="fa-solid fa-circle-check"></i> Connected. Pick a game below or enter a PIN.', 'ok');
             else if (status === 'CHANNEL_ERROR' || status === 'CHANNEL_CLOSED') setupStatus('<i class="fa-solid fa-triangle-exclamation"></i> Lobby connection lost. Reconnecting...', 'err');
@@ -544,7 +581,7 @@
         if (cfg && cfg.url && cfg.key) return cfg;
         return new Promise((resolve, reject) => {
           const s = document.createElement('script');
-          s.src = '/public/config.js';
+          s.src = '/config.js';
           s.onload = () => {
             if (window.CHRISCO_CONFIG && window.CHRISCO_CONFIG.supabaseUrl && window.CHRISCO_CONFIG.supabaseAnonKey) resolve({ url: window.CHRISCO_CONFIG.supabaseUrl, key: window.CHRISCO_CONFIG.supabaseAnonKey });
             else reject(new Error('No config available'));

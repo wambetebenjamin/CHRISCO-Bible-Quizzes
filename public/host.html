@@ -190,7 +190,7 @@
           <input type="text" class="name-input" id="host-name" placeholder="e.g. Pastor David" maxlength="16" autocomplete="off" />
         </div>
         <div class="field">
-          <label><i class="fa-solid fa-icons"></i> Pick your icon</label>
+          <label><i class="fa-solid fa-icons"></i> Pick your icon (optional)</label>
           <div class="icon-picker" id="icon-picker"></div>
           <div class="icon-caption" id="icon-caption">Shown to players on the scoreboard.</div>
         </div>
@@ -312,7 +312,7 @@
         if (cfg && cfg.url && cfg.key) return cfg;
         return new Promise((resolve, reject) => {
           const s = document.createElement('script');
-          s.src = '/public/config.js';
+          s.src = '/config.js';
           s.onload = () => {
             if (window.CHRISCO_CONFIG && window.CHRISCO_CONFIG.supabaseUrl && window.CHRISCO_CONFIG.supabaseAnonKey) resolve({ url: window.CHRISCO_CONFIG.supabaseUrl, key: window.CHRISCO_CONFIG.supabaseAnonKey });
             else reject(new Error('No config available'));
@@ -332,14 +332,14 @@
     function buildPlayerList() {
       const ul = $('player-list');
       if (!ul) return;
-      const players = Object.values(state.players).filter(p => !p.isHost);
+      const players = Object.values(state.players).flat().filter(p => p && !p.isHost);
       if (players.length === 0) ul.innerHTML = '<li class="empty"><i class="fa-solid fa-user-plus"></i> Waiting for players to join with this PIN...</li>';
       else ul.innerHTML = players.map(p => '<li><span class="pavatar">' + iconHtml(p) + '</span>' + esc(p.name) + '</li>').join('');
     }
 
     function buildLobbyList() {
       const grid = $('lobby-list');
-      const games = Object.values(state.lobbyGames).filter(g => g.pin && g.status !== 'closed');
+      const games = Object.values(state.lobbyGames).flat().filter(g => g && g.pin && g.status !== 'closed');
       if (games.length === 0) {
         grid.innerHTML = '<div class="game-tile gt-empty"><i class="fa-solid fa-mug-hot"></i> No games running yet. Create one to get started!</div>';
         return;
@@ -360,7 +360,7 @@
     }
 
     function renderScores() {
-      const all = Object.values(state.players);
+      const all = Object.values(state.players).flat().filter(p => p && !p.isHost);
       all.sort((a,b) => (b.score||0) - (a.score||0));
       $('live-scores').innerHTML = all.map((p,i) => '<div class="score-row' + (i===0?' winner':'') + '"><span class="pavatar">' + iconHtml(p) + '</span><span class="pname">' + esc(p.name) + '</span><span class="pscore">' + (p.score||0) + '</span></div>').join('');
     }
@@ -391,7 +391,7 @@
       state.lobbyChannel.track({
         name: state.hostName, icon: state.hostIcon, hostId: state.hostId,
         pin: state.pin || '', mode: state.mode, status: status,
-        players: Object.values(state.players).map(p => p.name),
+        players: Object.values(state.players).flat().filter(p => p && !p.isHost).map(p => p.name),
         isHost: true
       });
     }
@@ -423,7 +423,7 @@
       state.gameChannel = state.supabase.channel('quiz-' + state.pin)
         .on('presence', { event: 'SYNC' }, (payload) => { state.players = payload.presence || {}; buildPlayerList(); updateLobbyPresence(); })
         .on('presence', { event: 'CHANGES' }, (payload) => {
-          state.players = Object.assign({}, state.players, payload.events.leaves, payload.events.joins);
+          state.players = state.gameChannel.presenceState();
           buildPlayerList(); updateLobbyPresence();
           // New players join: send them the current game state so they can play immediately
           const newPlayers = Object.values(payload.events.joins || {}).filter(j => !j.isHost);
@@ -433,6 +433,12 @@
           }
         })
         .on('broadcast', { event: 'answer' }, (payload) => { handleAnswer(payload.payload); })
+        .on('broadcast', { event: 'advance-request' }, () => {
+          if (state.phase === 'question' && !state.revealed) {
+            revealAnswer();
+            setTimeout(() => { if (state.phase === 'question' && state.revealed) nextQuestion(); }, 2500);
+          }
+        })
         .on('broadcast', { event: 'sync-request' }, (payload) => { if (payload.payload && payload.payload.myId) sendSync(payload.payload.myId); })
         .subscribe(async (status) => {
           if (status === 'SUBSCRIBED') {
@@ -449,7 +455,7 @@
     function sendSync(to) {
       if (!state.gameChannel || !to) return;
       const cur = state.currentQ;
-      const scores = Object.values(state.players).map(p => ({ name: p.name, icon: p.icon, score: p.score || 0 }));
+      const scores = Object.values(state.players).flat().filter(p => p && !p.isHost).map(p => ({ name: p.name, icon: p.icon, score: p.score || 0 }));
       state.gameChannel.send({
         type: 'broadcast', event: 'sync',
         payload: {
@@ -489,7 +495,7 @@
       const cfg = window.CHRISCO_MODES[state.mode];
       state.questions = window.pickQuestions(state.mode, cfg.rounds);
       state.qIndex = 0; state.phase = 'question'; state.answers = {}; state.revealed = false; state.winner = null;
-      Object.values(state.players).forEach(p => { p.score = 0; p.answered = false; p.answer = null; });
+      Object.values(state.players).flat().filter(p => p && !p.isHost).forEach(p => { p.score = 0; p.answered = false; p.answer = null; });
       renderScores();
       state.gameChannel.send({ type: 'broadcast', event: 'start', payload: { mode: state.mode, rounds: state.questions.length, name: cfg.name } });
       showScreen('question');
@@ -532,7 +538,7 @@
       $('q-explain').style.display = 'block';
       $('reveal-btn').innerHTML = '<i class="fa-solid fa-arrow-right"></i> Next Question';
       state.revealed = true;
-      Object.values(state.players).forEach(p => { if (p.answered && p.answer === q.correct) p.score = (p.score||0) + 100; p.answered = false; p.answer = null; });
+      Object.values(state.players).flat().filter(p => p && !p.isHost).forEach(p => { if (p.answered && p.answer === q.correct) p.score = (p.score||0) + 100; p.answered = false; p.answer = null; });
       renderScores();
       state.gameChannel.send({ type: 'broadcast', event: 'reveal', payload: { index: state.qIndex, correct: q.correct, explain: q.explain } });
       updateLobbyPresence();
@@ -547,7 +553,7 @@
 
     function finishGame() {
       state.phase = 'end';
-      const all = Object.values(state.players);
+      const all = Object.values(state.players).flat().filter(p => p && !p.isHost);
       all.sort((a,b) => (b.score||0) - (a.score||0));
       const winner = all[0];
       state.winner = winner ? winner.name : null;
@@ -563,7 +569,8 @@
     function handleAnswer(a) {
       if (!a || state.phase !== 'question') return;
       state.answers[a.name] = a.choice;
-      if (state.players[a.name]) { state.players[a.name].answered = true; state.players[a.name].answer = a.choice; }
+      const player = Object.values(state.players).flat().find(p => p && p.name === a.name && !p.isHost);
+      if (player) { player.answered = true; player.answer = a.choice; }
     }
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -587,7 +594,7 @@
         // Lobby channel: list running games
         state.lobbyChannel = state.supabase.channel(LOBBY_CHANNEL)
           .on('presence', { event: 'SYNC' }, (payload) => { state.lobbyGames = payload.presence || {}; buildLobbyList(); })
-          .on('presence', { event: 'CHANGES' }, (payload) => { state.lobbyGames = Object.assign({}, state.lobbyGames, payload.events.leaves, payload.events.joins); buildLobbyList(); })
+          .on('presence', { event: 'CHANGES' }, () => { state.lobbyGames = state.lobbyChannel.presenceState(); buildLobbyList(); })
           .subscribe(async (status) => {
             if (status === 'SUBSCRIBED') {
               statusPill('<i class="fa-solid fa-circle-check"></i> Connected to lobby. Create a game to start!', 'ok');
