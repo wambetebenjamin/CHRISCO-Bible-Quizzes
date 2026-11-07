@@ -2,12 +2,29 @@ const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const path = require('path');
+const fs = require('fs');
 const autoHost = require('./auto-host');
 
 const app = express();
 const allowedOrigins = [process.env.CORS_ORIGIN, process.env.RENDER_EXTERNAL_URL].filter(Boolean).flatMap(value => value.split(',')).map(origin => origin.trim()).filter(Boolean);
 app.use(cors(allowedOrigins.length ? { origin: allowedOrigins } : {}));
 app.use(express.json({ limit: '2mb' }));
+
+function publicSupabaseConfig() {
+  try {
+    const source = fs.readFileSync(path.join(__dirname, 'public', 'config.js'), 'utf8');
+    const url = source.match(/SUPABASE_URL\s*=\s*['\"]([^'\"]+)['\"]/);
+    const key = source.match(/SUPABASE_ANON_KEY\s*=\s*['\"]([^'\"]+)['\"]/);
+    return { url: process.env.SUPABASE_URL || (url && url[1]), key: process.env.SUPABASE_ANON_KEY || (key && key[1]) };
+  } catch (_) {
+    return { url: process.env.SUPABASE_URL, key: process.env.SUPABASE_ANON_KEY };
+  }
+}
+app.get('/api/config', (_req, res) => {
+  const config = publicSupabaseConfig();
+  if (!config.url || !config.key) return res.status(503).json({ error: 'Supabase client configuration is not set.' });
+  res.set('Cache-Control', 'public, max-age=300').json(config);
+});
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/api/health', (_req, res) => {
