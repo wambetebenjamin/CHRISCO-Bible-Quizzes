@@ -211,9 +211,9 @@
       </div>
       <div class="question-card">
         <div class="status-pill" id="q-status"><i class="fa-solid fa-spinner fa-spin"></i> Getting the current question...</div>
-        <span class="q-counter" id="q-counter"><i class="fa-solid fa-list-ol"></i> Question</span>
-        <div class="timer-num" id="timer-num"><i class="fa-solid fa-clock"></i> ---</div>
-        <div class="q-text" id="q-text">Waiting for the next question...</div>
+        <span class="q-counter" id="q-counter" style="display:none;"></span>
+        <div class="timer-num" id="timer-num" style="display:none;"></div>
+        <div class="q-text" id="q-text"></div>
         <div class="options" id="q-options"></div>
         <div class="feedback" id="feedback"></div>
         <div class="explain" id="q-explain" style="display:none;"></div>
@@ -262,7 +262,7 @@
     const state = {
       name: '', icon: 'fa-solid fa-lion', emoji: '🦁', pin: '', hostName: '',
       myId: '', deviceId: '', qIndex: -1, settings:{pacing:'host',answerVisibility:'immediate',retries:'allow'},
-      channel: null, supabase: null, lobbyChannel: null,
+      channel: null, supabase: null, lobbyChannel: null, readyRetryTimer: null, readyAttempts: 0,
       players: {}, lobbyGames: {}, myAnswer: null, score: 0, phase: 'setup', pendingPin:'', rankings:[]
     };
     if (!state.myId) state.myId = 'p' + Math.random().toString(36).slice(2, 10);
@@ -369,6 +369,9 @@
 
     function onQuestion(data) {
       if (!data) return;
+      clearTimeout(state.readyRetryTimer);
+      state.readyRetryTimer = null;
+      state.readyAttempts = 0;
       const sameQ = state.qIndex === data.index && state.myAnswer !== null;
       state.settings = Object.assign({}, state.settings, data.settings || {});
       state.settings.pacing = 'self';
@@ -376,6 +379,8 @@
       state.qIndex = data.index;
       state.phase = 'question';
       if (!sameQ) state.myAnswer = null;
+      $('q-counter').style.display = '';
+      $('timer-num').style.display = '';
       $('q-counter').innerHTML = '<i class="fa-solid fa-list-ol"></i> Question ' + (data.index+1) + ' of ' + data.total;
       // Players control progression; never wait for the host to approve an advance.
       $('player-next-btn').style.display = 'inline-flex'; $('player-next-btn').disabled = false;
@@ -511,6 +516,9 @@
       state.icon = state.icon || 'fa-solid fa-lion';
       state.emoji = iconEmoji(state.icon);
       state.pin = pin;
+      clearTimeout(state.readyRetryTimer);
+      state.readyRetryTimer = null;
+      state.readyAttempts = 0;
       setupStatus('<i class="fa-solid fa-spinner fa-spin"></i> Joining room ' + pin + '...', 'warn');
 
       if (state.channel) { state.channel.unsubscribe(); state.channel = null; }
@@ -538,7 +546,8 @@
             // the readiness handshake invisible to the player while the first question arrives.
             showScreen('question');
             qStatus('', '');
-            await state.channel.send({ type:'broadcast', event:state.pin === '777777' ? 'PLAYER_READY' : 'player-ready', payload:{ name:state.name, pin:state.pin, myId:state.myId, deviceId:state.deviceId } });
+            state.readyAttempts = 0;
+            sendReadySignal();
           } else if (status === 'CHANNEL_ERROR' || status === 'CHANNEL_CLOSED') {
             qStatus('<i class="fa-solid fa-triangle-exclamation"></i> Lost connection to room ' + state.pin + '. Check the PIN and host status.', 'err');
           }
@@ -551,6 +560,18 @@
       p.className = 'status-pill ' + (cls || '');
       p.innerHTML = html;
       p.style.display = html ? '' : 'none';
+    }
+
+    function sendReadySignal() {
+      if (!state.channel || ['question','reveal','end'].includes(state.phase) || state.readyAttempts >= 5) return;
+      state.readyAttempts++;
+      state.channel.send({
+        type:'broadcast',
+        event:state.pin === '777777' ? 'PLAYER_READY' : 'player-ready',
+        payload:{ name:state.name, pin:state.pin, myId:state.myId, deviceId:state.deviceId }
+      });
+      clearTimeout(state.readyRetryTimer);
+      if (state.readyAttempts < 5) state.readyRetryTimer = setTimeout(sendReadySignal, 1800);
     }
 
     function onSync(data) {
@@ -570,12 +591,16 @@
         if (mine) state.score = mine.score || 0;
         onEnd(data);
       } else {
-        qStatus('<i class="fa-solid fa-hourglass-half"></i> Waiting for the host to start the next question...', 'warn');
+        qStatus('', '');
         showScreen('question');
+        sendReadySignal();
       }
     }
 
     function leaveRoom(message) {
+      clearTimeout(state.readyRetryTimer);
+      state.readyRetryTimer = null;
+      state.readyAttempts = 0;
       if (state.channel) { state.channel.unsubscribe(); state.channel = null; }
       state.phase = 'setup';
       state.players = {};
