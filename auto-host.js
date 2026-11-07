@@ -5,6 +5,7 @@ const { createClient } = require('@supabase/supabase-js');
 
 const hostName = process.env.AUTO_HOST_NAME || 'Presbyter David Kirui';
 const hostId = 'chrisco-presbyter-david-kirui';
+const gameSettings = { pacing:'self', answerVisibility:'immediate', timerSeconds:20, retries:'allow', privacy:'public' };
 const state = { status: 'starting', pin: null, phase: 'offline', connectedAt: null, error: null };
 let lobbyChannel, gameChannel, timer, client;
 let players = {}, questions = [], questionIndex = 0, phase = 'lobby', answers = {}, scores = {};
@@ -31,13 +32,13 @@ function publicPlayers() { return flattenPresence(players).filter(p => !p.isHost
 async function updateLobby() {
   if (!lobbyChannel || !state.pin) return;
   const status = phase === 'question' || phase === 'reveal' ? 'playing' : 'lobby';
-  await lobbyChannel.track({ name: hostName, icon: 'fa-solid fa-dove', hostId, pin: state.pin, mode: 'beauty', status, players: publicPlayers().map(p => p.name), isHost: true });
+  await lobbyChannel.track({ name: hostName, icon: 'fa-solid fa-dove', hostId, pin: state.pin, mode: 'beauty', status, privacy:'public', settings:gameSettings, players: publicPlayers().map(p => p.name), isHost: true });
   state.phase = phase;
 }
 function currentQuestion() { return questions[questionIndex] || null; }
 function syncPlayer(to) {
   const q = currentQuestion();
-  send('sync', { to, phase, index: questionIndex, total: questions.length, q: q && q.q, options: q && q.options, correct: phase === 'reveal' ? q && q.correct : null, explain: phase === 'reveal' ? q && q.explain : null, seconds: Math.max(1, Math.ceil(((state.deadline || Date.now()) - Date.now()) / 1000)), scores: Object.entries(scores).map(([name, score]) => ({name, score})), winner: state.winner || null, mode: 'beauty' });
+  send('sync', { to, phase, index: questionIndex, total: questions.length, q: q && q.q, options: q && q.options, correct: phase === 'reveal' ? q && q.correct : null, explain: phase === 'reveal' ? q && q.explain : null, seconds: Math.max(1, Math.ceil(((state.deadline || Date.now()) - Date.now()) / 1000)), settings:gameSettings, scores: Object.entries(scores).map(([name, score]) => ({name, score})), winner: state.winner || null, mode: 'beauty' });
 }
 async function startQuiz() {
   if (phase !== 'lobby' || !gameChannel) return;
@@ -46,7 +47,7 @@ async function startQuiz() {
   questionIndex = 0; answers = {}; scores = {};
   publicPlayers().forEach(p => { scores[p.name] = Number(p.score) || 0; });
   phase = 'question'; state.winner = null;
-  await send('start', { mode: 'beauty', rounds: questions.length, name: 'Beauty for Ashes' });
+  await send('start', { mode: 'beauty', rounds: questions.length, name: 'Beauty for Ashes', settings:gameSettings });
   await updateLobby();
   await showQuestion();
 }
@@ -55,7 +56,7 @@ async function showQuestion() {
   if (!q) return finishQuiz();
   phase = 'question'; answers = {};
   state.deadline = Date.now() + 20000;
-  await send('question', { index: questionIndex, total: questions.length, q: q.q, options: q.options, seconds: 20 });
+  await send('question', { index: questionIndex, total: questions.length, q: q.q, options: q.options, seconds: 20, settings:gameSettings });
   await updateLobby();
   clearTimeout(timer);
   timer = setTimeout(() => revealAnswer(), 20000);
@@ -66,9 +67,9 @@ async function revealAnswer() {
   phase = 'reveal';
   const q = currentQuestion();
   publicPlayers().forEach(p => { if (answers[p.name] === q.correct) scores[p.name] = (scores[p.name] || 0) + 100; });
-  await send('reveal', { index: questionIndex, correct: q.correct, explain: q.explain, scores: Object.entries(scores).map(([name, score]) => ({name, score})) });
+  await send('reveal', { index: questionIndex, correct: q.correct, explain: q.explain, visibility:'immediate', scores: Object.entries(scores).map(([name, score]) => ({name, score})) });
   await updateLobby();
-  timer = setTimeout(() => advanceQuestion(), 3000);
+  if (gameSettings.pacing !== 'self') timer = setTimeout(() => advanceQuestion(), 3000);
 }
 async function advanceQuestion() {
   if (phase !== 'reveal') return;
@@ -122,7 +123,7 @@ function startAutoHost() {
       }
       state.pin = String(Math.floor(10000 + Math.random() * 90000));
       phase = 'lobby';
-      await lobbyChannel.track({ name: hostName, icon: 'fa-solid fa-dove', hostId, pin: state.pin, mode: 'beauty', status: 'lobby', players: [], isHost: true });
+      await lobbyChannel.track({ name: hostName, icon: 'fa-solid fa-dove', hostId, pin: state.pin, mode: 'beauty', status: 'lobby', privacy:'public', settings:gameSettings, players: [], isHost: true });
       gameChannel = client.channel('quiz-' + state.pin, { config: { presence: { key: hostId } } })
         .on('presence', { event: 'SYNC' }, payload => { players = payload.presence || {}; updateLobby(); if (phase === 'lobby' && publicPlayers().length) startQuiz(); })
         .on('presence', { event: 'CHANGES' }, payload => {
@@ -136,12 +137,12 @@ function startAutoHost() {
           const answer = payload.payload;
           if (phase === 'question' && answer && typeof answer.name === 'string' && Number.isInteger(answer.choice) && answer.choice >= 0 && answer.choice < 4) answers[answer.name] = answer.choice;
         })
-        .on('broadcast', { event: 'advance-request' }, () => { if (phase === 'question') revealAnswer(); })
+        .on('broadcast', { event: 'advance-request' }, () => { if (phase === 'question') revealAnswer(); else if (phase === 'reveal') advanceQuestion(); })
         .on('broadcast', { event: 'sync-request' }, payload => { if (payload.payload && payload.payload.myId) syncPlayer(payload.payload.myId); })
         .on('broadcast', { event: 'restart-request' }, () => { if (phase === 'lobby') startQuiz(); })
         .subscribe(async gameStatus => {
           if (gameStatus === 'SUBSCRIBED') {
-            await gameChannel.track({ name: hostName, icon: 'fa-solid fa-dove', hostId, isHost: true, status: 'lobby', score: 0, mode: 'beauty' });
+            await gameChannel.track({ name: hostName, icon: 'fa-solid fa-dove', hostId, isHost: true, status: 'lobby', score: 0, mode: 'beauty', settings:gameSettings });
             state.status = 'ready'; state.phase = phase; console.log('Persistent Beauty for Ashes room ready:', state.pin);
             await updateLobby();
           } else if (gameStatus === 'CHANNEL_ERROR' || gameStatus === 'TIMED_OUT' || gameStatus === 'CLOSED') {

@@ -6,7 +6,7 @@
   const escapeHtml = s => String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const modeName = g => (window.CHRISCO_MODES[g.mode] || {}).name || g.mode || 'Bible Quiz';
   function render(presence) {
-    const entries = Object.values(presence || {}).flat().filter(g => g && g.pin && g.status !== 'idle' && g.status !== 'closed');
+    const entries = Object.values(presence || {}).flat().filter(g => g && g.pin && g.status !== 'idle' && g.status !== 'closed' && (g.privacy === 'public' || !g.privacy));
     const unique = Array.from(new Map(entries.map(g => [g.hostId || g.pin, g])).values());
     const list = $('lobby-list'); if (!list) return;
     list.innerHTML = unique.length ? unique.map(g => {

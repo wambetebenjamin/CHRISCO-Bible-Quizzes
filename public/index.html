@@ -141,8 +141,16 @@
     .section-sub strong { color: var(--accent); }
 
     /* ===== Running Games Lobby ===== */
+    .welcome-band { max-width:1100px; margin:2rem auto; padding:1.5rem 1.8rem; border-radius:20px; color:#fff; background:linear-gradient(120deg,#00008B,#46178f); box-shadow:0 12px 30px rgba(0,0,0,.16); }
+    .welcome-band h2 { margin-bottom:.4rem; }
+    .welcome-band p { line-height:1.6; opacity:.95; }
     .lobby-section { background: #fff; }
-    .lobby-grid { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; }
+    .dashboard-split { max-width:1100px; margin:0 auto; display:grid; grid-template-columns:minmax(260px,.8fr) minmax(0,1.4fr); gap:1.2rem; align-items:start; }
+    .dashboard-panel { border:1px solid #e3e5ee; background:#fff; border-radius:18px; padding:1.2rem; box-shadow:0 6px 18px rgba(0,0,0,.07); }
+    .dashboard-panel h3 { margin:0 0 .4rem; color:var(--primary); }
+    .dashboard-panel p { color:#666; line-height:1.5; margin-bottom:.8rem; }
+    .lobby-section .lobby-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 1rem; }
+    @media(max-width:750px){ .dashboard-split{grid-template-columns:1fr;} }
     .game-tile { border-radius: 18px; padding: 1.2rem; color: #fff; background: linear-gradient(160deg, #46178f, #00008B); box-shadow: 0 8px 20px rgba(0,0,0,0.18); display: flex; flex-direction: column; gap: 0.5rem; }
     .game-tile.waiting { background: linear-gradient(160deg, #6b4f1f, #3d2e0f); }
     .game-tile.playing { background: linear-gradient(160deg, #006400, #003d00); }
@@ -350,29 +358,37 @@
     </div>
   </section>
 
-  <!-- ===== Running Games Lobby ===== -->
+  <section class="section" style="padding-top:0;padding-bottom:0;">
+    <div class="welcome-band">
+      <h2><i class="fa-solid fa-lightbulb"></i> Welcome to CHRISCO Bible Quizzes</h2>
+      <p>Uplifting, reasoning based Bible quizzes that help players think deeply, learn Scripture, and grow together. Join an open room or enter a private game PIN.</p>
+    </div>
+  </section>
+
+  <!-- Global Dashboard -->
   <section class="section lobby-section">
     <div class="section-title">
-      <h2><i class="fa-solid fa-users-line" style="color: var(--accent);"></i> <span data-i18n="lobby_title">Running Games</span></h2>
-      <p class="section-sub"><span data-i18n="lobby_sub">Join a running game with its PIN or pick one below.</span></p>
+      <h2><i class="fa-solid fa-gauge-high" style="color:var(--accent);"></i> Game Dashboard</h2>
+      <p class="section-sub">Join a private room by PIN, or explore open games that hosts have chosen to list publicly.</p>
     </div>
-    <div class="lobby-live-banner" id="lobby-live-banner" style="display:none;">
-      <div>
-        <div class="llb-title"><i class="fa-solid fa-circle-pulse"></i> <span data-i18n="auto_live_title">Beauty for Ashes Live Game</span></div>
-        <div class="llb-sub"><span data-i18n="auto_live_sub">A live game hosted by Presbyter David Kirui. Join with the PIN below.</span></div>
-      </div>
-      <div style="display:flex;align-items:center;gap:0.8rem;">
-        <div class="llb-pin" id="lobby-live-pin">----</div>
-        <a class="btn btn--yellow" id="lobby-live-join" href="player.html"><i class="fa-solid fa-right-to-bracket"></i> <span data-i18n="join_now">Join Now</span></a>
-      </div>
-    </div>
-    <div class="lobby-grid" id="lobby-list">
-      <div class="game-tile gt-empty"><i class="fa-solid fa-hourglass-half"></i> <span data-i18n="lobby_empty_player">No games running yet. Ask a host to create one!</span></div>
-    </div>
-    <div class="lobby-pin-row">
-      <label data-i18n="lobby_pin_label">Have a PIN?</label>
-      <input id="lobby-pin-input" class="lobby-pin-input" data-i18n-placeholder="lobby_pin_ph" placeholder="0000" maxlength="5" inputmode="numeric" />
-      <button id="lobby-join-pin-btn" class="btn btn--green"><i class="fa-solid fa-right-to-bracket"></i> <span data-i18n="lobby_join_pin_btn">Join</span></button>
+    <div class="dashboard-split">
+      <section class="dashboard-panel" aria-labelledby="private-game-heading">
+        <h3 id="private-game-heading"><i class="fa-solid fa-lock"></i> Join Private Game</h3>
+        <p>Enter the PIN shared by your host. Private rooms do not appear in the public list.</p>
+        <div class="lobby-pin-row" style="margin:1rem 0 0;">
+          <input id="lobby-pin-input" class="lobby-pin-input" placeholder="Game PIN" aria-label="Game PIN" maxlength="5" inputmode="numeric" />
+          <button id="lobby-join-pin-btn" class="btn btn--green"><i class="fa-solid fa-right-to-bracket"></i> Join Game</button>
+        </div>
+      </section>
+      <section class="dashboard-panel" aria-labelledby="open-games-heading">
+        <h3 id="open-games-heading"><i class="fa-solid fa-earth-africa"></i> Live Open Games</h3>
+        <p>Public rooms currently accepting players.</p>
+        <div class="lobby-live-banner" id="lobby-live-banner" style="display:none;">
+          <div><div class="llb-title"><i class="fa-solid fa-circle-pulse"></i> Beauty for Ashes Live Game</div><div class="llb-sub">Hosted by Presbyter David Kirui</div></div>
+          <div style="display:flex;align-items:center;gap:.8rem;"><div class="llb-pin" id="lobby-live-pin">----</div><a class="btn btn--yellow" id="lobby-live-join" href="player.html"><i class="fa-solid fa-right-to-bracket"></i> Join Now</a></div>
+        </div>
+        <div class="lobby-grid" id="lobby-list"><div class="game-tile gt-empty"><i class="fa-solid fa-hourglass-half"></i> No public games are running right now.</div></div>
+      </section>
     </div>
   </section>
 

@@ -205,6 +205,7 @@
         <div class="options" id="q-options"></div>
         <div class="feedback" id="feedback"></div>
         <div class="explain" id="q-explain" style="display:none;"></div>
+        <div id="pacing-hint" class="status-pill" style="display:none;margin-top:1rem;"></div>
         <button id="player-next-btn" class="btn btn--yellow btn--block" type="button" style="display:none;margin-top:1rem;"><i class="fa-solid fa-forward-step"></i> Next Question</button>
       </div>
       <div class="card" style="margin-top:1rem;">
@@ -224,6 +225,7 @@
         <div class="big" id="final-score">0</div>
         <div class="label">Your final score</div>
         <div class="winner-banner" id="winner-banner" style="display:none;"></div>
+        <div id="answer-review" style="display:none;margin-top:1rem;text-align:left;"></div>
         <p id="result-sub" style="margin-top:1rem;opacity:0.9;">Theme: 1 Samuel 30:8 Pursue Overtake Recover All</p>
         <div class="share-row" id="result-share">
           <button class="share-btn share-whatsapp" onclick="shareResult('whatsapp')"><i class="fa-brands fa-whatsapp"></i> WhatsApp</button>
@@ -246,11 +248,16 @@
     const LOBBY_CHANNEL = 'chrisco-lobby';
     const state = {
       name: '', icon: 'fa-solid fa-lion', emoji: '🦁', pin: '', hostName: '',
-      myId: '', qIndex: -1,
+      myId: '', deviceId: '', qIndex: -1, settings:{pacing:'host',answerVisibility:'immediate',retries:'allow'},
       channel: null, supabase: null, lobbyChannel: null,
       players: {}, lobbyGames: {}, myAnswer: null, score: 0, phase: 'setup'
     };
     if (!state.myId) state.myId = 'p' + Math.random().toString(36).slice(2, 10);
+    state.deviceId = localStorage.getItem('device_id');
+    if (!state.deviceId) {
+      state.deviceId = window.crypto && crypto.randomUUID ? crypto.randomUUID() : 'dev-' + Math.random().toString(36).slice(2) + '-' + Date.now();
+      localStorage.setItem('device_id', state.deviceId);
+    }
 
     function iconHtml(p) {
       if (p && p.icon) return '<i class="' + p.icon + '"></i>';
@@ -294,7 +301,7 @@
 
     function buildLobbyList() {
       const grid = $('lobby-list');
-      const games = Object.values(state.lobbyGames).flat().filter(g => g && g.pin && g.status !== 'closed');
+      const games = Object.values(state.lobbyGames).flat().filter(g => g && g.pin && g.status !== 'closed' && (g.privacy === 'public' || !g.privacy));
       if (games.length === 0) {
         grid.innerHTML = '<div class="game-tile gt-empty"><i class="fa-solid fa-mug-hot"></i> No games running yet. Ask a host to create one!</div>';
         return;
@@ -324,32 +331,36 @@
     }
 
     function lockInAnswer(choice) {
-      if (state.phase !== 'question' || state.myAnswer !== null) return;
+      if (state.phase !== 'question' || (state.myAnswer !== null && state.settings.retries === 'one')) return;
+      $('q-options').querySelectorAll('.opt').forEach(b => { b.disabled = state.settings.retries === 'one'; b.classList.remove('my-choice'); });
       state.myAnswer = choice;
-      $('q-options').querySelectorAll('.opt').forEach(b => b.disabled = true);
       $('q-options').querySelectorAll('.opt')[choice].classList.add('my-choice');
-      state.channel.send({ type: 'broadcast', event: 'answer', payload: { name: state.name, choice: choice } });
+      state.channel.send({ type: 'broadcast', event: 'answer', payload: { name:state.name, choice, deviceId:state.deviceId, myId:state.myId } });
       $('feedback').className = 'feedback';
-      $('feedback').innerHTML = '<i class="fa-solid fa-lock"></i> Answer locked in. You can move on when ready.';
+      $('feedback').innerHTML = state.settings.retries === 'one' ? '<i class="fa-solid fa-lock"></i> One attempt recorded.' : '<i class="fa-solid fa-rotate"></i> Answer saved. You may change it before the question closes.';
     }
 
     function onQuestion(data) {
       if (!data) return;
       const sameQ = state.qIndex === data.index && state.myAnswer !== null;
+      state.settings = Object.assign({}, state.settings, data.settings || {});
       state.qIndex = data.index;
       state.phase = 'question';
       if (!sameQ) state.myAnswer = null;
       $('q-counter').innerHTML = '<i class="fa-solid fa-list-ol"></i> Question ' + (data.index+1) + ' of ' + data.total;
-      $('player-next-btn').style.display = 'inline-flex'; $('player-next-btn').disabled = false;
+      const selfPaced = state.settings.pacing === 'self';
+      $('player-next-btn').style.display = selfPaced ? 'inline-flex' : 'none'; $('player-next-btn').disabled = false;
+      $('pacing-hint').style.display = selfPaced ? 'none' : 'block';
+      $('pacing-hint').innerHTML = '<i class="fa-solid fa-hourglass-half"></i> Waiting for the host to advance the question.';
       const translated = window.localizeQuestion({q:data.q,options:data.options,explain:''}, (localStorage.getItem('chrisco_lang') || 'en'));
       state.currentQuestion = data.q;
       $('q-text').textContent = translated.q;
       $('q-options').innerHTML = translated.options.map((o,i) => '<button class="opt" data-i="'+i+'"><span class="letter">'+LETTERS[i]+'</span><span>'+esc(o)+'</span></button>').join('');
       $('q-options').querySelectorAll('.opt').forEach(b => b.addEventListener('click', () => lockInAnswer(parseInt(b.dataset.i, 10))));
       if (sameQ) {
-        // keep the locked choice highlighted
-        const locked = $('q-options').querySelector('.opt.my-choice');
+        const locked = $('q-options').querySelectorAll('.opt')[state.myAnswer];
         if (locked) locked.classList.add('my-choice');
+        if (state.settings.retries === 'one') $('q-options').querySelectorAll('.opt').forEach(b=>b.disabled=true);
       }
       $('feedback').innerHTML = '';
       $('q-explain').style.display = 'none';
@@ -358,7 +369,7 @@
     }
 
     function requestNextQuestion() {
-      if (!state.channel || state.phase !== 'question') return;
+      if (!state.channel || !['question','reveal'].includes(state.phase) || state.settings.pacing !== 'self') return;
       const button = $('player-next-btn'); button.disabled = true;
       $('feedback').className = 'feedback';
       $('feedback').innerHTML = '<i class="fa-solid fa-forward-step"></i> Moving to the next question…';
@@ -367,37 +378,46 @@
 
     function onReveal(data) {
       if (!data) return;
-      $('player-next-btn').style.display = 'none';
-      if (state.phase === 'reveal' && state.qIndex === data.index) return; // already applied
+      const canSelfAdvance = state.settings.pacing === 'self';
+      $('player-next-btn').style.display = canSelfAdvance ? 'inline-flex' : 'none'; $('player-next-btn').disabled = false;
+      $('pacing-hint').style.display = canSelfAdvance ? 'none' : 'block';
+      if (!canSelfAdvance) $('pacing-hint').innerHTML = '<i class=\"fa-solid fa-hourglass-half\"></i> Waiting for Host';
+      if (state.phase === 'reveal' && state.qIndex === data.index) return;
       state.phase = 'reveal';
+      const visibility = data.visibility || state.settings.answerVisibility || 'immediate';
       const opts = $('q-options').querySelectorAll('.opt');
-      opts.forEach((b,i) => { if (i === data.correct) b.classList.add('correct'); });
-      if (state.myAnswer === data.correct) {
-        opts[state.myAnswer].classList.add('correct');
-        $('feedback').className = 'feedback good';
-        $('feedback').innerHTML = '<i class="fa-solid fa-circle-check"></i> Correct! +100 points';
-        state.score += 100;
-        const scoreCard = document.querySelector('.score-card'); scoreCard.classList.remove('score-bump'); void scoreCard.offsetWidth; scoreCard.classList.add('score-bump');
-        setTimeout(()=>scoreCard.classList.remove('score-bump'),600);
-      } else if (state.myAnswer !== null) {
-        opts[state.myAnswer].classList.add('wrong');
-        $('feedback').className = 'feedback bad';
-        $('feedback').innerHTML = '<i class="fa-solid fa-circle-xmark"></i> Not quite. The right answer is highlighted.';
+      if (visibility === 'immediate' && Number.isInteger(data.correct)) {
+        opts.forEach((b,i) => { if (i === data.correct) b.classList.add('correct'); });
+        if (state.myAnswer === data.correct) {
+          opts[state.myAnswer].classList.add('correct');
+          $('feedback').className = 'feedback good'; $('feedback').innerHTML = '<i class="fa-solid fa-circle-check"></i> Correct!';
+          const scoreCard = document.querySelector('.score-card'); scoreCard.classList.remove('score-bump'); void scoreCard.offsetWidth; scoreCard.classList.add('score-bump'); setTimeout(()=>scoreCard.classList.remove('score-bump'),600);
+        } else if (state.myAnswer !== null) {
+          opts[state.myAnswer].classList.add('wrong'); $('feedback').className = 'feedback bad'; $('feedback').innerHTML = '<i class="fa-solid fa-circle-xmark"></i> Not correct this time.';
+        } else { $('feedback').className='feedback bad'; $('feedback').innerHTML='<i class="fa-solid fa-clock"></i> Time ran out.'; }
+        const translated = window.localizeQuestion({q:state.currentQuestion || '',options:[],explain:data.explain || ''}, (localStorage.getItem('chrisco_lang') || 'en'));
+        $('q-explain').innerHTML = '<i class="fa-solid fa-circle-info"></i> ' + esc(translated.explain || data.explain); $('q-explain').style.display='block';
       } else {
-        $('feedback').className = 'feedback bad';
-        $('feedback').innerHTML = '<i class="fa-solid fa-clock"></i> Time ran out. The right answer is highlighted.';
+        $('q-explain').style.display='none';
+        $('feedback').className='feedback';
+        $('feedback').innerHTML = visibility === 'never' ? '<i class="fa-solid fa-lock"></i> Answer recorded. Rankings only.' : '<i class="fa-solid fa-check"></i> Answer recorded. Review opens after the game.';
       }
-      const translated = window.localizeQuestion({q:state.currentQuestion || '',options:[],explain:data.explain || ''}, (localStorage.getItem('chrisco_lang') || 'en'));
-      $('q-explain').innerHTML = '<i class="fa-solid fa-circle-info"></i> ' + esc(translated.explain || data.explain);
-      $('q-explain').style.display = 'block';
-      $('my-score').textContent = state.score;
-      if (state.channel) state.channel.track({ name:state.name, icon:state.icon, myId:state.myId, isHost:false, status:'playing', score:state.score });
+      const mine = (data.scores || []).find(x=>x.name===state.name);
+      if (mine) state.score = Number(mine.score)||0;
+      else if (!data.scores && visibility === 'immediate' && state.myAnswer === data.correct) state.score += 100;
+      $('my-score').textContent=state.score;
+      if (state.channel) state.channel.track({ name:state.name, icon:state.icon, myId:state.myId, deviceId:state.deviceId, isHost:false, status:'playing', score:state.score });
       renderScoreboard();
     }
 
     function onEnd(data) {
       state.phase = 'end';
+      const mine = (data && data.scores || []).find(x=>x.name===state.name); if (mine) state.score = Number(mine.score)||0;
       $('final-score').textContent = state.score;
+      const review=$('answer-review');
+      if (state.settings.answerVisibility === 'end' && data && Array.isArray(data.answerKey)) {
+        review.style.display='block'; review.innerHTML='<h3>Answer Review</h3>'+data.answerKey.map((q,i)=>'<section style="margin:.8rem 0;padding:.7rem;border-radius:10px;background:#f4f5fa;"><strong>Question '+(i+1)+': '+esc(q.q)+'</strong><p>'+esc(q.options[q.correct])+'</p><small>'+esc(q.explain)+'</small></section>').join('');
+      } else { review.style.display='none'; review.innerHTML=''; }
       if (data && data.winner) {
         $('winner-banner').style.display = 'block';
         $('winner-banner').innerHTML = data.winner === state.name ? '<i class="fa-solid fa-trophy"></i> You win! Pursue Overtake Recover All!' : '<i class="fa-solid fa-trophy"></i> ' + esc(data.winner) + ' wins!';
@@ -474,12 +494,14 @@
         .on('broadcast', { event: 'end' }, (payload) => onEnd(payload.payload))
         .on('broadcast', { event: 'sync' }, (payload) => onSync(payload.payload))
         .on('broadcast', { event: 'reset' }, () => { qStatus('<i class="fa-solid fa-rotate"></i> New round ready. Get ready for the next question!', 'warn'); showScreen('question'); })
+        .on('broadcast', { event: 'device-rejected' }, (payload) => { if(payload.payload && payload.payload.to===state.myId) leaveRoom(payload.payload.message || 'This device is already in the room.'); })
+        .on('broadcast', { event: 'answer-rejected' }, (payload) => { if(payload.payload && payload.payload.to===state.myId) { $('feedback').textContent=payload.payload.message || 'Answer rejected.'; } })
         .on('broadcast', { event: 'close' }, (payload) => {
           leaveRoom((payload.payload && payload.payload.message) || 'Host closed this game.');
         })
         .subscribe(async (status) => {
           if (status === 'SUBSCRIBED') {
-            await state.channel.track({ name: state.name, icon: state.icon, myId: state.myId, isHost: false, status: 'lobby', score: 0 });
+            await state.channel.track({ name: state.name, icon: state.icon, myId: state.myId, deviceId:state.deviceId, isHost: false, status: 'lobby', score: 0 });
             $('player-pin-bar').textContent = state.pin;
             // Play immediately: no waiting lobby. Ask the host for the current question.
             qStatus('<i class="fa-solid fa-spinner fa-spin"></i> Getting the current question...', 'warn');
@@ -500,17 +522,18 @@
 
     function onSync(data) {
       if (!data || data.to !== state.myId) return;
+      state.settings = Object.assign({}, state.settings, data.settings || {});
       if (data.phase === 'question') {
         onQuestion({ index: data.index, total: data.total, q: data.q, options: data.options, seconds: data.seconds });
         qStatus('<i class="fa-solid fa-circle-check"></i> You are live. Answer now!', 'ok');
       } else if (data.phase === 'reveal') {
         onQuestion({ index: data.index, total: data.total, q: data.q, options: data.options, seconds: data.seconds });
-        onReveal({ index: data.index, correct: data.correct, explain: data.explain });
+        onReveal({ index:data.index, correct:data.correct, explain:data.explain, visibility:data.settings && data.settings.answerVisibility, scores:data.scores });
         qStatus('<i class="fa-solid fa-circle-info"></i> Answer revealed. Next question coming.', 'ok');
       } else if (data.phase === 'end') {
         const mine = (data.scores || []).find(s => s.name === state.name);
         if (mine) state.score = mine.score || 0;
-        onEnd({ winner: data.winner });
+        onEnd(data);
       } else {
         qStatus('<i class="fa-solid fa-hourglass-half"></i> Waiting for the host to start the next question...', 'warn');
         showScreen('question');
@@ -523,7 +546,7 @@
       state.players = {};
       state.pin = '';
       state.name = '';
-      $('name-input').value = '';
+      $('name-input').value = localStorage.getItem('chrisco_nickname') || '';
       $('pin-input').value = '';
       setupStatus('<i class="fa-solid fa-circle-info"></i> ' + esc(message || 'Left the room.'), '');
       showScreen('setup');

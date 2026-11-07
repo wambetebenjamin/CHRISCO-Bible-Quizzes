@@ -165,6 +165,11 @@
     .final-card .trophy { font-size: 3rem; color: var(--yellow); margin-bottom: 1rem; }
     footer { text-align: center; padding: 1.5rem 1rem 2rem; color: #888; font-size: 0.8rem; }
 
+    .settings-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:.8rem; margin-top:.7rem; }
+    .settings-grid label { display:flex; flex-direction:column; gap:.35rem; font-size:.9rem; font-weight:700; }
+    .settings-grid select,.settings-grid input { min-width:0; padding:.65rem .7rem; border-radius:9px; border:1px solid rgba(255,255,255,.6); font:inherit; color:#222; background:#fff; }
+    .settings-panel h3 { margin-bottom:.45rem; }
+    .settings-panel p { margin:.4rem 0; }
     @media (max-width: 600px) { .topbar-inner { flex-wrap: wrap; } .card { padding: 1.4rem 1.2rem; } .pin-display { letter-spacing: 4px; padding: 0.7rem; } .question-card { padding: 1.4rem 1.1rem; } .lobby-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
@@ -202,6 +207,28 @@
             <button class="mode-card mc-recover" id="mode-recover" onclick="selectMode('recover')"><div><div class="mc-icon"><i class="fa-solid fa-shield-halved"></i></div><h3>Recover All</h3><p>10 rounds, 20s each.</p></div></button>
             <button class="mode-card mc-beauty" id="mode-beauty" onclick="selectMode('beauty')"><div><div class="mc-icon"><i class="fa-solid fa-dove"></i></div><h3>Beauty for Ashes</h3><p>10 rounds, 20s each.</p></div></button>
           </div>
+        </div>
+        <div class="settings-panel" style="margin:1.2rem 0;padding:1rem;border-radius:14px;background:rgba(255,255,255,.12);">
+          <h3><i class="fa-solid fa-sliders"></i> Game Settings</h3>
+          <div class="settings-grid">
+            <label>Pacing<select id="setting-pacing"><option value="host">Host-Controlled</option><option value="self">Self-Paced (Auto)</option></select></label>
+            <label>Answer Visibility<select id="setting-visibility"><option value="immediate">Immediate</option><option value="end">End of Game</option><option value="never">Never (Rankings Only)</option></select></label>
+            <label>Time Limit<select id="setting-timer"><option value="10">10 seconds</option><option value="15">15 seconds</option><option value="20" selected>20 seconds</option><option value="30">30 seconds</option><option value="45">45 seconds</option><option value="60">60 seconds</option></select></label>
+            <label>Retries<select id="setting-retries"><option value="allow">Allow Retries</option><option value="one">One Attempt Only</option></select></label>
+            <label>Privacy<select id="setting-privacy"><option value="private">Private (PIN only)</option><option value="public">Public (List on Dashboard)</option></select></label>
+          </div>
+        </div>
+        <div class="settings-panel" style="margin:1.2rem 0;padding:1rem;border-radius:14px;background:rgba(255,255,255,.12);">
+          <h3><i class="fa-solid fa-wand-magic-sparkles"></i> Tool Assisted Content Analysis</h3>
+          <p>Choose a source, add a topic or source link, then deduce a short reasoning quiz.</p>
+          <div class="settings-grid">
+            <label>Input Type<select id="content-type"><option value="topic">Topic</option><option value="link">Web Link</option><option value="video">Video Link</option><option value="document">Document</option></select></label>
+            <label>Topic or Link<input id="content-source" type="text" placeholder="Example: Wisdom and courage in Esther" /></label>
+            <label>Document<input id="content-document" type="file" accept=".doc,.docx,.txt,.pdf" /></label>
+          </div>
+          <button id="deduce-quiz-btn" type="button" class="btn btn--purple" style="margin-top:.7rem;"><i class="fa-solid fa-wand-magic-sparkles"></i> Deduce Quiz</button>
+          <span id="deduce-status" role="status" style="margin-left:.6rem;"></span>
+          <pre id="deduced-preview" style="display:none;max-height:220px;overflow:auto;margin-top:.8rem;padding:.8rem;border-radius:10px;background:#10162b;color:#d7f5db;"></pre>
         </div>
         <button id="create-game-btn" class="btn btn--yellow btn--large btn--block"><i class="fa-solid fa-plus"></i> Create New Game</button>
         <p style="margin-top:1rem;font-size:0.85rem;opacity:0.85;"><i class="fa-solid fa-info-circle"></i> Games use the David Quiz (1 Samuel 30:8) or the Beauty for Ashes quiz (Isaiah 61:1 to 3 teaching).</p>
@@ -272,11 +299,11 @@
     const LETTERS = ['A','B','C','D'];
     const LOBBY_CHANNEL = 'chrisco-lobby';
     const state = {
-      hostName: 'Host', hostIcon: 'fa-solid fa-lion', hostId: '', pin: '', mode: 'pursue',
+      hostName: localStorage.getItem('chrisco_host_nickname') || 'Host', hostIcon: 'fa-solid fa-lion', hostId: '', hostToken: '', pin: '', mode: 'pursue',
       lobbyChannel: null, gameChannel: null, supabase: null,
-      players: {}, lobbyGames: {},
-      questions: [], qIndex: 0, phase: 'setup',
-      timer: null, timeLeft: 0, answers: {}, revealed: false,
+      players: {}, lobbyGames: {}, settings: { pacing:'host', answerVisibility:'immediate', timerSeconds:20, retries:'allow', privacy:'private' },
+      questions: [], questionsOverride: null, qIndex: 0, phase: 'setup',
+      timer: null, timeLeft: 0, answers: {}, attemptedDevices: {}, revealed: false,
       currentQ: null, winner: null
     };
     if (!state.hostId) state.hostId = 'h' + Math.random().toString(36).slice(2, 10);
@@ -327,6 +354,9 @@
       state.mode = mode;
       document.querySelectorAll('.mode-card').forEach(el => el.classList.remove('selected'));
       $('mode-' + mode).classList.add('selected');
+    }
+    function readSettings() {
+      return { pacing:$('setting-pacing').value, answerVisibility:$('setting-visibility').value, timerSeconds:Number($('setting-timer').value), retries:$('setting-retries').value, privacy:$('setting-privacy').value };
     }
 
     function buildPlayerList() {
@@ -390,19 +420,41 @@
         : (state.phase === 'end' ? 'lobby' : (state.phase === 'lobby' ? 'lobby' : 'playing'));
       state.lobbyChannel.track({
         name: state.hostName, icon: state.hostIcon, hostId: state.hostId,
-        pin: state.pin || '', mode: state.mode, status: status,
+        pin: state.pin || '', mode: state.mode, status: status, privacy:state.settings.privacy, settings:state.settings,
         players: Object.values(state.players).flat().filter(p => p && !p.isHost).map(p => p.name),
         isHost: true
       });
     }
 
+    function deduceQuiz() {
+      const btn = $('deduce-quiz-btn'), status = $('deduce-status'), preview = $('deduced-preview');
+      const type = $('content-type').value;
+      const doc = $('content-document').files[0];
+      const source = $('content-source').value.trim() || (doc ? doc.name : 'Bible wisdom and faithful choices');
+      state.questionsOverride = null;
+      btn.disabled = true; preview.style.display = 'none'; status.textContent = 'Analyzing ' + type + ' source: ' + source + '…';
+      setTimeout(() => {
+        state.questionsOverride = [
+          {q:'In Jesus’ parable, why did the Samaritan’s actions define true neighborly love?',options:['He had a duty to protect his reputation','He showed costly compassion across a social boundary','He expected a reward from the injured man','He followed a request from the priest'],correct:1,explain:'The Samaritan crossed a social boundary and spent his own time and resources to care for a stranger.'},
+          {q:'James says faith without works is dead. Which response best demonstrates that principle?',options:['Agreeing that generosity is important','Waiting until someone asks for help','Providing practical help to a person in need','Explaining why another person should help'],correct:2,explain:'James connects genuine faith with practical action that meets a real need.'},
+          {q:'A leader receives advice that challenges their first plan. Which response best reflects biblical wisdom?',options:['Listen carefully, test the counsel, and seek understanding','Reject it immediately to appear decisive','Accept it without considering the evidence','Ignore the adviser and repeat the original plan'],correct:0,explain:'Proverbs commends listening to counsel and seeking wisdom rather than reacting from pride or haste.'}
+        ];
+        preview.textContent = JSON.stringify(state.questionsOverride, null, 2); preview.style.display = 'block';
+        status.textContent = 'Three reasoning questions are ready and will be used for the next room.'; btn.disabled = false;
+      }, 3000);
+    }
+
     function createGame() {
       const name = $('host-name').value.trim() || 'Host';
       state.hostName = name;
+      localStorage.setItem('chrisco_host_nickname', name);
+      state.settings = readSettings();
+      state.hostToken = localStorage.getItem('host_token') || (window.crypto && crypto.randomUUID ? crypto.randomUUID() : 'ht-' + Math.random().toString(36).slice(2) + Date.now());
+      localStorage.setItem('host_token', state.hostToken);
       if (!state.hostId) state.hostId = 'h' + Math.random().toString(36).slice(2, 10);
 
       // Names cannot be repeated: reject if another host already runs a game with this name
-      const conflict = Object.values(state.lobbyGames).some(g =>
+      const conflict = Object.values(state.lobbyGames).flat().some(g => g &&
         g.name && g.name.toLowerCase() === name.toLowerCase() && g.status !== 'closed' && g.hostId !== state.hostId);
       if (conflict) {
         alert('That name is already used by a running game. Pick a different name so hosts stay unique.');
@@ -426,23 +478,28 @@
           state.players = state.gameChannel.presenceState();
           buildPlayerList(); updateLobbyPresence();
           // New players join: send them the current game state so they can play immediately
-          const newPlayers = Object.values(payload.events.joins || {}).filter(j => !j.isHost);
-          if (newPlayers.length) {
+          const newPlayers = Object.values(payload.events.joins || {}).flat().filter(j => j && !j.isHost);
+          const accepted = newPlayers.filter(j => {
+            if (state.settings.retries !== 'one' || !j.deviceId) return true;
+            const duplicate = Object.values(state.players).flat().some(p => p && !p.isHost && p.deviceId === j.deviceId && p.myId !== j.myId);
+            if (duplicate) state.gameChannel.send({type:'broadcast',event:'device-rejected',payload:{to:j.myId,message:'Only one player per device is allowed in this game.'}});
+            return !duplicate;
+          });
+          if (accepted.length) {
             if (state.phase === 'lobby') { startGame(); return; } // never let players wait: auto-start
-            newPlayers.forEach(j => sendSync(j.myId));
+            accepted.forEach(j => sendSync(j.myId));
           }
         })
-        .on('broadcast', { event: 'answer' }, (payload) => { handleAnswer(payload.payload); })
+        .on('broadcast', { event: 'answer' }, (payload) => { const a=payload.payload; if (!handleAnswer(a) && a && a.myId) state.gameChannel.send({type:'broadcast',event:'answer-rejected',payload:{to:a.myId,message:'This device has already submitted an answer.'}}); })
         .on('broadcast', { event: 'advance-request' }, () => {
-          if (state.phase === 'question' && !state.revealed) {
-            revealAnswer();
-            setTimeout(() => { if (state.phase === 'question' && state.revealed) nextQuestion(); }, 2500);
-          }
+          if (state.settings.pacing !== 'self') return;
+          if (state.phase === 'reveal') nextQuestion();
+          else if (state.phase === 'question') revealAnswer();
         })
         .on('broadcast', { event: 'sync-request' }, (payload) => { if (payload.payload && payload.payload.myId) sendSync(payload.payload.myId); })
         .subscribe(async (status) => {
           if (status === 'SUBSCRIBED') {
-            await state.gameChannel.track({ name: state.hostName, icon: state.hostIcon, hostId: state.hostId, isHost: true, status: 'lobby', score: 0, mode: state.mode });
+            await state.gameChannel.track({ name: state.hostName, icon: state.hostIcon, hostId: state.hostId, isHost: true, status: 'lobby', score: 0, mode: state.mode, settings:state.settings });
             // Start immediately: no waiting lobby. Host shares the PIN from the game bar.
             startGame();
           } else if (status === 'CHANNEL_ERROR' || status === 'CHANNEL_CLOSED') {
@@ -465,12 +522,13 @@
           total: state.questions.length,
           q: cur ? cur.q : null,
           options: cur ? cur.options : [],
-          correct: cur ? cur.correct : null,
-          explain: cur ? cur.explain : null,
+          correct: cur && state.settings.answerVisibility === 'immediate' ? cur.correct : null,
+          explain: cur && state.settings.answerVisibility === 'immediate' ? cur.explain : null,
           seconds: state.timeLeft,
           scores: scores,
           winner: state.winner || null,
-          mode: state.mode
+          answerKey: state.phase === 'end' && state.settings.answerVisibility === 'end' ? state.questions.map(q=>({q:q.q,options:q.options,correct:q.correct,explain:q.explain})) : undefined,
+          mode: state.mode, settings:state.settings
         }
       });
     }
@@ -493,11 +551,12 @@
     function startGame() {
       if (!state.gameChannel || state.phase === 'question' || state.phase === 'reveal') return;
       const cfg = window.CHRISCO_MODES[state.mode];
-      state.questions = window.pickQuestions(state.mode, cfg.rounds);
+      state.questions = state.questionsOverride ? state.questionsOverride.slice() : window.pickQuestions(state.mode, cfg.rounds);
+      state.questionsOverride = null;
       state.qIndex = 0; state.phase = 'question'; state.answers = {}; state.revealed = false; state.winner = null;
       Object.values(state.players).flat().filter(p => p && !p.isHost).forEach(p => { p.score = 0; p.answered = false; p.answer = null; });
       renderScores();
-      state.gameChannel.send({ type: 'broadcast', event: 'start', payload: { mode: state.mode, rounds: state.questions.length, name: cfg.name } });
+      state.gameChannel.send({ type: 'broadcast', event: 'start', payload: { mode: state.mode, rounds: state.questions.length, name: cfg.name, settings:state.settings } });
       showScreen('question');
       showQuestion();
       updateLobbyPresence();
@@ -506,6 +565,7 @@
     function showQuestion() {
       const q = state.questions[state.qIndex];
       state.currentQ = { q: q.q, options: q.options, correct: q.correct, explain: q.explain };
+      state.attemptedDevices = {};
       $('q-counter').innerHTML = '<i class="fa-solid fa-list-ol"></i> Question ' + (state.qIndex+1) + ' of ' + state.questions.length;
       const localized = window.localizeQuestion(q, (localStorage.getItem('chrisco_lang') || 'en'));
       $('q-text').textContent = localized.q;
@@ -514,23 +574,25 @@
       $('reveal-btn').style.display = 'block';
       $('reveal-btn').innerHTML = '<i class="fa-solid fa-eye"></i> Reveal Answer';
       state.revealed = false;
-      state.timeLeft = window.CHRISCO_MODES[state.mode].seconds;
+      state.timeLeft = state.settings.timerSeconds;
       $('timer-num').innerHTML = '<i class="fa-solid fa-clock"></i> ' + state.timeLeft + 's';
       $('timer-fill').style.width = '100%';
-      state.gameChannel.send({ type: 'broadcast', event: 'question', payload: { index: state.qIndex, total: state.questions.length, q: q.q, options: q.options, seconds: state.timeLeft } });
+      state.gameChannel.send({ type: 'broadcast', event: 'question', payload: { index: state.qIndex, total: state.questions.length, q: q.q, options: q.options, seconds: state.timeLeft, settings:state.settings } });
       clearInterval(state.timer);
-      state.timer = setInterval(tickTimer, 1000);
+      if (state.timeLeft > 0) state.timer = setInterval(tickTimer, 1000); else $('timer-num').innerHTML = '<i class="fa-solid fa-infinity"></i> No timer';
     }
 
     function tickTimer() {
       state.timeLeft--;
       $('timer-num').innerHTML = '<i class="fa-solid fa-clock"></i> ' + Math.max(0,state.timeLeft) + 's';
-      $('timer-fill').style.width = Math.max(0, state.timeLeft / window.CHRISCO_MODES[state.mode].seconds * 100) + '%';
+      $('timer-fill').style.width = Math.max(0, state.timeLeft / Math.max(1,state.settings.timerSeconds) * 100) + '%';
       if (state.timeLeft <= 0) { clearInterval(state.timer); revealAnswer(); }
     }
 
     function revealAnswer() {
+      if (state.phase !== 'question' || state.revealed) return;
       clearInterval(state.timer);
+      state.phase = 'reveal';
       const q = state.questions[state.qIndex];
       $('q-options').querySelectorAll('.opt').forEach((b,i) => { if (i === q.correct) b.classList.add('correct'); });
       const localized = window.localizeQuestion(q, (localStorage.getItem('chrisco_lang') || 'en'));
@@ -538,9 +600,11 @@
       $('q-explain').style.display = 'block';
       $('reveal-btn').innerHTML = '<i class="fa-solid fa-arrow-right"></i> Next Question';
       state.revealed = true;
-      Object.values(state.players).flat().filter(p => p && !p.isHost).forEach(p => { if (p.answered && p.answer === q.correct) p.score = (p.score||0) + 100; p.answered = false; p.answer = null; });
+      Object.values(state.players).flat().filter(p => p && !p.isHost).forEach(p => { if (state.answers[p.deviceId || p.name] === q.correct) p.score = (p.score||0) + 100; p.answered = false; p.answer = null; });
       renderScores();
-      state.gameChannel.send({ type: 'broadcast', event: 'reveal', payload: { index: state.qIndex, correct: q.correct, explain: q.explain } });
+      const visibility = state.settings.answerVisibility;
+      const scores = Object.values(state.players).flat().filter(p => p && !p.isHost).map(p => ({name:p.name,score:p.score||0}));
+      state.gameChannel.send({ type: 'broadcast', event: 'reveal', payload: { index: state.qIndex, correct: visibility === 'immediate' ? q.correct : null, explain: visibility === 'immediate' ? q.explain : null, visibility, scores } });
       updateLobbyPresence();
     }
 
@@ -561,22 +625,31 @@
       $('end-sub').innerHTML = 'Theme: <strong>1 Samuel 30:8 Pursue Overtake Recover All</strong>';
       $('end-scores').innerHTML = all.map((p,i) => '<div class="score-row' + (i===0?' winner':'') + '"><span class="pavatar">' + iconHtml(p) + '</span><span class="pname">' + esc(p.name) + '</span><span class="pscore">' + (p.score||0) + '</span></div>').join('');
       $('end-trophy').innerHTML = winner ? '<i class="fa-solid fa-trophy"></i> ' + esc(winner.name) + ' wins!' : '<i class="fa-solid fa-trophy"></i>';
-      state.gameChannel.send({ type: 'broadcast', event: 'end', payload: { winner: winner ? winner.name : null } });
+      const answerKey = state.settings.answerVisibility === 'end' ? state.questions.map(q=>({q:q.q,options:q.options,correct:q.correct,explain:q.explain})) : undefined;
+      state.gameChannel.send({ type: 'broadcast', event: 'end', payload: { winner: winner ? winner.name : null, scores:all.map(p=>({name:p.name,score:p.score||0})), answerKey } });
       updateLobbyPresence();
       showScreen('end');
     }
 
     function handleAnswer(a) {
-      if (!a || state.phase !== 'question') return;
-      state.answers[a.name] = a.choice;
-      const player = Object.values(state.players).flat().find(p => p && p.name === a.name && !p.isHost);
+      if (!a || state.phase !== 'question' || !Number.isInteger(a.choice) || a.choice < 0 || a.choice > 3) return false;
+      const key = a.deviceId || a.name;
+      if (state.settings.retries === 'one') {
+        if (!a.deviceId || state.attemptedDevices[a.deviceId]) return false;
+        state.attemptedDevices[a.deviceId] = true;
+      }
+      state.answers[key] = a.choice;
+      const player = Object.values(state.players).flat().find(p => p && !p.isHost && (a.deviceId ? p.deviceId === a.deviceId : p.name === a.name));
       if (player) { player.answered = true; player.answer = a.choice; }
+      if (state.settings.answerVisibility === 'immediate' && !state.revealed) revealAnswer();
+      return true;
     }
 
     document.addEventListener('DOMContentLoaded', () => {
+      $('host-name').value = localStorage.getItem('chrisco_host_nickname') || '';
+      $('deduce-quiz-btn').addEventListener('click', deduceQuiz);
       const hash = window.location.hash.replace('#','');
-      if (['pursue','overtake','recover','beauty'].includes(hash)) selectMode(hash);
-      selectMode('pursue');
+      selectMode(['pursue','overtake','recover','beauty'].includes(hash) ? hash : 'pursue');
       renderIconPicker();
 
       $('create-game-btn').addEventListener('click', createGame);
