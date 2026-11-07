@@ -5,6 +5,8 @@ const { createClient } = require('@supabase/supabase-js');
 
 const hostName = process.env.AUTO_HOST_NAME || 'Presbyter David Kirui';
 const hostId = 'chrisco-presbyter-david-kirui';
+const persistentPin = '777777';
+const lobbyName = 'global-lobby';
 const gameSettings = { pacing:'self', answerVisibility:'immediate', timerSeconds:20, retries:'allow', privacy:'public' };
 const state = { status: 'starting', pin: null, phase: 'offline', connectedAt: null, error: null };
 let lobbyChannel, gameChannel, timer, client;
@@ -31,8 +33,8 @@ function send(event, payload) {
 function publicPlayers() { return flattenPresence(players).filter(p => !p.isHost); }
 async function updateLobby() {
   if (!lobbyChannel || !state.pin) return;
-  const status = phase === 'question' || phase === 'reveal' ? 'playing' : 'lobby';
-  await lobbyChannel.track({ name: hostName, icon: 'fa-solid fa-dove', hostId, pin: state.pin, mode: 'beauty', status, privacy:'public', settings:gameSettings, players: publicPlayers().map(p => p.name), isHost: true });
+  const status = phase === 'question' || phase === 'reveal' ? 'PLAYING' : 'LOBBY';
+  await lobbyChannel.track({ isPublic:true, name:'Beauty for Ashes', hostName, icon:'fa-solid fa-dove', hostId, pin:state.pin, mode:'beauty', status, privacy:'public', settings:gameSettings, players:publicPlayers().map(p => p.name), isHost:true });
   state.phase = phase;
 }
 function currentQuestion() { return questions[questionIndex] || null; }
@@ -91,15 +93,22 @@ async function finishQuiz() {
 }
 
 function startAutoHost() {
-  const url = process.env.SUPABASE_URL;
-  const key = process.env.SUPABASE_ANON_KEY;
+  let fallback = {};
+  try {
+    const source = fs.readFileSync(path.join(__dirname, 'public', 'config.js'), 'utf8');
+    const urlMatch = source.match(/SUPABASE_URL\s*=\s*['\"]([^'\"]+)['\"]/);
+    const keyMatch = source.match(/SUPABASE_ANON_KEY\s*=\s*['\"]([^'\"]+)['\"]/);
+    fallback = { url:urlMatch && urlMatch[1], key:keyMatch && keyMatch[1] };
+  } catch (_) {}
+  const url = process.env.SUPABASE_URL || fallback.url;
+  const key = process.env.SUPABASE_ANON_KEY || fallback.key;
   if (!url || !key) {
     state.status = 'disabled'; state.error = 'Set SUPABASE_URL and SUPABASE_ANON_KEY to enable the persistent auto host.';
     console.warn(state.error); return;
   }
   state.status = 'connecting';
   client = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
-  lobbyChannel = client.channel('chrisco-lobby', { config: { presence: { key: hostId } } })
+  lobbyChannel = client.channel(lobbyName, { config: { presence: { key: hostId } } })
     .on('presence', { event: 'SYNC' }, payload => { state.lobbyPresence = payload.presence || {}; })
     .subscribe(async status => {
       if (status !== 'SUBSCRIBED') {
@@ -121,9 +130,9 @@ function startAutoHost() {
         retryTakeover();
         return;
       }
-      state.pin = String(Math.floor(10000 + Math.random() * 90000));
+      state.pin = persistentPin;
       phase = 'lobby';
-      await lobbyChannel.track({ name: hostName, icon: 'fa-solid fa-dove', hostId, pin: state.pin, mode: 'beauty', status: 'lobby', privacy:'public', settings:gameSettings, players: [], isHost: true });
+      await lobbyChannel.track({ isPublic:true, name:'Beauty for Ashes', hostName, icon:'fa-solid fa-dove', hostId, pin:state.pin, mode:'beauty', status:'LOBBY', privacy:'public', settings:gameSettings, players:[], isHost:true });
       gameChannel = client.channel('quiz-' + state.pin, { config: { presence: { key: hostId } } })
         .on('presence', { event: 'SYNC' }, payload => { players = payload.presence || {}; updateLobby(); if (phase === 'lobby' && publicPlayers().length) startQuiz(); })
         .on('presence', { event: 'CHANGES' }, payload => {
@@ -143,7 +152,7 @@ function startAutoHost() {
         .subscribe(async gameStatus => {
           if (gameStatus === 'SUBSCRIBED') {
             await gameChannel.track({ name: hostName, icon: 'fa-solid fa-dove', hostId, isHost: true, status: 'lobby', score: 0, mode: 'beauty', settings:gameSettings });
-            state.status = 'ready'; state.phase = phase; console.log('Persistent Beauty for Ashes room ready:', state.pin);
+            state.status = 'ready'; state.phase = phase; console.log('Persistent Beauty for Ashes room ready at PIN ' + state.pin);
             await updateLobby();
           } else if (gameStatus === 'CHANNEL_ERROR' || gameStatus === 'TIMED_OUT' || gameStatus === 'CLOSED') {
             state.status = 'error'; state.error = 'Supabase game connection: ' + gameStatus;
