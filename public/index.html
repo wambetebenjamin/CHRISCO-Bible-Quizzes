@@ -386,14 +386,12 @@
           <button id="lobby-join-pin-btn" class="btn btn--green"><i class="fa-solid fa-right-to-bracket"></i> Join Game</button>
         </div>
       </section>
-      <section class="dashboard-panel" aria-labelledby="open-games-heading">
-        <h3 id="open-games-heading"><i class="fa-solid fa-earth-africa"></i> Live Open Games</h3>
-        <p>Public rooms currently accepting players.</p>
-        <div class="lobby-live-banner" id="lobby-live-banner" style="display:none;">
-          <div><div class="llb-title"><i class="fa-solid fa-circle-pulse"></i> Beauty for Ashes Live Game</div><div class="llb-sub">Hosted by Presbyter David Kirui</div></div>
-          <div class="lobby-live-actions"><div class="llb-pin" id="lobby-live-pin">----</div><a class="btn btn--yellow lobby-live-join" id="lobby-live-join" href="player.html?pin=777777" onclick="window.location.href = 'player.html?pin=777777';"><i class="fa-solid fa-right-to-bracket"></i> <span data-i18n="join_now">Join Now</span></a></div>
-        </div>
-        <div class="lobby-grid" id="lobby-list"><div class="game-tile gt-empty"><i class="fa-solid fa-hourglass-half"></i> No public games are running right now.</div></div>
+      <section class="dashboard-panel open-games-section" aria-labelledby="open-games-heading" style="margin-top:2rem;padding:1rem;background:#f3f4f6;border-radius:8px;text-align:center;">
+        <h3 id="open-games-heading" data-i18n="live_open_title">Live Open Games</h3>
+        <p data-i18n="live_public_description">Join the 24/7 public room instantly.</p>
+        <button type="button" onclick="window.location.href='player.html?pin=777777'" data-i18n="live_public_cta" style="background:#2563eb;color:white;padding:15px 30px;font-size:1.2rem;border:none;border-radius:8px;cursor:pointer;font-weight:bold;width:100%;max-width:400px;">
+          JOIN LIVE: Beauty for Ashes
+        </button>
       </section>
     </div>
   </section>

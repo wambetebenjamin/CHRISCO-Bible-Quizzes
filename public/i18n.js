@@ -1860,6 +1860,26 @@ const CHRISCO_UI_ES = {
 
 const CHRISCO_UI = Object.assign({}, CHRISCO_UI_EN, { en: CHRISCO_UI_EN, sw: CHRISCO_UI_SW, ki: CHRISCO_UI_KI, luo: CHRISCO_UI_LUO, luh: CHRISCO_UI_LUH, kln: CHRISCO_UI_KLN, am: CHRISCO_UI_AM, om: CHRISCO_UI_OM, so: CHRISCO_UI_SO, ti: CHRISCO_UI_TI, fr: CHRISCO_UI_FR, ar: CHRISCO_UI_AR, pt: CHRISCO_UI_PT, es: CHRISCO_UI_ES });
 
+const CHRISCO_UI_LIVE_ROOM = {
+  en: { live_open_title: 'Live Open Games', live_public_description: 'Join the 24/7 public room instantly.', live_public_cta: 'JOIN LIVE: Beauty for Ashes' },
+  sw: { live_open_title: 'Michezo ya Wazi Mubashara', live_public_description: 'Jiunge na chumba cha umma cha saa zote mara moja.', live_public_cta: 'JIUNGE LIVE: Beauty for Ashes' },
+  ki: { live_open_title: 'Mĩcemanio ya Kũhingũrwo Rĩu', live_public_description: 'Ingia rũũĩ rwa andũ othe rũrĩa rũrĩ o rĩu.', live_public_cta: 'INGIRA LIVE: Beauty for Ashes' },
+  luo: { live_open_title: 'Odi Magol e Wenge', live_public_description: 'Donji e ot mar jogo duto sani, odiechieng kod otieno.', live_public_cta: 'DONJ LIVE: Beauty for Ashes' },
+  luh: { live_open_title: 'Emizanyo Ekhulukhulu', live_public_description: 'Ingira muumba gwa abantu boonye enyinga chiona.', live_public_cta: 'INGIRA LIVE: Beauty for Ashes' },
+  kln: { live_open_title: 'Tugulab Too', live_public_description: 'Konyit ne kibagenge nebo somok che kirowe tugul.', live_public_cta: 'INGI LIVE: Beauty for Ashes' },
+  am: { live_open_title: 'በቀጥታ የሚገኙ ጨዋታዎች', live_public_description: 'በየቀኑ 24 ሰዓት ወደሚከፈተው የሕዝብ ጨዋታ ወዲያውኑ ይቀላቀሉ።', live_public_cta: 'በቀጥታ ይቀላቀሉ፦ Beauty for Ashes' },
+  om: { live_open_title: 'Taphoota Banaawaa Kallattii', live_public_description: 'Gara kutaa uummataa sa’aatii 24/7 banamaa ta’etti battalumatti makamaa.', live_public_cta: 'KALLATTIIN MAKAMAA: Beauty for Ashes' },
+  so: { live_open_title: 'Ciyaaraha Tooska ah ee Furan', live_public_description: 'Isla markiiba ku biir qolka dadweynaha ee furan habeen iyo maalin.', live_public_cta: 'TOOS U SOO GAL: Beauty for Ashes' },
+  ti: { live_open_title: 'ብቐጥታ ክፉታት ጸወታታት', live_public_description: 'ኣብ ዝኾነ ሰዓት ናብ ክፉት ናይ ህዝቢ ክፍሊ ብቕጽበት ተጸንበሩ።', live_public_cta: 'ብቐጥታ ተጸንበሩ፦ Beauty for Ashes' },
+  fr: { live_open_title: 'Parties publiques en direct', live_public_description: 'Rejoignez immédiatement le salon public ouvert 24 h/24 et 7 j/7.', live_public_cta: 'REJOINDRE EN DIRECT : Beauty for Ashes' },
+  ar: { live_open_title: 'الألعاب العامة المباشرة', live_public_description: 'انضم فورًا إلى الغرفة العامة المتاحة على مدار الساعة.', live_public_cta: 'انضم مباشرةً: Beauty for Ashes' },
+  pt: { live_open_title: 'Jogos públicos ao vivo', live_public_description: 'Entre agora na sala pública disponível 24 horas por dia.', live_public_cta: 'ENTRAR AO VIVO: Beauty for Ashes' },
+  es: { live_open_title: 'Juegos públicos en vivo', live_public_description: 'Únete al instante a la sala pública disponible las 24 horas.', live_public_cta: 'UNIRSE EN VIVO: Beauty for Ashes' }
+};
+Object.keys(CHRISCO_UI_LIVE_ROOM).forEach(function (lang) {
+  Object.assign(CHRISCO_UI[lang], CHRISCO_UI_LIVE_ROOM[lang]);
+});
+
 
 
 window.CHRISCO_LANGS = CHRISCO_LANGS;
