@@ -188,8 +188,8 @@
     <div class="screen active" id="setup-screen">
       <div class="card card--blue">
         <div class="status-pill" id="status-pill"><i class="fa-solid fa-spinner fa-spin"></i> Setting up your game room...</div>
-        <h2><i class="fa-solid fa-user-tie"></i> Host a Game</h2>
-        <p>Enter your name, pick a mode, and create a game. Share the PIN so friends can join.</p>
+        <h2><i class="fa-solid fa-user-tie"></i> Create a Custom Private Game</h2>
+        <p>Choose a quiz mode or prepare custom source based questions, then create a private PIN room. Share the PIN so players can join.</p>
         <div class="field">
           <label for="host-name">Your Name</label>
           <input type="text" class="name-input" id="host-name" placeholder="e.g. Pastor David" maxlength="16" autocomplete="off" />
@@ -215,7 +215,7 @@
             <label>Answer Visibility<select id="setting-visibility"><option value="immediate">Immediate</option><option value="end">End of Game</option><option value="never">Never (Rankings Only)</option></select></label>
             <label>Time Limit<select id="setting-timer"><option value="10">10 seconds</option><option value="15">15 seconds</option><option value="20" selected>20 seconds</option><option value="30">30 seconds</option><option value="45">45 seconds</option><option value="60">60 seconds</option></select></label>
             <label>Retries<select id="setting-retries"><option value="allow">Allow Retries</option><option value="one">One Attempt Only</option></select></label>
-            <label>Privacy<select id="setting-privacy"><option value="private">Private (PIN only)</option><option value="public">Public (List on Dashboard)</option></select></label>
+            <label>Privacy<select id="setting-privacy" disabled><option value="private">Private PIN only</option></select></label>
           </div>
         </div>
         <div class="settings-panel" style="margin:1.2rem 0;padding:1rem;border-radius:14px;background:rgba(255,255,255,.12);">
@@ -262,7 +262,11 @@
         <button id="reveal-btn" class="btn btn--green btn--block" style="display:none;margin-top:1.2rem;"></button>
       </div>
       <div class="scoreboard">
-        <h3><i class="fa-solid fa-ranking-star"></i> Live Scoreboard</h3>
+        <h3><i class="fa-solid fa-users"></i> Lobby <span id="host-lobby-count" style="margin-left:auto;"></span></h3>
+        <ul id="player-list" class="player-list"><li class="empty">Waiting for players to join with this PIN...</li></ul>
+      </div>
+      <div class="scoreboard">
+        <h3><i class="fa-solid fa-ranking-star"></i> Live Leaderboard and Rankings</h3>
         <div id="live-scores"></div>
       </div>
     </div>
@@ -356,15 +360,16 @@
       $('mode-' + mode).classList.add('selected');
     }
     function readSettings() {
-      return { pacing:$('setting-pacing').value, answerVisibility:$('setting-visibility').value, timerSeconds:Number($('setting-timer').value), retries:$('setting-retries').value, privacy:$('setting-privacy').value };
+      return { pacing:$('setting-pacing').value, answerVisibility:$('setting-visibility').value, timerSeconds:Number($('setting-timer').value), retries:$('setting-retries').value, privacy:'private' };
     }
 
     function buildPlayerList() {
       const ul = $('player-list');
       if (!ul) return;
       const players = Object.values(state.players).flat().filter(p => p && !p.isHost);
+      const count = $('host-lobby-count'); if (count) count.textContent = players.length + (players.length === 1 ? ' player' : ' players');
       if (players.length === 0) ul.innerHTML = '<li class="empty"><i class="fa-solid fa-user-plus"></i> Waiting for players to join with this PIN...</li>';
-      else ul.innerHTML = players.map(p => '<li><span class="pavatar">' + iconHtml(p) + '</span>' + esc(p.name) + '</li>').join('');
+      else ul.innerHTML = players.map(p => '<li><span class="pavatar">' + iconHtml(p) + '</span>' + esc(p.name) + (Number.isFinite(Number(p.score)) ? '<strong style="margin-left:auto;">' + (Number(p.score)||0) + '</strong>' : '') + '</li>').join('');
     }
 
     function buildLobbyList() {
@@ -378,8 +383,9 @@
       grid.innerHTML = games.map(g => {
         const modeName = (window.CHRISCO_MODES[g.mode] && window.CHRISCO_MODES[g.mode].name) || g.mode || 'David Quiz';
         const modeIcon = (window.CHRISCO_MODES[g.mode] && window.CHRISCO_MODES[g.mode].icon) || 'fa-gamepad';
-        const cls = g.status === 'playing' ? 'playing' : 'waiting';
-        const statusLabel = g.status === 'playing' ? '<span style="color:var(--green);font-weight:700;"><i class="fa-solid fa-play"></i> Playing</span>' : '<span style="color:var(--secondary);font-weight:700;"><i class="fa-solid fa-clock"></i> Waiting</span>';
+        const isPlaying = String(g.status || '').toLowerCase() === 'playing';
+        const cls = isPlaying ? 'playing' : 'waiting';
+        const statusLabel = isPlaying ? '<span style="color:var(--green);font-weight:700;"><i class="fa-solid fa-play"></i> Playing</span>' : '<span style="color:var(--secondary);font-weight:700;"><i class="fa-solid fa-clock"></i> Waiting</span>';
         return '<div class="game-tile ' + cls + '">' +
           '<div class="gt-pin">' + esc(g.pin) + '</div>' +
           '<div class="gt-mode"><i class="fa-solid ' + modeIcon + '"></i> ' + esc(modeName) + '</div>' +
@@ -473,10 +479,10 @@
       $('game-pin-bar').textContent = state.pin;
       updateLobbyPresence();
       state.gameChannel = state.supabase.channel('quiz-' + state.pin)
-        .on('presence', { event: 'SYNC' }, (payload) => { state.players = payload.presence || {}; buildPlayerList(); updateLobbyPresence(); })
+        .on('presence', { event: 'SYNC' }, (payload) => { state.players = payload.presence || {}; buildPlayerList(); renderScores(); updateLobbyPresence(); })
         .on('presence', { event: 'CHANGES' }, (payload) => {
           state.players = state.gameChannel.presenceState();
-          buildPlayerList(); updateLobbyPresence();
+          buildPlayerList(); renderScores(); updateLobbyPresence();
           // New players join: send them the current game state so they can play immediately
           const newPlayers = Object.values(payload.events.joins || {}).flat().filter(j => j && !j.isHost);
           const accepted = newPlayers.filter(j => {
@@ -490,6 +496,7 @@
             accepted.forEach(j => sendSync(j.myId));
           }
         })
+        .on('broadcast', { event: 'player-ready' }, async (payload) => { const p=payload.payload||{}; if (!p.myId) return; if (state.phase === 'lobby') startGame(); else sendSync(p.myId); })
         .on('broadcast', { event: 'answer' }, (payload) => { const a=payload.payload; if (!handleAnswer(a) && a && a.myId) state.gameChannel.send({type:'broadcast',event:'answer-rejected',payload:{to:a.myId,message:'This device has already submitted an answer.'}}); })
         .on('broadcast', { event: 'advance-request' }, () => {
           if (state.settings.pacing !== 'self') return;

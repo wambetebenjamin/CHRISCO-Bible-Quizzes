@@ -29,7 +29,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/api/health', (_req, res) => {
   const database = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
-  res.status(200).json({ ok: true, service: 'chrisco-master-server', database, autoHost: autoHost.state });
+  res.status(200).json({ ok: true, service: 'chrisco-master-server', database, autoHost: autoHost.state, autoHostStandbyQuestions: autoHost.state.standbyQuestions || 0 });
 });
 app.use('/api/share', require('./routes/share'));
 app.use('/api/camp', require('./routes/camp'));

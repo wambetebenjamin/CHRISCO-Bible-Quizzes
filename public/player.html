@@ -150,7 +150,7 @@
   <div class="topbar">
     <div class="topbar-inner">
       <a class="brand" href="index.html"><span class="brand-logo"><i class="fa-solid fa-crosshairs"></i></span><span class="brand-text">CHRISCO<small>BIBLE QUIZZES</small></span></a>
-      <div class="topbar-actions"><a class="btn btn--outline" href="player.html"><i class="fa-solid fa-right-to-bracket"></i> Join</a><a class="btn btn--yellow" href="host.html"><i class="fa-solid fa-gamepad"></i> Host</a></div>
+      <div class="topbar-actions"><a class="btn btn--outline" href="index.html"><i class="fa-solid fa-house"></i> Home</a></div>
     </div>
   </div>
 
@@ -174,18 +174,30 @@
         </div>
       </div>
 
+      <div id="player-public-games">
       <div class="section-head"><h2><i class="fa-solid fa-list-check" style="color:var(--secondary);"></i> Running Games</h2></div>
       <div class="lobby-grid" id="lobby-list"><div class="game-tile gt-empty"><i class="fa-solid fa-hourglass-half"></i> Loading...</div></div>
+      </div>
 
-      <div class="card card--green" style="margin-top:1rem;">
+      <div class="card card--green" id="manual-pin-card" style="margin-top:1rem;">
         <h2><i class="fa-solid fa-key"></i> Have a PIN?</h2>
         <p>Enter the PIN your host shared.</p>
         <input type="text" class="pin-input" id="pin-input" placeholder="000000" maxlength="6" inputmode="numeric" autocomplete="off" />
-        <button id="join-pin-btn" class="btn btn--yellow btn--large btn--block" style="margin-top:1rem;"><i class="fa-solid fa-right-to-bracket"></i> Join with PIN</button>
+        <button id="join-pin-btn" class="btn btn--yellow btn--large btn--block" style="margin-top:1rem;"><i class="fa-solid fa-arrow-right"></i> Continue to Ready</button>
       </div>
     </div>
 
-    <!-- Question Screen (join and play immediately) -->
+    <div class="screen" id="ready-screen">
+      <div class="card card--blue" style="text-align:center;">
+        <div class="status-pill ok"><i class="fa-solid fa-circle-check"></i> Ready</div>
+        <h2><i class="fa-solid fa-hourglass-start"></i> Ready to start?</h2>
+        <p><strong id="ready-player-name"></strong>, your player profile is ready to join.</p>
+        <p>Game PIN: <strong id="ready-pin"></strong></p>
+        <button id="ready-start-btn" class="btn btn--yellow btn--large btn--block" type="button"><i class="fa-solid fa-play"></i> Ready</button>
+      </div>
+    </div>
+
+    <!-- Question Screen -->
     <div class="screen" id="question-screen">
       <div class="game-bar">
         <div class="gb-left"><i class="fa-solid fa-key"></i> PIN <span id="player-pin-bar" style="font-weight:800;letter-spacing:2px;">----</span></div>
@@ -250,7 +262,7 @@
       name: '', icon: 'fa-solid fa-lion', emoji: '🦁', pin: '', hostName: '',
       myId: '', deviceId: '', qIndex: -1, settings:{pacing:'host',answerVisibility:'immediate',retries:'allow'},
       channel: null, supabase: null, lobbyChannel: null,
-      players: {}, lobbyGames: {}, myAnswer: null, score: 0, phase: 'setup'
+      players: {}, lobbyGames: {}, myAnswer: null, score: 0, phase: 'setup', pendingPin:'', rankings:[]
     };
     if (!state.myId) state.myId = 'p' + Math.random().toString(36).slice(2, 10);
     state.deviceId = localStorage.getItem('device_id');
@@ -289,11 +301,23 @@
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
       $('' + id + '-screen').classList.add('active');
     }
+    function showReadyScreen(pin, hostName) {
+      const name = $('name-input').value.trim();
+      const normalizedPin = String(pin || '').trim();
+      if (!name) { alert('Please enter your nickname first.'); $('name-input').focus(); return; }
+      if (!/^\d{4,6}$/.test(normalizedPin)) { alert('Please enter a valid game PIN.'); return; }
+      state.name = name; state.pendingPin = normalizedPin; state.pin = normalizedPin;
+      if (hostName) state.hostName = hostName;
+      localStorage.setItem('chrisco_nickname', name);
+      $('ready-player-name').textContent = name;
+      $('ready-pin').textContent = normalizedPin;
+      showScreen('ready');
+    }
     function setupStatus(html, cls) { const p = $('setup-status'); p.className = 'status-pill ' + (cls||''); p.innerHTML = html; }
     function renderScoreboard() {
       const list = $('player-scoreboard'); if (!list) return;
       const entries = Object.values(state.players || {}).flat().filter(p => p && !p.isHost);
-      const scores = entries.map(p => ({ name: p.name || 'Player', score: p.name === state.name ? state.score : (p.score || 0) }));
+      const scores = state.rankings.length ? state.rankings.slice() : entries.map(p => ({ name: p.name || 'Player', score: p.name === state.name ? state.score : (p.score || 0) }));
       if (!scores.some(p => p.name === state.name)) scores.push({name:state.name || 'You',score:state.score});
       scores.sort((a,b)=>b.score-a.score);
       list.innerHTML = scores.map(p=>'<li>' + esc(p.name) + ' <strong style="float:right;">' + p.score + '</strong></li>').join('');
@@ -310,16 +334,18 @@
       grid.innerHTML = games.map(g => {
         const modeName = (window.CHRISCO_MODES[g.mode] && window.CHRISCO_MODES[g.mode].name) || g.mode || 'David Quiz';
         const modeIcon = (window.CHRISCO_MODES[g.mode] && window.CHRISCO_MODES[g.mode].icon) || 'fa-gamepad';
-        const cls = g.status === 'playing' ? 'playing' : 'waiting';
-        const statusLabel = g.status === 'playing' ? '<span style="color:var(--green);font-weight:700;"><i class="fa-solid fa-play"></i> Playing</span>' : '<span style="color:var(--secondary);font-weight:700;"><i class="fa-solid fa-clock"></i> Waiting</span>';
+        const isPlaying = String(g.status || '').toLowerCase() === 'playing';
+        const cls = isPlaying ? 'playing' : 'waiting';
+        const statusLabel = isPlaying ? '<span style="color:var(--green);font-weight:700;"><i class="fa-solid fa-play"></i> Playing</span>' : '<span style="color:var(--secondary);font-weight:700;"><i class="fa-solid fa-clock"></i> Waiting</span>';
         return '<div class="game-tile ' + cls + '">' +
           '<div class="gt-pin">' + esc(g.pin) + '</div>' +
           '<div class="gt-mode"><i class="fa-solid ' + modeIcon + '"></i> ' + esc(modeName) + '</div>' +
           '<div class="gt-host">' + (g.icon ? '<i class="' + g.icon + '"></i> ' : '<i class="fa-solid fa-user"></i> ') + esc(g.name || 'Host') + '</div>' +
           '<div class="gt-meta"><span>' + (g.players||[]).length + ' players</span>' + statusLabel + '</div>' +
-          '<button class="btn btn--green btn--sm btn--block" style="margin-top:0.4rem;" onclick="joinGame(\'' + esc(g.pin) + '\', \'' + esc(g.name || 'Host') + '\')"><i class="fa-solid fa-right-to-bracket"></i> Join</button>' +
+          '<button class="btn btn--green btn--sm btn--block game-join-btn" type="button" style="margin-top:0.4rem;" data-pin="' + esc(g.pin) + '" data-host="' + esc(g.name || 'Host') + '"><i class="fa-solid fa-right-to-bracket"></i> Join</button>' +
           '</div>';
       }).join('');
+      grid.querySelectorAll('.game-join-btn').forEach(button => button.addEventListener('click', () => showReadyScreen(button.dataset.pin, button.dataset.host)));
     }
 
     function buildPlayerList() {
@@ -402,16 +428,18 @@
         $('feedback').className='feedback';
         $('feedback').innerHTML = visibility === 'never' ? '<i class="fa-solid fa-lock"></i> Answer recorded. Rankings only.' : '<i class="fa-solid fa-check"></i> Answer recorded. Review opens after the game.';
       }
+      if (Array.isArray(data.scores)) state.rankings = data.scores.slice();
       const mine = (data.scores || []).find(x=>x.name===state.name);
       if (mine) state.score = Number(mine.score)||0;
       else if (!data.scores && visibility === 'immediate' && state.myAnswer === data.correct) state.score += 100;
       $('my-score').textContent=state.score;
-      if (state.channel) state.channel.track({ name:state.name, icon:state.icon, myId:state.myId, deviceId:state.deviceId, isHost:false, status:'playing', score:state.score });
+      if (state.channel) state.channel.track({ name:state.name, icon:state.icon, myId:state.myId, deviceId:state.deviceId, isHost:false, status:'playing', score:state.score, ready:true });
       renderScoreboard();
     }
 
     function onEnd(data) {
       state.phase = 'end';
+      if (data && Array.isArray(data.scores)) state.rankings = data.scores.slice();
       const mine = (data && data.scores || []).find(x=>x.name===state.name); if (mine) state.score = Number(mine.score)||0;
       $('final-score').textContent = state.score;
       const review=$('answer-review');
@@ -489,6 +517,7 @@
         .on('presence', { event: 'SYNC' }, (payload) => { state.players = payload.presence || {}; buildPlayerList(); renderScoreboard(); if (nameTakenInRoom()) leaveRoom('That name is already taken in this room. Pick a different name.'); })
         .on('presence', { event: 'CHANGES' }, () => { state.players = state.channel.presenceState(); buildPlayerList(); renderScoreboard(); if (nameTakenInRoom()) leaveRoom('That name is already taken in this room. Pick a different name.'); })
         .on('broadcast', { event: 'start' }, (payload) => { qStatus('<i class="fa-solid fa-play"></i> New round started: ' + esc(payload.payload.name || 'David Quiz') + '. Get ready!', 'warn'); })
+        .on('broadcast', { event: 'leaderboard' }, (payload) => { state.rankings = (payload.payload && payload.payload.scores) || []; const mine=state.rankings.find(x=>x.name===state.name); if(mine) state.score=Number(mine.score)||0; $('my-score').textContent=state.score; renderScoreboard(); })
         .on('broadcast', { event: 'question' }, (payload) => onQuestion(payload.payload))
         .on('broadcast', { event: 'reveal' }, (payload) => onReveal(payload.payload))
         .on('broadcast', { event: 'end' }, (payload) => onEnd(payload.payload))
@@ -501,12 +530,11 @@
         })
         .subscribe(async (status) => {
           if (status === 'SUBSCRIBED') {
-            await state.channel.track({ name: state.name, icon: state.icon, myId: state.myId, deviceId:state.deviceId, isHost: false, status: 'lobby', score: 0 });
+            await state.channel.track({ name: state.name, icon: state.icon, myId: state.myId, deviceId:state.deviceId, isHost: false, status: 'lobby', score: 0, ready:true });
             $('player-pin-bar').textContent = state.pin;
-            // Play immediately: no waiting lobby. Ask the host for the current question.
-            qStatus('<i class="fa-solid fa-spinner fa-spin"></i> Getting the current question...', 'warn');
+            qStatus('<i class="fa-solid fa-spinner fa-spin"></i> Sending your Ready signal to the host...', 'warn');
             showScreen('question');
-            state.channel.send({ type: 'broadcast', event: 'sync-request', payload: { myId: state.myId } });
+            await state.channel.send({ type:'broadcast', event:'player-ready', payload:{ name:state.name, pin:state.pin, myId:state.myId, deviceId:state.deviceId } });
           } else if (status === 'CHANNEL_ERROR' || status === 'CHANNEL_CLOSED') {
             qStatus('<i class="fa-solid fa-triangle-exclamation"></i> Lost connection to room ' + state.pin + '. Check the PIN and host status.', 'err');
           }
@@ -555,9 +583,10 @@
     document.addEventListener('DOMContentLoaded', () => {
       $('name-input').value = localStorage.getItem('chrisco_nickname') || '';
       $('player-next-btn').addEventListener('click', requestNextQuestion);
-      $('join-pin-btn').addEventListener('click', () => {
-        const pin = $('pin-input').value.trim();
-        if (pin) joinGame(pin);
+      $('join-pin-btn').addEventListener('click', () => showReadyScreen($('pin-input').value, state.hostName));
+      $('ready-start-btn').addEventListener('click', () => {
+        if (!state.supabase) { setupStatus('<i class="fa-solid fa-spinner fa-spin"></i> Connecting to the game server...', 'warn'); return; }
+        joinGame(state.pendingPin, state.hostName || undefined);
       });
       $('play-again-btn').addEventListener('click', () => {
         if (state.channel) state.channel.send({ type:'broadcast', event:'restart-request', payload:{ name:state.name } });
@@ -567,6 +596,21 @@
         showScreen('setup');
       });
       renderIconPicker();
+      const query = new URLSearchParams(window.location.search);
+      const queryPin = (query.get('pin') || '').trim();
+      if (queryPin) {
+        state.pendingPin = queryPin;
+        state.pin = queryPin;
+        state.hostName = (query.get('host') || '').trim();
+        $('pin-input').value = queryPin;
+        $('player-public-games').style.display = 'none';
+      }
+      const queryName = (query.get('name') || '').trim();
+      if (queryName) $('name-input').value = queryName;
+      const queryIcon = query.get('icon') || '';
+      if (queryIcon && window.CHRISCO_ICONS.some(x => x.icon === queryIcon)) {
+        state.icon=queryIcon; state.emoji=iconEmoji(queryIcon); renderIconPicker();
+      }
 
       loadConfig().then(config => {
         const { url, key } = config;
@@ -580,20 +624,6 @@
             else if (status === 'CHANNEL_ERROR' || status === 'CHANNEL_CLOSED') setupStatus('<i class="fa-solid fa-triangle-exclamation"></i> Lobby connection lost. Reconnecting...', 'err');
           });
 
-        // One-tap join from a share link: player.html?pin=...&host=...&name=...&icon=...
-        const q = new URLSearchParams(window.location.search);
-        const sharePin = (q.get('pin') || '').trim();
-        const shareName = (q.get('name') || '').trim();
-        const shareIcon = q.get('icon') || '';
-        const shareHost = (q.get('host') || '').trim();
-        if (sharePin) {
-          if (shareName) $('name-input').value = shareName;
-          if (shareIcon && window.CHRISCO_ICONS.some(x => x.icon === shareIcon)) {
-            state.icon = shareIcon; state.emoji = iconEmoji(shareIcon); renderIconPicker();
-          }
-          state.hostName = shareHost;
-          joinGame(sharePin, shareHost || undefined);
-        }
       }).catch(err => {
         setupStatus('<i class="fa-solid fa-triangle-exclamation"></i> Could not reach the game server.', 'err');
       });
