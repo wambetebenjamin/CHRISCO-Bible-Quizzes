@@ -52,7 +52,10 @@ if (MONGODB_URI) {
 
 const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`✅ 24/7 Master Server running on port ${PORT}`);
-  autoHost.startAutoHost();
+  autoHost.startAutoHost({
+    roomChannelName: 'room-777777',
+    onPlayerReady: () => console.log('Received READY from player, sending question 1')
+  });
 });
 async function stopServer() {
   await autoHost.shutdown();

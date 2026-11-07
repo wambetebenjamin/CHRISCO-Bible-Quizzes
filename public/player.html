@@ -380,6 +380,7 @@
       $('pacing-hint').innerHTML = '<i class="fa-solid fa-hourglass-half"></i> Waiting for the host to advance the question.';
       const translated = window.localizeQuestion({q:data.q,options:data.options,explain:''}, (localStorage.getItem('chrisco_lang') || 'en'));
       state.currentQuestion = data.q;
+      qStatus('<i class="fa-solid fa-circle-check"></i> Question received. Choose your answer.', 'ok');
       $('q-text').textContent = translated.q;
       $('q-options').innerHTML = translated.options.map((o,i) => '<button class="opt" data-i="'+i+'"><span class="letter">'+LETTERS[i]+'</span><span>'+esc(o)+'</span></button>').join('');
       $('q-options').querySelectorAll('.opt').forEach(b => b.addEventListener('click', () => lockInAnswer(parseInt(b.dataset.i, 10))));
@@ -513,11 +514,12 @@
       setupStatus('<i class="fa-solid fa-spinner fa-spin"></i> Joining room ' + pin + '...', 'warn');
 
       if (state.channel) { state.channel.unsubscribe(); state.channel = null; }
-      state.channel = state.supabase.channel('quiz-' + state.pin)
+      state.channel = state.supabase.channel(state.pin === '777777' ? 'room-777777' : 'quiz-' + state.pin)
         .on('presence', { event: 'SYNC' }, (payload) => { state.players = payload.presence || {}; buildPlayerList(); renderScoreboard(); if (nameTakenInRoom()) leaveRoom('That name is already taken in this room. Pick a different name.'); })
         .on('presence', { event: 'CHANGES' }, () => { state.players = state.channel.presenceState(); buildPlayerList(); renderScoreboard(); if (nameTakenInRoom()) leaveRoom('That name is already taken in this room. Pick a different name.'); })
         .on('broadcast', { event: 'start' }, (payload) => { qStatus('<i class="fa-solid fa-play"></i> New round started: ' + esc(payload.payload.name || 'David Quiz') + '. Get ready!', 'warn'); })
         .on('broadcast', { event: 'leaderboard' }, (payload) => { state.rankings = (payload.payload && payload.payload.scores) || []; const mine=state.rankings.find(x=>x.name===state.name); if(mine) state.score=Number(mine.score)||0; $('my-score').textContent=state.score; renderScoreboard(); })
+        .on('broadcast', { event: 'NEW_QUESTION' }, (payload) => { const data=payload.payload||{}; if(data.to && data.to!==state.myId) return; onQuestion(data); if(data.phase==='reveal') onReveal(data); else if(data.phase==='end') onEnd(data); })
         .on('broadcast', { event: 'question' }, (payload) => onQuestion(payload.payload))
         .on('broadcast', { event: 'reveal' }, (payload) => onReveal(payload.payload))
         .on('broadcast', { event: 'end' }, (payload) => onEnd(payload.payload))
@@ -534,7 +536,7 @@
             $('player-pin-bar').textContent = state.pin;
             qStatus('<i class="fa-solid fa-spinner fa-spin"></i> Sending your Ready signal to the host...', 'warn');
             showScreen('question');
-            await state.channel.send({ type:'broadcast', event:'player-ready', payload:{ name:state.name, pin:state.pin, myId:state.myId, deviceId:state.deviceId } });
+            await state.channel.send({ type:'broadcast', event:state.pin === '777777' ? 'PLAYER_READY' : 'player-ready', payload:{ name:state.name, pin:state.pin, myId:state.myId, deviceId:state.deviceId } });
           } else if (status === 'CHANNEL_ERROR' || status === 'CHANNEL_CLOSED') {
             qStatus('<i class="fa-solid fa-triangle-exclamation"></i> Lost connection to room ' + state.pin + '. Check the PIN and host status.', 'err');
           }
