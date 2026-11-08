@@ -41,7 +41,9 @@
     .progress-fill { height:100%; width:0; background:var(--blue); transition:width .2s ease; }
     .question { color:var(--navy); font-size:clamp(19px,3.5vw,24px); line-height:1.45; margin:0 0 20px; }
     .options { display:grid; gap:11px; }
-    .option { display:flex; align-items:flex-start; gap:12px; width:100%; text-align:left; padding:14px; border:2px solid var(--line); border-radius:14px; background:#fff; color:var(--ink); font-weight:650; line-height:1.45; }
+    .option { display:flex; align-items:flex-start; gap:12px; width:100%; text-align:left; padding:14px; border:2px solid var(--line); border-radius:14px; background:#fff; color:var(--ink); font-weight:650; line-height:1.45; transition:transform .18s ease,border-color .18s ease,background .18s ease,box-shadow .18s ease; animation:option-arrive .28s ease both; }
+    .option:hover:not(.selected) { transform:translateX(3px); }
+    @keyframes option-arrive { from{opacity:0;transform:translateY(7px)} to{opacity:1;transform:none} }
     .option:hover { border-color:#9aadd4; background:#f7f9ff; }
     .option.selected { border-color:var(--blue); background:#eef3ff; box-shadow:0 0 0 2px #1747b118; }
     .option .letter { flex:0 0 28px; height:28px; display:grid; place-items:center; border-radius:8px; background:#e9eef9; color:var(--navy); font-weight:900; }
@@ -49,6 +51,29 @@
     .nav-row { display:flex; justify-content:space-between; gap:10px; margin-top:22px; }
     .answer-review { margin-top:24px; display:grid; gap:14px; }
     .review-item { padding:16px; border:1px solid var(--line); border-radius:14px; background:#fbfcff; }
+    .question-stage { display:flex; align-items:center; justify-content:space-between; gap:18px; }
+    .question-stage-copy { flex:1; min-width:0; }
+    .level-chip { display:inline-flex; align-items:center; gap:7px; border-radius:999px; padding:6px 12px; margin:0 0 10px; background:#f5e7b9; color:#523d10; font-size:12px; font-weight:900; letter-spacing:.06em; text-transform:uppercase; }
+    .work-figure { flex:0 0 118px; width:118px; height:102px; display:grid; place-items:center; }
+    .work-figure svg { width:100%; height:100%; overflow:visible; }
+    .worker-body { transform-origin:88px 80px; animation:worker-breathe 3.2s ease-in-out infinite; }
+    .worker-hand { transform-origin:101px 80px; animation:worker-write .72s ease-in-out infinite alternate; }
+    .worker-head { transform-origin:92px 51px; animation:worker-focus 3.2s ease-in-out infinite; }
+    .book-page { transform-origin:65px 91px; animation:page-lift 2.8s ease-in-out infinite; }
+    @keyframes worker-breathe { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-2px)} }
+    @keyframes worker-write { from{transform:rotate(-4deg)} to{transform:rotate(5deg)} }
+    @keyframes worker-focus { 0%,100%{transform:rotate(0)} 50%{transform:rotate(2deg)} }
+    @keyframes page-lift { 0%,90%,100%{transform:rotate(0)} 95%{transform:rotate(-2deg)} }
+    .leaderboard-box { margin-top:28px; padding:18px; border:1px solid var(--line); border-radius:16px; background:#f8faff; }
+    .leaderboard-box h2 { margin-bottom:10px; color:var(--navy); font-size:19px; }
+    .rank-list { display:grid; gap:7px; }
+    .rank-row { display:flex; align-items:center; gap:10px; padding:9px 11px; border-radius:11px; background:#fff; border:1px solid var(--line); }
+    .rank-row strong { margin-left:auto; color:var(--navy); }
+    #confetti-canvas { position:fixed; inset:0; z-index:20; width:100%; height:100%; pointer-events:none; }
+    .result-panel-enter { animation:result-enter .65s cubic-bezier(.2,.85,.25,1) both; }
+    @keyframes result-enter { from{opacity:0;transform:translateY(15px) scale(.985)} to{opacity:1;transform:none} }
+    @media(max-width:520px){ .work-figure{flex-basis:82px;width:82px;height:78px}.question-stage{gap:8px} }
+    @media(prefers-reduced-motion:reduce){ *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;scroll-behavior:auto !important;transition-duration:.01ms !important} }
     .review-item h3 { margin:0 0 10px; font-size:16px; line-height:1.45; }
     .review-answer { color:var(--green); font-weight:800; }
     .review-explain { margin:8px 0 0; color:var(--muted); line-height:1.5; }
@@ -58,6 +83,7 @@
   </style>
 </head>
 <body>
+  <canvas id="confetti-canvas" aria-hidden="true"></canvas>
   <header><div class="header-inner"><div class="brand-mark" aria-hidden="true">✦</div><div class="brand">CHRISCO<small>BIBLE QUIZZES</small></div></div></header>
   <main>
     <section class="panel" id="signin-panel">
@@ -82,7 +108,20 @@
     <section class="panel hidden" id="quiz-panel">
       <div class="progress-row"><span id="question-count">Question 1 of 5</span><span id="progress-percent">0% complete</span></div>
       <div class="progress-track" aria-hidden="true"><div class="progress-fill" id="progress-fill"></div></div>
-      <h2 class="question" id="question-text"></h2>
+      <div class="question-stage">
+        <div class="question-stage-copy"><div class="level-chip" id="question-level">Beginner</div><h2 class="question" id="question-text"></h2></div>
+        <div class="work-figure" role="img" aria-label="A reader studying and writing in a Bible">
+          <svg viewBox="0 0 150 122" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <ellipse cx="82" cy="111" rx="62" ry="7" fill="#dce3f1"/>
+            <path d="M16 99h120l-9 12H24z" fill="#7a4e2d"/><path d="M24 95h104v6H24z" fill="#a86f3d"/>
+            <path d="M48 94V73c0-7 7-12 16-12h25c10 0 17 6 17 15v18z" fill="#1747b1"/>
+            <g class="worker-body"><path d="M55 75c2-12 10-20 23-20 15 0 22 10 23 24l-3 18H57z" fill="#1747b1"/><path d="M72 59h13v15H72z" fill="#b76e45"/><path d="M68 50c0-12 8-19 19-19s18 8 18 19c0 12-8 18-18 18-12 0-19-7-19-18" fill="#c7835b"/><path d="M67 48c0-14 9-22 21-22 9 0 16 5 19 14-7-4-12-6-18-5-5 1-10 5-13 12l-3 9c-4-2-6-4-6-8" fill="#28221e"/><path d="M74 51h4m12 0h4" stroke="#33251f" stroke-width="2" stroke-linecap="round"/><path d="M79 60c4 2 8 2 11 0" fill="none" stroke="#8e4938" stroke-width="1.8" stroke-linecap="round"/></g>
+            <path d="M34 91c8-7 18-7 28 0v14c-10-7-20-7-28 0z" fill="#fff8e7" stroke="#8c6b37" stroke-width="1.4"/><path class="book-page" d="M62 91c9-7 19-7 28 0v14c-9-7-19-7-28 0z" fill="#f5e7b9" stroke="#8c6b37" stroke-width="1.4"/><path d="M40 95h15m-15 4h13m16-4h14m-14 4h13" stroke="#c2a66b" stroke-width="1"/>
+            <g class="worker-hand"><path d="M83 77c5-4 9-3 13 1l9 9-6 6-13-8-7-1z" fill="#c7835b"/><path d="M103 83l12-15 3 2-10 17" stroke="#30251d" stroke-width="3" stroke-linecap="round"/><path d="M116 68l2-5 2 7z" fill="#d5a638"/></g>
+            <path d="M46 89l8-2 8 4-5 4-9-2z" fill="#c7835b"/>
+          </svg>
+        </div>
+      </div>
       <div class="options" id="options" role="group" aria-label="Answer options"></div>
       <p class="lead section">Answers and explanations stay hidden until you submit the whole quiz.</p>
       <div class="nav-row"><button class="btn" id="previous-question" type="button">Previous</button><button class="btn gold" id="next-question" type="button">Next</button><button class="btn gold hidden" id="submit-quiz" type="button">Submit quiz</button></div>
@@ -96,6 +135,7 @@
       <p class="lead" id="final-caption"></p>
       <h2>Answer review</h2>
       <div class="answer-review" id="answer-review"></div>
+      <section class="leaderboard-box" aria-live="polite"><h2>Beauty for Ashes rankings</h2><div id="result-rankings" class="rank-list">Loading rankings…</div></section>
     </section>
 
     <section class="panel hidden" id="denied-panel">
@@ -106,27 +146,43 @@
   <footer>CHRISCO Bible Quizzes</footer>
 
   <script>
-    // Replace both placeholders before publishing. The OAuth Client ID is public; never put a client secret here.
+    // The OAuth Client ID is public; never put a client secret in the browser.
     const GOOGLE_CLIENT_ID = '1048157545653-ihf719b13o6sdpcsfv3bef1peggkaspp.apps.googleusercontent.com';
     const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwxRRD8upXMq0icOmFxDJwd5WZ51sZtQ1_eMYUVjQ2zVTJ7Ywe8JL9ME9nBCYBvgJsk/exec';
     // The answer key is deliberately not shipped to the browser; grading happens in Code.gs.
     // These application questions are based on the supplied Beauty for Ashes transcript.
     const QUIZ = [
-      { id:'q1', q:'You are going through a painful season and wonder whether you are meant to stay stuck there. Which response best reflects the speaker’s teaching?', options:['Assume the hardship proves God wants you to remain there','Search Scripture for truth, seek wise support, and take a constructive next step','Ignore the problem because faith means never discussing it','Blame yourself automatically for every difficult thing that happens'] },
-      { id:'q2', q:'A believer has attended church for years but still feels controlled by a destructive habit. What does the teaching suggest is a useful first move?', options:['Pretend the habit is harmless so nobody worries','Wait for someone else to notice and fix it','Bring the pattern into the light, learn what Scripture says, and seek accountable help','Conclude that knowing religious language means no further growth is needed'] },
-      { id:'q3', q:'Someone tells you that a choice against a clear boundary will have no consequences. Which response best applies the Genesis 3 example?', options:['Accept the reassurance because it sounds appealing','Pause, test the claim against what you know is true, and step away from the temptation','Keep discussing it until the boundary feels unnecessary','Make the choice privately so nobody can advise you'] },
-      { id:'q4', q:'You feel resentment growing toward a colleague and are tempted to retaliate. What is the closest application of God’s warning to Cain?', options:['Hide the resentment and wait for it to disappear','Act quickly before the other person notices','Recognize the danger early, master the impulse, and choose a right response','Tell yourself anger makes any response acceptable'] },
-      { id:'q5', q:'After making a serious mistake, you are tempted to lie so you can avoid embarrassment. What response best matches the talk about truth?', options:['Tell the truth, accept responsibility, and make amends where possible','Create a more convincing story and ask others to repeat it','Stay silent while allowing another person to take the blame','Say that honesty matters only when there are no consequences'] },
-      { id:'q6', q:'A person’s harmful choice has hurt someone and damaged trust. What is the most responsible application of the Cain story?', options:['Assume the harm will disappear if it is never discussed','Blame the person who was hurt for reacting','Treat the choice as unimportant because forgiveness exists','Acknowledge the action, seek forgiveness, repair what can be repaired, and accept fair consequences'] },
-      { id:'q7', q:'A friend says they are carrying a burden alone and feel exhausted. Which response best reflects the invitation quoted in the program?', options:['Tell them that strong people should manage alone','Encourage them to come to Jesus for rest and offer caring, practical support','Tell them their grief proves they lack faith','Change the subject so they stop talking about it'] },
-      { id:'q8', q:'Someone is grieving and feels overwhelmed. How could you put Isaiah 61’s comfort into practice?', options:['Demand that they praise immediately and stop mourning','Tell them their grief is inconvenient for others','Listen without dismissing their pain and offer steady, practical care','Promise that every loss will be reversed by tomorrow'] },
-      { id:'q9', q:'A person wants to stop an addiction but keeps returning to it and feels unable to cope alone. What is the wisest next step?', options:['Hide it and rely only on willpower','Shame them until they promise to stop','Tell them relapse proves they cannot change','Seek trusted pastoral and professional support, build accountability, and take a safe next step'] },
-      { id:'q10', q:'You are facing illness and financial strain at the same time. Which response applies the message without making assumptions about the cause?', options:['Seek appropriate medical and practical help, explore Scripture and trusted support, and avoid blaming yourself without evidence','Assume the hardship proves you are cursed','Stop medical care and wait for a miracle','Assume every setback means you have failed spiritually'] }
+      { id:'q1', level:"Beginner", q:"You are going through a painful season and wonder whether you are meant to stay stuck there. Which response best reflects the speaker’s teaching?", options:["Assume the hardship proves God wants you to remain there", "Search Scripture for truth, seek wise support, and take a constructive next step", "Ignore the problem because faith means never discussing it", "Blame yourself automatically for every difficult thing that happens"] },
+      { id:'q2', level:"Beginner", q:"A believer has attended church for years but still feels controlled by a destructive habit. What does the teaching suggest is a useful first move?", options:["Pretend the habit is harmless so nobody worries", "Wait for someone else to notice and fix it", "Bring the pattern into the light, learn what Scripture says, and seek accountable help", "Conclude that knowing religious language means no further growth is needed"] },
+      { id:'q3', level:"Beginner", q:"Someone tells you that a choice against a clear boundary will have no consequences. Which response best applies the Genesis 3 example?", options:["Accept the reassurance because it sounds appealing", "Pause, test the claim against what you know is true, and step away from the temptation", "Keep discussing it until the boundary feels unnecessary", "Make the choice privately so nobody can advise you"] },
+      { id:'q4', level:"Intermediate", q:"You feel resentment growing toward a colleague and are tempted to retaliate. What is the closest application of God’s warning to Cain?", options:["Hide the resentment and wait for it to disappear", "Act quickly before the other person notices", "Recognize the danger early, master the impulse, and choose a right response", "Tell yourself anger makes any response acceptable"] },
+      { id:'q5', level:"Intermediate", q:"After making a serious mistake, you are tempted to lie so you can avoid embarrassment. What response best matches the talk about truth?", options:["Tell the truth, accept responsibility, and make amends where possible", "Create a more convincing story and ask others to repeat it", "Stay silent while allowing another person to take the blame", "Say that honesty matters only when there are no consequences"] },
+      { id:'q6', level:"Intermediate", q:"A person’s harmful choice has hurt someone and damaged trust. What is the most responsible application of the Cain story?", options:["Assume the harm will disappear if it is never discussed", "Blame the person who was hurt for reacting", "Treat the choice as unimportant because forgiveness exists", "Acknowledge the action, seek forgiveness, repair what can be repaired, and accept fair consequences"] },
+      { id:'q7', level:"Intermediate", q:"A friend says they are carrying a burden alone and feel exhausted. Which response best reflects the invitation quoted in the program?", options:["Tell them that strong people should manage alone", "Encourage them to come to Jesus for rest and offer caring, practical support", "Tell them their grief proves they lack faith", "Change the subject so they stop talking about it"] },
+      { id:'q8', level:"Advanced", q:"Someone is grieving and feels overwhelmed. How could you put Isaiah 61’s comfort into practice?", options:["Demand that they praise immediately and stop mourning", "Tell them their grief is inconvenient for others", "Listen without dismissing their pain and offer steady, practical care", "Promise that every loss will be reversed by tomorrow"] },
+      { id:'q9', level:"Advanced", q:"A person wants to stop an addiction but keeps returning to it and feels unable to cope alone. What is the wisest next step?", options:["Hide it and rely only on willpower", "Shame them until they promise to stop", "Tell them relapse proves they cannot change", "Seek trusted pastoral and professional support, build accountability, and take a safe next step"] },
+      { id:'q10', level:"Advanced", q:"You are facing illness and financial strain at the same time. Which response applies the message without making assumptions about the cause?", options:["Seek appropriate medical and practical help, explore Scripture and trusted support, and avoid blaming yourself without evidence", "Assume the hardship proves you are cursed", "Stop medical care and wait for a miracle", "Assume every setback means you have failed spiritually"] }
     ];
     const state = { idToken:'', email:'', nickname:'', answers:Array(QUIZ.length).fill(null), current:0, busy:false };
     const byId = id => document.getElementById(id);
     const panels = ['signin-panel','nickname-panel','quiz-panel','result-panel','denied-panel'];
-    function showPanel(id) { panels.forEach(panel => byId(panel).classList.toggle('hidden', panel !== id)); window.scrollTo({top:0,behavior:'smooth'}); }
+    function showPanel(id) { panels.forEach(panel => byId(panel).classList.toggle('hidden', panel !== id)); if(id==='result-panel'){byId(id).classList.remove('result-panel-enter'); void byId(id).offsetWidth; byId(id).classList.add('result-panel-enter');} window.scrollTo({top:0,behavior:'smooth'}); }
+    function celebrate() {
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      const canvas=byId('confetti-canvas'),ctx=canvas.getContext('2d');
+      const scale=window.devicePixelRatio||1; canvas.width=innerWidth*scale; canvas.height=innerHeight*scale; ctx.setTransform(scale,0,0,scale,0,0);
+      const colors=['#ffc72c','#1747b1','#0b8554','#b42318','#f4f6fb'];
+      const bits=Array.from({length:150},()=>({x:innerWidth*.5+(Math.random()-.5)*100,y:innerHeight*.58,vx:(Math.random()-.5)*9,vy:-Math.random()*10-3,spin:Math.random()*6.28,turn:(Math.random()-.5)*.22,size:4+Math.random()*7,color:colors[Math.floor(Math.random()*colors.length)],life:100+Math.random()*70}));
+      let frame=0; function draw(){ctx.clearRect(0,0,innerWidth,innerHeight);let active=0;for(const b of bits){if(b.life<=0)continue;active++;b.x+=b.vx;b.y+=b.vy;b.vy+=.19;b.vx*=.995;b.spin+=b.turn;b.life--;ctx.save();ctx.translate(b.x,b.y);ctx.rotate(b.spin);ctx.globalAlpha=Math.min(1,b.life/30);ctx.fillStyle=b.color;ctx.fillRect(-b.size/2,-b.size/2,b.size,b.size*.58);ctx.restore();}if(active&&frame++<220)requestAnimationFrame(draw);else ctx.clearRect(0,0,innerWidth,innerHeight);}requestAnimationFrame(draw);
+    }
+    function loadLeaderboard(targetId) {
+      const target=byId(targetId); if(!target)return;
+      jsonp({action:'leaderboard'}).then(data=>{
+        const rows=Array.isArray(data.rankings)?data.rankings:[]; target.replaceChildren();
+        if(!rows.length){target.textContent='No completed quizzes yet. Be the first to join the board!';return;}
+        rows.slice(0,10).forEach((row,index)=>{const item=document.createElement('div');item.className='rank-row';const rank=document.createElement('b');rank.textContent=['1st','2nd','3rd'][index]||String(index+1);const name=document.createElement('span');name.textContent=row.nickname||'Quiz player';const score=document.createElement('strong');score.textContent=(Number(row.score)||0)+' / '+(Number(row.total)||QUIZ.length);item.append(rank,name,score);target.appendChild(item);});
+      }).catch(()=>{target.textContent='Rankings will appear when the quiz service is available.';});
+    }
     function setStatus(id, message, kind) { const node=byId(id); node.textContent=message||''; node.className='status'+(kind?' '+kind:''); }
     function readyForGoogle() {
       if (GOOGLE_CLIENT_ID === 'YOUR_GOOGLE_CLIENT_ID' || !APPS_SCRIPT_URL || APPS_SCRIPT_URL === 'YOUR_APPS_SCRIPT_URL') {
@@ -181,6 +237,7 @@
     function renderQuestion() {
       const q=QUIZ[state.current];
       byId('question-count').textContent='Question '+(state.current+1)+' of '+QUIZ.length;
+      byId('question-level').textContent=q.level+' · '+({Beginner:'Foundations',Intermediate:'Put it into practice',Advanced:'Deeper discernment'}[q.level]||'');
       const answered=state.answers.filter(answer=>answer!==null).length;
       const percentage=Math.round(answered/QUIZ.length*100);
       byId('progress-percent').textContent=percentage+'% complete';
@@ -190,6 +247,7 @@
       q.options.forEach((label,index)=>{
         const button=document.createElement('button'); button.type='button';
         button.className='option'+(state.answers[state.current]===index?' selected':'');
+        button.style.animationDelay=(index*45)+'ms';
         button.setAttribute('aria-pressed',state.answers[state.current]===index?'true':'false');
         const letter=document.createElement('span'); letter.className='letter'; letter.textContent=String.fromCharCode(65+index);
         const text=document.createElement('span'); text.textContent=label;
@@ -230,13 +288,15 @@
       const review=byId('answer-review'); review.replaceChildren();
       (result.answerKey||[]).forEach((item,index)=>{
         const article=document.createElement('article'); article.className='review-item';
-        const heading=document.createElement('h3'); heading.textContent=(index+1)+'. '+item.q;
+        const heading=document.createElement('h3'); heading.textContent=(index+1)+'. '+(item.level?'['+item.level+'] ':'')+item.q;
         const answer=document.createElement('div'); answer.className='review-answer';
         answer.textContent='Correct answer: '+(item.options||[])[item.correct];
         const explanation=document.createElement('p'); explanation.className='review-explain'; explanation.textContent=item.explain||'';
         article.append(heading,answer,explanation); review.appendChild(article);
       });
       showPanel('result-panel');
+      celebrate();
+      loadLeaderboard('result-rankings');
     }
     byId('start-quiz').addEventListener('click',startQuiz);
     byId('previous-question').addEventListener('click',()=>moveQuestion(-1));
