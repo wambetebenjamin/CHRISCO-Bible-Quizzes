@@ -9,11 +9,16 @@
   <meta property="og:site_name" content="CHRISCO Bible Quizzes" />
   <meta property="og:title" content="CHRISCO Bible Quizzes | Host a live Bible Quiz game" />
   <meta property="og:description" content="Host a live multiplayer Bible quiz game. Share the PIN, answer questions, see the scoreboard. Theme: 1 Samuel 30:8 Pursue Overtake Recover All." />
-  <meta property="og:image" content="https://chrisco-bible-quizzes.vercel.app/image-search/bright-colorful-worship-church-backgroun-1.jpg" />
+  <meta property="og:image" content="https://chrisco-bible-quizzes.vercel.app/social-preview.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:alt" content="CHRISCO Bible Quizzes: Read Scripture. Think deeply. Play together." />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="CHRISCO Bible Quizzes | Host a live Bible Quiz game" />
   <meta name="twitter:description" content="Host a live multiplayer Bible quiz game. Share the PIN, answer questions, see the scoreboard. Theme: 1 Samuel 30:8 Pursue Overtake Recover All." />
-  <meta name="twitter:image" content="https://chrisco-bible-quizzes.vercel.app/image-search/bright-colorful-worship-church-backgroun-1.jpg" />
+  <meta name="twitter:image" content="https://chrisco-bible-quizzes.vercel.app/social-preview.png" />
+  <meta name="twitter:image:alt" content="CHRISCO Bible Quizzes: Read Scripture. Think deeply. Play together." />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <script src="vendor/supabase.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -50,7 +55,7 @@
     .btn--sm { padding: 0.4rem 0.9rem; font-size: 0.85rem; border-radius: 10px; }
 
     .hero { position: relative; overflow: hidden; color: #fff; text-align: center; background: radial-gradient(900px 400px at 80% 10%, rgba(255,140,0,0.35) 0%, transparent 60%), linear-gradient(120deg, #00008B 0%, #46178f 100%); padding: 2rem 1rem 2rem; }
-    .hero::before { content: ''; position: absolute; inset: 0; background: url('./image-search/bright-colorful-worship-church-backgroun-1.jpg') center/cover no-repeat; opacity: 0.15; mix-blend-mode: overlay; }
+    .hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 85% 20%, rgba(255,192,10,.12), transparent 220px); }
     .hero-content { position: relative; z-index: 2; max-width: 700px; margin: 0 auto; }
     .hero h1 { font-size: clamp(1.6rem, 4vw, 2.6rem); font-weight: 900; text-shadow: 0 4px 20px rgba(0,0,0,0.4); }
     .hero p { margin-top: 0.5rem; opacity: 0.9; font-weight: 500; }
@@ -119,17 +124,13 @@
     .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1rem 0; }
     .mode-card { position: relative; border-radius: 20px; overflow: hidden; padding: 1.2rem; color: #fff; cursor: pointer; min-height: 140px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 8px 20px rgba(0,0,0,0.2); transition: transform 0.3s; border: none; text-align: left; font-family: inherit; }
     .mode-card:hover { transform: translateY(-4px); }
-    .mode-card::before { content: ''; position: absolute; inset: 0; background-size: cover; background-position: center; }
+    .mode-card::before { content: ''; position: absolute; inset: 0; background:linear-gradient(135deg,rgba(255,255,255,.08),transparent 55%); }
     .mode-card::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.6) 100%); }
     .mode-card > * { position: relative; z-index: 2; }
     .mc-pursue { background: linear-gradient(160deg, #00008B, #000051); }
-    .mc-pursue::before { background-image: url('./image-search/bright-colorful-worship-church-backgroun-1.jpg'); }
     .mc-overtake { background: linear-gradient(160deg, #FF8C00, #c75c00); }
-    .mc-overtake::before { background-image: url('./image-search/david-bible-battle-victory-colorful-illu-3.jpg'); }
     .mc-recover { background: linear-gradient(160deg, #006400, #003d00); }
-    .mc-recover::before { background-image: url('./image-search/david-bible-battle-victory-colorful-illu-2.jpg'); }
     .mc-beauty { background: linear-gradient(160deg, #46178f, #2a0e5c); }
-    .mc-beauty::before { background-image: url('./image-search/bright-colorful-worship-church-backgroun-2.jpg'); }
     .mode-card .mc-icon { font-size: 1.8rem; }
     .mode-card h3 { font-size: 1.15rem; font-weight: 800; }
     .mode-card p { font-size: 0.8rem; opacity: 0.95; }

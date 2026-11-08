@@ -39,7 +39,8 @@ function doGet(e) {
         email: email,
         completed: !!existing,
         canPlay: overrideActive || !existing,
-        hostOverride: overrideActive
+        hostOverride: overrideActive,
+        savedProgress: getPlayerProgress_(email)
       }, params.callback);
     }
 
@@ -55,6 +56,7 @@ function doGet(e) {
         nickname: existing[2],
         score: Number(existing[3]) || 0,
         total: QUIZ_QUESTIONS.length,
+        elapsedSeconds: Number(existing[5]) || 0,
         answers: storedAnswers_(existing[4]).answers || [],
         answerKey: publicAnswerKey_()
       }, params.callback);
@@ -71,6 +73,23 @@ function doPost(e) {
   try {
     const body = readPostBody_(e);
     const email = verifyGoogleIdToken_(body.id_token);
+    const action = String(body.action || 'submit');
+    if (action === 'join' || action === 'progress' || action === 'clearProgress') {
+      lock.waitLock(30000);
+      try {
+        if (action === 'join') upsertPlayerProgress_(email, '', 0, [], 0, 'joined');
+        if (action === 'clearProgress') upsertPlayerProgress_(email, String(body.nickname || ''), 0, [], 0, 'joined');
+        if (action === 'progress') {
+          const nicknameValue = String(body.nickname || '').trim();
+          if (!nicknameValue || nicknameValue.length > 40) throw new Error('Enter a nickname between 1 and 40 characters.');
+          const savedAnswers = validateAnswersForProgress_(body.answers);
+          const current = Math.max(0, Math.min(QUIZ_QUESTIONS.length - 1, Number(body.current) || 0));
+          const elapsed = Math.max(0, Math.floor(Number(body.elapsed_seconds) || 0));
+          upsertPlayerProgress_(email, nicknameValue, current, savedAnswers, elapsed, 'in_progress');
+        }
+        return output_({ok:true});
+      } finally { lock.releaseLock(); }
+    }
     const nickname = String(body.nickname || '').trim();
     if (!nickname || nickname.length > 40) throw new Error('Enter a nickname between 1 and 40 characters.');
     const answers = validateAnswers_(body.answers);
@@ -87,9 +106,12 @@ function doPost(e) {
       }
       const answerKey = getQuizAnswerKey_();
       const score = answers.reduce((sum, answer, index) => sum + (answer.selectedIndex === answerKey[QUIZ_QUESTIONS[index].id].correct ? 1 : 0), 0);
-      sheet.appendRow([new Date(), email, nickname, score, JSON.stringify({ submissionId: submissionId, answers: answers })]);
+      const elapsedSeconds = Math.max(0, Math.floor(Number(body.elapsed_seconds) || 0));
+      sheet.getRange(1, 6).setValue('Elapsed_Seconds');
+      sheet.appendRow([new Date(), email, nickname, score, JSON.stringify({ submissionId: submissionId, answers: answers }), elapsedSeconds]);
+      upsertPlayerProgress_(email, nickname, QUIZ_QUESTIONS.length - 1, answers.map(answer => answer.selectedIndex), elapsedSeconds, 'completed');
       SpreadsheetApp.flush();
-      notifyQuizHosts_(nickname, score, answers);
+      notifyQuizHosts_(nickname, score, answers, elapsedSeconds);
       return output_({ ok: true, completed: true, score: score, total: QUIZ_QUESTIONS.length });
     } finally {
       lock.releaseLock();
@@ -97,6 +119,42 @@ function doPost(e) {
   } catch (err) {
     return output_({ ok: false, error: safeMessage_(err) });
   }
+}
+
+function getPlayerProgressSheet_() {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  let sheet = ss.getSheetByName('Player Progress');
+  const headers = ['Joined_At', 'Google_Email', 'Quiz', 'Nickname', 'Current_Question', 'Answers_JSON', 'Elapsed_Seconds', 'Status', 'Updated_At'];
+  if (!sheet) { sheet = ss.insertSheet('Player Progress'); sheet.appendRow(headers); }
+  else if (sheet.getLastRow() === 0) sheet.appendRow(headers);
+  return sheet;
+}
+function getPlayerProgress_(email) {
+  const sheet = getPlayerProgressSheet_(), last = sheet.getLastRow();
+  if (last < 2) return null;
+  const rows = sheet.getRange(2, 1, last - 1, 9).getValues();
+  for (let i = rows.length - 1; i >= 0; i--) if (String(rows[i][1] || '').toLowerCase() === email.toLowerCase() && rows[i][2] === 'Beauty for Ashes: Put It Into Practice' && rows[i][7] !== 'completed') {
+    return {nickname:String(rows[i][3] || ''), current:Number(rows[i][4]) || 0, answers:parseJson_(rows[i][5], []), elapsedSeconds:Number(rows[i][6]) || 0, savedAt:rows[i][8] instanceof Date ? rows[i][8].getTime() : Date.now()};
+  }
+  return null;
+}
+function upsertPlayerProgress_(email, nickname, current, answers, elapsed, status) {
+  const sheet = getPlayerProgressSheet_(), quiz = 'Beauty for Ashes: Put It Into Practice', last = sheet.getLastRow();
+  const rows = last < 2 ? [] : sheet.getRange(2, 1, last - 1, 9).getValues();
+  let rowNumber = 0;
+  for (let i = rows.length - 1; i >= 0; i--) if (String(rows[i][1] || '').toLowerCase() === email.toLowerCase() && rows[i][2] === quiz) { rowNumber = i + 2; break; }
+  const now = new Date(), joinedAt = rowNumber ? sheet.getRange(rowNumber, 1).getValue() : now;
+  const values = [joinedAt, email, quiz, nickname, current, JSON.stringify(answers), elapsed, status, now];
+  if (rowNumber) sheet.getRange(rowNumber, 1, 1, values.length).setValues([values]); else sheet.appendRow(values);
+}
+function validateAnswersForProgress_(answers) {
+  if (!Array.isArray(answers) || answers.length !== QUIZ_QUESTIONS.length) return Array(QUIZ_QUESTIONS.length).fill(null);
+  return answers.map((value, index) => Number.isInteger(value) && value >= 0 && value < QUIZ_QUESTIONS[index].options.length ? value : null);
+}
+function formatElapsedSeconds_(seconds) {
+  seconds = Math.max(0, Math.floor(Number(seconds) || 0));
+  const h = Math.floor(seconds / 3600), m = Math.floor((seconds % 3600) / 60), s = seconds % 60;
+  return h ? h + 'h ' + m + 'm ' + s + 's' : m ? m + 'm ' + s + 's' : s + 's';
 }
 
 function getResultsSheet_() {
@@ -108,13 +166,14 @@ function getResultsSheet_() {
   if (QUIZ_HEADERS.some((header, index) => actualHeaders[index] !== header)) {
     throw new Error('The first row must contain: ' + QUIZ_HEADERS.join(', '));
   }
+  if (sheet.getRange(1, 6).getDisplayValue() !== 'Elapsed_Seconds') sheet.getRange(1, 6).setValue('Elapsed_Seconds');
   return sheet;
 }
 
 function findLatestSubmission_(sheet, email) {
   const lastRow = sheet.getLastRow();
   if (lastRow < 2) return null;
-  const rows = sheet.getRange(2, 1, lastRow - 1, QUIZ_HEADERS.length).getValues();
+  const rows = sheet.getRange(2, 1, lastRow - 1, 6).getValues();
   const normalized = email.toLowerCase();
   for (let i = rows.length - 1; i >= 0; i--) {
     if (String(rows[i][1] || '').trim().toLowerCase() === normalized) return rows[i];
@@ -140,13 +199,13 @@ function getPublicLeaderboard_() {
     .map(row => ({ nickname:row.nickname, score:row.score, total:QUIZ_QUESTIONS.length }));
 }
 
-function notifyQuizHosts_(nickname, score, answers) {
+function notifyQuizHosts_(nickname, score, answers, elapsedSeconds) {
   const recipients = String(PropertiesService.getScriptProperties().getProperty('QUIZ_HOST_EMAILS') || '')
     .split(',').map(email => email.trim()).filter(email => /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email));
   if (!recipients.length) return;
   try {
     const answerKey = getQuizAnswerKey_();
-    const lines = ['Player: ' + nickname, 'Score: ' + score + ' / ' + QUIZ_QUESTIONS.length, '', 'Answer-by-answer review:'];
+    const lines = ['Player: ' + nickname, 'Score: ' + score + ' / ' + QUIZ_QUESTIONS.length, 'Total time: ' + formatElapsedSeconds_(elapsedSeconds), '', 'Answer-by-answer review:'];
     QUIZ_QUESTIONS.forEach((question, index) => {
       const selected = answers[index].selectedIndex;
       lines.push((index+1) + '. ' + question.q);

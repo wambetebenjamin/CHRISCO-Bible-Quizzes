@@ -5,9 +5,9 @@
 // Facebook / X show a thumbnail with the right message for whoever shares.
 
 const THEME = '1 Samuel 30:8 Pursue Overtake Recover All';
-const IMAGE_PATH = '/image-search/bright-colorful-worship-church-backgroun-1.jpg';
+const IMAGE_PATH = '/social-preview.png';
 
-const MODE_NAMES = { pursue: 'David Quiz', overtake: 'Overtake', recover: 'Recover All' };
+const MODE_NAMES = { pursue: 'David Quiz', overtake: 'Overtake', recover: 'Recover All', beauty: 'Beauty for Ashes' };
 
 function esc(s) {
   return String(s == null ? '' : s)
@@ -38,15 +38,15 @@ export default async function handler(req, res) {
 
   let title, description, heading, body;
   if (role === 'player') {
-    title = emoji + ' ' + name + ' invited you to a Bible Quiz game! PIN ' + pin;
-    description = emoji + ' ' + name + ' is playing a live CHRISCO Bible Quiz and wants you to join! PIN: ' + pin + '. Tap to play now. Theme: ' + THEME;
+    title = emoji + ' ' + name + ' invited you to ' + modeName + '! PIN ' + pin;
+    description = emoji + ' ' + name + ' is playing a live ' + modeName + ' game and wants you to join. PIN: ' + pin + '. Tap to play now.';
     heading = emoji + ' ' + name + ' invites you';
-    body = 'A live Bible Quiz game is running. Join with one tap and play together. Theme: ' + THEME;
+    body = 'A live ' + modeName + ' game is running. Join with one tap and play together.';
   } else {
-    title = 'CHRISCO Bible Quiz. Join ' + host + "'s game! PIN " + pin;
-    description = host + ' is hosting a live Bible Quiz game. PIN: ' + pin + '. Theme: ' + THEME + '. Play live with friends!';
-    heading = 'Join ' + host + 's Bible Quiz game';
-    body = 'Live multiplayer Bible Quiz. Share the PIN, answer questions, and see who recovers all. Theme: ' + THEME;
+    title = 'CHRISCO ' + modeName + '. Join ' + host + "'s game! PIN " + pin;
+    description = host + ' is hosting a live ' + modeName + ' game. PIN: ' + pin + '. Join and play together!';
+    heading = 'Join ' + host + "'s " + modeName + ' game';
+    body = 'Live multiplayer ' + modeName + '. Share the PIN, answer questions, and play together.';
   }
 
   const joinUrl = origin + '/player.html?pin=' + encodeURIComponent(pin) +
@@ -68,11 +68,17 @@ export default async function handler(req, res) {
   <meta property="og:title" content="` + title + `" />
   <meta property="og:description" content="` + description + `" />
   <meta property="og:image" content="` + origin + IMAGE_PATH + `" />
+  <meta property="og:image:secure_url" content="` + origin + IMAGE_PATH + `" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="CHRISCO Bible Quizzes: Read Scripture. Think deeply. Play together." />
   <meta property="og:url" content="` + shareUrl + `" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="` + title + `" />
   <meta name="twitter:description" content="` + description + `" />
   <meta name="twitter:image" content="` + origin + IMAGE_PATH + `" />
+  <meta name="twitter:image:alt" content="CHRISCO Bible Quizzes: Read Scripture. Think deeply. Play together." />
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {

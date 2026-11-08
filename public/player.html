@@ -22,6 +22,10 @@
     h1 { margin-bottom:8px; color:var(--navy); font-size:clamp(25px,5vw,36px); line-height:1.15; }
     .lead { color:var(--muted); line-height:1.65; }
     .section { margin-top:22px; }
+    .resume-actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:20px; }
+    .consent-row { display:flex; align-items:flex-start; gap:11px; margin:20px 0 10px; padding:15px; border:1px solid var(--line); border-radius:12px; background:#f8faff; font-weight:650; line-height:1.5; }
+    .consent-row input { flex:0 0 auto; width:20px; height:20px; margin-top:2px; accent-color:var(--blue); }
+    .resume-actions .btn { flex:1 1 180px; }
     .status { min-height:24px; margin:12px 0 0; color:var(--muted); font-size:14px; }
     .status.error { color:var(--red); font-weight:700; }
     .status.success { color:var(--green); font-weight:700; }
@@ -84,6 +88,10 @@
     @media(prefers-reduced-motion:reduce){ *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;scroll-behavior:auto !important;transition-duration:.01ms !important} }
     .review-item h3 { margin:0 0 10px; font-size:16px; line-height:1.45; }
     .review-answer { color:var(--green); font-weight:800; }
+    .review-choice { margin:6px 0; color:var(--muted); line-height:1.5; }
+    .review-choice.correct { color:var(--green); font-weight:750; }
+    .review-choice.incorrect { color:var(--red); font-weight:750; }
+    .result-actions { display:flex; justify-content:center; margin-top:24px; }
     .review-explain { margin:8px 0 0; color:var(--muted); line-height:1.5; }
     .score { margin:14px 0 4px; color:var(--blue); font-size:clamp(38px,10vw,58px); font-weight:950; line-height:1; }
     footer { padding:18px; text-align:center; color:#78839a; font-size:12px; }
@@ -103,6 +111,21 @@
         <div id="google-signin"></div>
         <p id="signin-status" class="status" role="status" aria-live="polite">Checking sign-in setup…</p>
       </div>
+    </section>
+
+    <section class="panel hidden" id="data-consent-panel">
+      <h1 data-i18n="ba_data_consent_title">Before you begin</h1>
+      <p class="lead" data-i18n="ba_data_consent_body">To save your place and report your result, we store your Google account email, nickname, answers, quiz progress, and total time in the host-managed quiz sheet. The host can access these records. A result email is sent to the host after completion.</p>
+      <label class="consent-row"><input id="data-consent" type="checkbox"><span data-i18n="ba_data_consent_check">I agree to this quiz data being saved and shared with the host as described.</span></label>
+      <p id="data-consent-status" class="status" role="status" aria-live="polite"></p>
+      <div class="resume-actions"><button class="btn gold" id="continue-data-consent" type="button" data-i18n="ba_data_consent_continue">Agree and continue</button><button class="btn" id="decline-data-consent" type="button" data-i18n="ba_data_consent_decline">No thanks</button></div>
+    </section>
+
+    <section class="panel hidden" id="resume-panel">
+      <h1 data-i18n="ba_resume_title">Welcome back</h1>
+      <p class="lead" data-i18n="ba_resume_body">Saved quiz progress was found on this device. You can continue where you left off or start again.</p>
+      <p id="resume-progress-info" class="status" role="status" aria-live="polite"></p>
+      <div class="resume-actions"><button class="btn gold" id="resume-quiz" type="button" data-i18n="ba_resume_button">Resume quiz</button><button class="btn" id="restart-quiz" type="button" data-i18n="ba_restart_button">Start over</button></div>
     </section>
 
     <section class="panel hidden" id="nickname-panel">
@@ -133,18 +156,22 @@
       </div>
       <div class="options" id="options" role="group" aria-label="Answer options"></div>
       <p class="lead section">Answers and explanations stay hidden until you submit the whole quiz.</p>
+      <p class="status" data-i18n="ba_progress_notice">Your answers and total quiz time are saved so you can return later.</p>
       <div class="nav-row"><button class="btn" id="previous-question" type="button">Previous</button><button class="btn gold" id="next-question" type="button">Next</button><button class="btn gold hidden" id="submit-quiz" type="button">Submit quiz</button></div>
       <p id="quiz-status" class="status" role="status" aria-live="polite"></p>
     </section>
 
     <section class="panel hidden" id="result-panel">
       <p class="status success">Submission saved</p>
-      <h1>Quiz complete</h1>
-      <div class="score" id="final-score">0 / 5</div>
+      <h1>Congratulations!</h1>
+      <p class="lead">You completed the Beauty for Ashes quiz. Thank you for taking part.</p>
+      <div class="score" id="final-score">0 / 10</div>
       <p class="lead" id="final-caption"></p>
+      <p class="status" id="total-time-result" hidden></p>
       <h2>Answer review</h2>
       <div class="answer-review" id="answer-review"></div>
       <section class="leaderboard-box" aria-live="polite"><h2>Beauty for Ashes rankings</h2><div id="result-rankings" class="rank-list">Loading rankings…</div></section>
+      <div class="result-actions"><a class="btn gold" href="/">Return to homepage</a></div>
     </section>
 
     <section class="panel hidden" id="denied-panel">
@@ -154,6 +181,7 @@
   </main>
   <footer><div class="attribution-banner" data-i18n="ba_credit_banner">These questions are from Presbyter David Kirui’s YouTube episode one. Be blessed.</div>CHRISCO Bible Quizzes</footer>
 
+  <script src="/i18n.js"></script>
   <script>
     // The OAuth Client ID is public; never put a client secret in the browser.
     const GOOGLE_CLIENT_ID = '1048157545653-ihf719b13o6sdpcsfv3bef1peggkaspp.apps.googleusercontent.com';
@@ -172,10 +200,73 @@
       {id:"q9", level:"Advanced", type:"multiple-choice", timestamp:"41:59–43:18", timestampSeconds:2519, videoUrl:"https://youtu.be/aDLRHK2GO6k?si=rMwSlEZ_RU1UafPN", q:"Someone says an addiction feels stronger than their intention to stop, and they are ashamed to tell anyone. Which response applies the teaching about bondage while responding responsibly to the person in front of you?", options:["Assure them that willpower alone is the answer and encourage them to keep the struggle private until they succeed.", "Offer spiritual support but discourage professional assessment because the issue is only spiritual.", "Listen without shaming them, encourage trusted spiritual support and qualified professional help, and agree on a safe next step.", "Make continued support conditional on the person stopping immediately and never relapsing."]},
       {id:"q10", level:"Advanced", type:"true-false", timestamp:"31:51–37:14", timestampSeconds:1911, videoUrl:"https://youtu.be/aDLRHK2GO6k?si=rMwSlEZ_RU1UafPN", q:"TRUE OR FALSE: The serpent first contradicted God’s instruction openly, before asking Eve a question about it.", options:["True", "False"]}
     ];
-    const state = { idToken:'', email:'', nickname:'', answers:Array(QUIZ.length).fill(null), current:0, busy:false };
+    const state = { idToken:'', email:'', nickname:'', answers:Array(QUIZ.length).fill(null), current:0, busy:false, dataConsent:false, pendingProgress:null, elapsedBeforeSession:0, sessionStartedAt:null, progressSaveQueue:Promise.resolve() };
     const byId = id => document.getElementById(id);
-    const panels = ['signin-panel','nickname-panel','quiz-panel','result-panel','denied-panel'];
+    const panels = ['signin-panel','data-consent-panel','resume-panel','nickname-panel','quiz-panel','result-panel','denied-panel'];
     function showPanel(id) { panels.forEach(panel => byId(panel).classList.toggle('hidden', panel !== id)); if(id==='result-panel'){byId(id).classList.remove('result-panel-enter'); void byId(id).offsetWidth; byId(id).classList.add('result-panel-enter');} window.scrollTo({top:0,behavior:'smooth'}); }
+    function progressStorageKey() {
+      const email=String(state.email||'').trim().toLowerCase();if(!email)return null;
+      let hash=2166136261;for(let i=0;i<email.length;i++)hash=Math.imul(hash^email.charCodeAt(i),16777619);
+      return 'chrisco_ba_progress_v1_'+(hash>>>0).toString(16);
+    }
+    function normalizeProgress(saved) {
+      if(!saved||!Array.isArray(saved.answers)||saved.answers.length!==QUIZ.length)return null;
+      const current=Number(saved.current ?? saved.currentQuestion);
+      if(!Number.isInteger(current)||current<0||current>=QUIZ.length)return null;
+      if(saved.answers.some((answer,index)=>answer!==null&&(!Number.isInteger(answer)||answer<0||answer>=QUIZ[index].options.length)))return null;
+      return {version:1,nickname:String(saved.nickname||''),answers:saved.answers.slice(),current,elapsedSeconds:Math.max(0,Number(saved.elapsedSeconds ?? saved.elapsed_seconds)||0),savedAt:Number(saved.savedAt||saved.lastSavedAt||Date.now())};
+    }
+    function readSavedProgress() {
+      const key=progressStorageKey();if(!key)return null;
+      try { const saved=normalizeProgress(JSON.parse(localStorage.getItem(key)||'null'));if(!saved||Date.now()-saved.savedAt>90*24*60*60*1000)return null;return saved; } catch (_) { return null; }
+    }
+    function currentElapsedSeconds() {
+      return Math.max(0,(Number(state.elapsedBeforeSession)||0)+(state.sessionStartedAt?Math.floor((Date.now()-state.sessionStartedAt)/1000):0));
+    }
+    function pauseQuizClock() {
+      if(state.sessionStartedAt){state.elapsedBeforeSession=currentElapsedSeconds();state.sessionStartedAt=null;}
+    }
+    function resumeQuizClock() {
+      if(state.dataConsent&&!state.sessionStartedAt&&!byId('quiz-panel').classList.contains('hidden'))state.sessionStartedAt=Date.now();
+    }
+    function progressPayload(action) {
+      return {action:action||'progress',id_token:state.idToken,nickname:state.nickname,current:state.current,answers:state.answers,elapsed_seconds:currentElapsedSeconds()};
+    }
+    function queueProgressPost(payload) {
+      state.progressSaveQueue=state.progressSaveQueue.catch(()=>{}).then(()=>fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=UTF-8'},body:JSON.stringify(payload)})).catch(()=>{});
+      return state.progressSaveQueue;
+    }
+    function saveProgress() {
+      const key=progressStorageKey();if(!key||!state.nickname||!state.dataConsent||byId('quiz-panel').classList.contains('hidden'))return;
+      const saved={version:1,nickname:state.nickname,answers:state.answers,current:state.current,elapsedSeconds:currentElapsedSeconds(),savedAt:Date.now()};
+      try { localStorage.setItem(key,JSON.stringify(saved)); } catch (_) { setStatus('quiz-status','Progress could not be saved on this device.','error'); }
+      queueProgressPost(progressPayload('progress'));
+    }
+    function sendProgressOnExit() {
+      if(!state.dataConsent||!state.nickname||!state.idToken||byId('quiz-panel').classList.contains('hidden'))return;
+      const body=JSON.stringify(progressPayload('progress'));
+      if(navigator.sendBeacon){try{if(navigator.sendBeacon(APPS_SCRIPT_URL,new Blob([body],{type:'text/plain;charset=UTF-8'})))return;}catch(_){}}
+      queueProgressPost(JSON.parse(body));
+    }
+    function clearSavedProgress() { const key=progressStorageKey();if(key)try{localStorage.removeItem(key);}catch(_){} }
+    function clearRemoteProgress() { if(state.dataConsent&&state.idToken)queueProgressPost(progressPayload('clearProgress')); }
+    function continueAfterConsent() {
+      if(!byId('data-consent').checked){setStatus('data-consent-status',window.L?window.L('ba_consent_required'):'Please agree before continuing.','error');return;}
+      state.dataConsent=true;
+      queueProgressPost({action:'join',id_token:state.idToken});
+      const saved=state.pendingProgress||readSavedProgress();
+      if(saved){state.pendingProgress=normalizeProgress(saved);const answered=saved.answers.filter(value=>value!==null).length;const countLabel=window.L?window.L('ba_resume_count'):'You answered {count} of 10 questions. Progress stays on this device.';byId('resume-progress-info').textContent=countLabel.replace('{count}',answered);showPanel('resume-panel');return;}
+      showPanel('nickname-panel');byId('nickname').focus();
+    }
+    function resumeSavedQuiz() {
+      const saved=normalizeProgress(state.pendingProgress);if(!saved)return;
+      state.nickname=saved.nickname||'';state.answers=saved.answers.slice();state.current=saved.current;state.elapsedBeforeSession=saved.elapsedSeconds;state.sessionStartedAt=Date.now();state.pendingProgress=null;
+      if(!state.nickname){byId('nickname').value='';showPanel('nickname-panel');return;}
+      showPanel('quiz-panel');renderQuestion();
+    }
+    function startFreshQuiz() { clearSavedProgress();clearRemoteProgress();state.pendingProgress=null;state.current=0;state.answers=Array(QUIZ.length).fill(null);state.elapsedBeforeSession=0;state.sessionStartedAt=null;byId('nickname').value='';showPanel('nickname-panel'); }
+    document.addEventListener('visibilitychange',()=>{if(document.hidden){pauseQuizClock();saveProgress();}else resumeQuizClock();});
+    window.addEventListener('pagehide',()=>{pauseQuizClock();saveProgress();sendProgressOnExit();});
     function celebrate() {
       if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
       const canvas=byId('confetti-canvas'),ctx=canvas.getContext('2d');
@@ -216,12 +307,16 @@
         if (!data || !data.ok) throw new Error((data && data.error) || 'Could not verify quiz access.');
         state.email = data.email || '';
         if (data.completed && !data.hostOverride) {
+          clearSavedProgress();
           byId('denied-message').textContent='You have already completed this quiz. Retries are not allowed.';
           showPanel('denied-panel');
           return;
         }
-        showPanel('nickname-panel');
-        byId('nickname').focus();
+        state.dataConsent=false;
+        byId('data-consent').checked=false;
+        state.pendingProgress=normalizeProgress(data.savedProgress)||readSavedProgress();
+        setStatus('data-consent-status','');
+        showPanel('data-consent-panel');
       }).catch(error => setStatus('signin-status',error.message||'Could not verify quiz access.','error'));
     }
     function jsonp(params) {
@@ -240,7 +335,8 @@
     function startQuiz() {
       const name=byId('nickname').value.trim();
       if (!name || name.length>40) { setStatus('nickname-status','Enter a nickname up to 40 characters.','error'); return; }
-      state.nickname=name; state.current=0; state.answers=Array(QUIZ.length).fill(null);
+      if(!state.dataConsent){showPanel('data-consent-panel');return;}
+      state.nickname=name; state.current=0; state.answers=Array(QUIZ.length).fill(null);state.elapsedBeforeSession=0;state.sessionStartedAt=Date.now();
       showPanel('quiz-panel'); renderQuestion();
     }
     function renderQuestion() {
@@ -270,14 +366,16 @@
       byId('submit-quiz').classList.toggle('hidden',state.current!==QUIZ.length-1);
       byId('submit-quiz').disabled=state.busy||state.answers.some(answer=>answer===null);
       setStatus('quiz-status','');
+      saveProgress();
     }
     function moveQuestion(delta) { state.current=Math.max(0,Math.min(QUIZ.length-1,state.current+delta)); renderQuestion(); }
     async function submitQuiz() {
       if (state.busy) return;
       if (state.answers.some(answer=>answer===null)) { setStatus('quiz-status','Answer every question before submitting.','error'); return; }
+      const elapsedSeconds=currentElapsedSeconds();pauseQuizClock();state.elapsedBeforeSession=elapsedSeconds;
       state.busy=true; byId('submit-quiz').disabled=true; setStatus('quiz-status','Saving your submission…');
       const submissionId=(window.crypto&&crypto.randomUUID?crypto.randomUUID():String(Date.now())+'-'+Math.random()).replace(/[^a-zA-Z0-9_-]/g,'');
-      const payload={id_token:state.idToken,nickname:state.nickname,submissionId,answers:QUIZ.map((q,index)=>({questionId:q.id,selectedIndex:state.answers[index]}))};
+      const payload={action:'submit',id_token:state.idToken,nickname:state.nickname,submissionId,elapsed_seconds:elapsedSeconds,answers:QUIZ.map((q,index)=>({questionId:q.id,selectedIndex:state.answers[index]}))};
       try {
         // text/plain is a simple cross-origin request; no-cors avoids Apps Script's CORS preflight.
         // The response is read back via the authenticated JSONP result endpoint after the write finishes.
@@ -290,26 +388,39 @@
         showResults(result);
       } catch(error) {
         setStatus('quiz-status',error.message||'Could not save your quiz. Please try again.','error');
-      } finally { state.busy=false; renderQuestion(); }
+      } finally { state.busy=false; if(!byId('quiz-panel').classList.contains('hidden')){if(state.dataConsent&&!state.sessionStartedAt)state.sessionStartedAt=Date.now();renderQuestion();} }
+    }
+    function formatElapsedTime(totalSeconds) {
+      const seconds=Math.max(0,Math.floor(Number(totalSeconds)||0));const hours=Math.floor(seconds/3600);const minutes=Math.floor((seconds%3600)/60);const remainder=seconds%60;
+      return hours?hours+'h '+minutes+'m '+remainder+'s':minutes?minutes+'m '+remainder+'s':remainder+'s';
     }
     function showResults(result) {
+      clearSavedProgress();
       byId('final-score').textContent=(Number(result.score)||0)+' / '+(Number(result.total)||QUIZ.length);
-      byId('final-caption').textContent='Thank you, '+(result.nickname||state.nickname)+'. Your answers are now available for review.';
+      byId('final-caption').textContent='Thank you for completing the quiz, '+(result.nickname||state.nickname)+'. Your score is shown above; review every answer below.';
+      const totalTime=byId('total-time-result');const timeLabel=window.L?window.L('ba_total_time'):'Total time: {time}';totalTime.textContent=timeLabel.replace('{time}',formatElapsedTime(result.elapsedSeconds??state.elapsedBeforeSession));totalTime.hidden=false;
       const review=byId('answer-review'); review.replaceChildren();
       (result.answerKey||[]).forEach((item,index)=>{
         const article=document.createElement('article'); article.className='review-item';
         const heading=document.createElement('h3'); heading.textContent=(index+1)+'. '+(item.level?'['+item.level+'] ':'')+item.q;
+        const options=item.options||[];const correctIndex=Number(item.correct);const submitted=(result.answers||[]).find(answer=>answer.questionId===item.id);const selectedIndex=submitted?Number(submitted.selectedIndex):Number(state.answers[index]);
+        const chosen=document.createElement('p');chosen.className='review-choice '+(selectedIndex===correctIndex?'correct':'incorrect');
+        chosen.textContent='Your answer: '+(options[selectedIndex]!==undefined?options[selectedIndex]:'No answer recorded');
         const answer=document.createElement('div'); answer.className='review-answer';
-        answer.textContent='Correct answer: '+(item.options||[])[item.correct];
+        answer.textContent='Correct answer: '+(options[correctIndex]!==undefined?options[correctIndex]:'Answer unavailable');
         const explanation=document.createElement('p'); explanation.className='review-explain'; explanation.textContent=item.explain||'';
-        const source=document.createElement('a');source.className='review-source';source.target='_blank';source.rel='noopener noreferrer';source.href=(item.videoUrl||'https://youtu.be/aDLRHK2GO6k')+'&t='+(Number(item.timestampSeconds)||0)+'s';source.textContent=window.L('ba_video_reference').replace('{timestamp}',item.timestamp||'');
-        article.append(heading,answer,explanation,source); review.appendChild(article);
+        const source=document.createElement('a');source.className='review-source';source.target='_blank';source.rel='noopener noreferrer';source.href=(item.videoUrl||'https://youtu.be/aDLRHK2GO6k')+'&t='+(Number(item.timestampSeconds)||0)+'s';source.textContent=(window.L?window.L('ba_video_reference'):'Optional: watch this YouTube segment ({timestamp})').replace('{timestamp}',item.timestamp||'');
+        article.append(heading,chosen,answer,explanation,source); review.appendChild(article);
       });
       showPanel('result-panel');
       celebrate();
       loadLeaderboard('result-rankings');
     }
+    byId('continue-data-consent').addEventListener('click',continueAfterConsent);
+    byId('decline-data-consent').addEventListener('click',()=>{state.idToken='';state.email='';state.dataConsent=false;state.pendingProgress=null;showPanel('signin-panel');setStatus('signin-status','Sign in again if you decide to save your quiz progress.');});
     byId('start-quiz').addEventListener('click',startQuiz);
+    byId('resume-quiz').addEventListener('click',resumeSavedQuiz);
+    byId('restart-quiz').addEventListener('click',startFreshQuiz);
     byId('previous-question').addEventListener('click',()=>moveQuestion(-1));
     byId('next-question').addEventListener('click',()=>moveQuestion(1));
     byId('submit-quiz').addEventListener('click',submitQuiz);
