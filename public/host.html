@@ -55,7 +55,7 @@
     .btn--sm { padding: 0.4rem 0.9rem; font-size: 0.85rem; border-radius: 10px; }
 
     .hero { position: relative; overflow: hidden; color: #fff; text-align: center; background: radial-gradient(900px 400px at 80% 10%, rgba(255,140,0,0.35) 0%, transparent 60%), linear-gradient(120deg, #00008B 0%, #46178f 100%); padding: 2rem 1rem 2rem; }
-    .hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 85% 20%, rgba(255,192,10,.12), transparent 220px); }
+    .hero::before { content: ''; position: absolute; inset: 0; background: url('./image-search/bright-colorful-worship-church-backgroun-2.jpg') center/cover no-repeat; opacity:.2; mix-blend-mode:screen; }
     .hero-content { position: relative; z-index: 2; max-width: 700px; margin: 0 auto; }
     .hero h1 { font-size: clamp(1.6rem, 4vw, 2.6rem); font-weight: 900; text-shadow: 0 4px 20px rgba(0,0,0,0.4); }
     .hero p { margin-top: 0.5rem; opacity: 0.9; font-weight: 500; }
@@ -124,7 +124,11 @@
     .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1rem 0; }
     .mode-card { position: relative; border-radius: 20px; overflow: hidden; padding: 1.2rem; color: #fff; cursor: pointer; min-height: 140px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 8px 20px rgba(0,0,0,0.2); transition: transform 0.3s; border: none; text-align: left; font-family: inherit; }
     .mode-card:hover { transform: translateY(-4px); }
-    .mode-card::before { content: ''; position: absolute; inset: 0; background:linear-gradient(135deg,rgba(255,255,255,.08),transparent 55%); }
+    .mode-card::before { content: ''; position: absolute; inset: 0; background-size:cover; background-position:center; opacity:.9; }
+    .mc-pursue::before { background-image:url('./image-search/1-samuel-30-8-pursue-overtake-recover-bi-3.jpg'); }
+    .mc-overtake::before { background-image:url('./image-search/bible-study-colorful-books-rainbow-brigh-2.jpg'); }
+    .mc-recover::before { background-image:url('./image-search/bright-colorful-worship-church-backgroun-3.jpg'); }
+    .mc-beauty::before { background-image:url('./image-search/bible-study-colorful-books-rainbow-brigh-3.jpg'); }
     .mode-card::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.6) 100%); }
     .mode-card > * { position: relative; z-index: 2; }
     .mc-pursue { background: linear-gradient(160deg, #00008B, #000051); }

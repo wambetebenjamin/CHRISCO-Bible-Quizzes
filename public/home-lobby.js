@@ -6,6 +6,20 @@
   const $ = id => document.getElementById(id);
   const escapeHtml = s => String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const modeName = g => (window.CHRISCO_MODES[g.mode] || {}).name || g.mode || 'Bible Quiz';
+  function shareMarkup(g) {
+    const host = g.hostName || g.name || 'Host';
+    const mode = ['pursue','overtake','recover','beauty'].includes(g.mode) ? g.mode : 'pursue';
+    const params = new URLSearchParams({role:'player',pin:String(g.pin || ''),host:host,name:host,mode:mode});
+    const url = window.location.origin + '/api/share?' + params.toString();
+    const invite = host + ' invites you to ' + modeName(g) + '. Game PIN: ' + g.pin + '.';
+    const encodedUrl = encodeURIComponent(url), encodedInvite = encodeURIComponent(invite);
+    return '<div class="lobby-share-row" aria-label="Share this hosted quiz">' +
+      '<a class="lobby-share-btn whatsapp" href="https://wa.me/?text=' + encodedInvite + '%20' + encodedUrl + '" target="_blank" rel="noopener noreferrer" aria-label="Share on WhatsApp"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>' +
+      '<a class="lobby-share-btn facebook" href="https://www.facebook.com/sharer/sharer.php?u=' + encodedUrl + '&amp;quote=' + encodedInvite + '" target="_blank" rel="noopener noreferrer" aria-label="Share on Facebook"><i class="fa-brands fa-facebook-f"></i> Facebook</a>' +
+      '<a class="lobby-share-btn x-share" href="https://twitter.com/intent/tweet?text=' + encodedInvite + '&amp;url=' + encodedUrl + '" target="_blank" rel="noopener noreferrer" aria-label="Share on X"><i class="fa-brands fa-x-twitter"></i> X</a>' +
+      '<button class="lobby-share-btn copy-share" type="button" data-share-copy="' + escapeHtml(url) + '"><i class="fa-solid fa-link"></i> Copy link</button>' +
+      '</div>';
+  }
   function render(presence) {
     const entries = Object.values(presence || {}).flat().filter(g => g && g.pin && !['idle','closed'].includes(String(g.status || '').toLowerCase()) && (g.isPublic === true || g.privacy === 'public' || (!g.privacy && g.isPublic !== false)));
     const unique = Array.from(new Map(entries.map(g => [g.hostId || g.pin, g])).values());
@@ -18,11 +32,23 @@
       const joinControl = String(g.pin) === '777777'
         ? `<button class="btn btn--yellow gt-join" type="button" onclick="window.location.href = 'player.html?pin=777777';"><i class="fa-solid fa-right-to-bracket"></i> Join ${escapeHtml(g.name || 'Game')}</button>`
         : '<a class="btn btn--yellow gt-join" href="player.html?pin=' + encodeURIComponent(g.pin) + '"><i class="fa-solid fa-right-to-bracket"></i> Join ' + escapeHtml(g.name || 'Game') + '</a>';
-      return '<article class="game-tile ' + (playing ? 'playing' : 'waiting') + '"><div class="gt-pin">' + escapeHtml(g.pin) + '</div><div class="gt-mode">' + escapeHtml(modeName(g)) + '</div><div class="gt-host"><i class="fa-solid fa-user"></i> ' + escapeHtml(displayHost) + '</div><div class="gt-meta"><span><i class="fa-solid fa-users"></i> ' + n + ' ' + escapeHtml(window.L(n === 1 ? 'lobby_player' : 'lobby_players')) + '</span><span>' + escapeHtml(window.L(playing ? 'lobby_playing' : 'lobby_waiting')) + '</span></div>' + (rankings ? '<div class="gt-rankings"><strong>Live rankings</strong>' + rankings + '</div>' : '') + joinControl + '</article>';
+      const safeMode = ['pursue','overtake','recover','beauty'].includes(g.mode) ? g.mode : '';
+      return '<article class="game-tile ' + (playing ? 'playing' : 'waiting') + (safeMode ? ' mode-' + safeMode : '') + '"><div class="gt-pin">' + escapeHtml(g.pin) + '</div><div class="gt-mode">' + escapeHtml(modeName(g)) + '</div><div class="gt-host"><i class="fa-solid fa-user"></i> ' + escapeHtml(displayHost) + '</div><div class="gt-meta"><span><i class="fa-solid fa-users"></i> ' + n + ' ' + escapeHtml(window.L(n === 1 ? 'lobby_player' : 'lobby_players')) + '</span><span>' + escapeHtml(window.L(playing ? 'lobby_playing' : 'lobby_waiting')) + '</span></div>' + (rankings ? '<div class="gt-rankings"><strong>Live rankings</strong>' + rankings + '</div>' : '') + joinControl + shareMarkup(g) + '</article>';
     }).join('') : '<div class="game-tile gt-empty"><i class="fa-solid fa-hourglass-half"></i> ' + escapeHtml(window.L('lobby_empty_player')) + '</div>';
     const live = unique.find(g => g.hostName === hostName || g.name === hostName || g.name === 'Beauty for Ashes');
     if (live) { $('lobby-live-banner').style.display = 'flex'; $('lobby-live-pin').textContent = live.pin; $('lobby-live-join').href = 'player.html?pin=' + encodeURIComponent(live.pin); }
     else $('lobby-live-banner').style.display = 'none';
+  }
+  async function copyShareLink(button) {
+    const url = button && button.getAttribute('data-share-copy');
+    if (!url) return;
+    try {
+      await navigator.clipboard.writeText(url);
+      button.innerHTML = '<i class="fa-solid fa-check"></i> Copied';
+      setTimeout(() => { if (button.isConnected) button.innerHTML = '<i class="fa-solid fa-link"></i> Copy link'; }, 1800);
+    } catch (_) {
+      window.prompt('Copy this share link (it includes the social thumbnail preview):', url);
+    }
   }
   function loadBeautyRankings() {
     const target = $('beauty-public-rankings'); if (!target) return;
@@ -53,6 +79,12 @@
       .subscribe(status => { if (status === 'SUBSCRIBED') render(lobby.presenceState()); });
   }
   window.addEventListener('DOMContentLoaded', () => {
+    const beautyShare = $('beauty-share-links');
+    if (beautyShare) beautyShare.innerHTML = shareMarkup({pin:'777777',mode:'beauty',hostName:'Presbyter David Kirui'});
+    document.addEventListener('click', event => {
+      const copyButton = event.target.closest('[data-share-copy]');
+      if (copyButton) copyShareLink(copyButton);
+    });
     loadBeautyRankings();
     const wrap = $('lang-select-wrap'); if (wrap) window.buildLangSelector(wrap);
     window.applyLang(window.getLang());
