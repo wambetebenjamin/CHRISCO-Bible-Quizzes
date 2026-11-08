@@ -170,10 +170,23 @@
     .settings-grid select,.settings-grid input { min-width:0; padding:.65rem .7rem; border-radius:9px; border:1px solid rgba(255,255,255,.6); font:inherit; color:#222; background:#fff; }
     .settings-panel h3 { margin-bottom:.45rem; }
     .settings-panel p { margin:.4rem 0; }
+    .quiz-level { display:inline-flex; padding:.32rem .75rem; margin-left:.55rem; border-radius:999px; background:#f5e7b9; color:#523d10; font-size:.73rem; font-weight:900; letter-spacing:.05em; text-transform:uppercase; vertical-align:middle; }
+    .host-study-figure { width:94px; height:78px; float:right; margin:-.2rem 0 .3rem .5rem; }
+    .host-study-figure svg { width:100%; height:100%; overflow:visible; }
+    .host-study-figure .arm { transform-origin:57px 43px; animation:host-write .7s ease-in-out infinite alternate; }
+    .host-study-figure .body { transform-origin:49px 42px; animation:host-breathe 3s ease-in-out infinite; }
+    @keyframes host-write { from{transform:rotate(-5deg)} to{transform:rotate(5deg)} }
+    @keyframes host-breathe { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-1.5px)} }
+    .answer-end-review { display:grid;gap:.65rem;text-align:left;margin-top:1.2rem; }
+    .answer-end-item { background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:.8rem;text-align:left;line-height:1.5; }
+    .answer-end-item strong { color:#ffe08a;display:block;margin-bottom:.2rem; }
+    #host-confetti { position:fixed;inset:0;width:100%;height:100%;z-index:90;pointer-events:none; }
+    @media(prefers-reduced-motion:reduce){.host-study-figure .arm,.host-study-figure .body{animation:none !important;}}
     @media (max-width: 600px) { .topbar-inner { flex-wrap: wrap; } .card { padding: 1.4rem 1.2rem; } .pin-display { letter-spacing: 4px; padding: 0.7rem; } .question-card { padding: 1.4rem 1.1rem; } .lobby-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
+  <canvas id="host-confetti" aria-hidden="true"></canvas>
   <div class="topbar">
     <div class="topbar-inner">
       <a class="brand" href="index.html"><span class="brand-logo"><i class="fa-solid fa-crosshairs"></i></span><span class="brand-text">CHRISCO<small>BIBLE QUIZZES</small></span></a>
@@ -253,7 +266,8 @@
         </div>
       </div>
       <div class="question-card">
-        <span class="q-counter" id="q-counter"><i class="fa-solid fa-list-ol"></i> Question 1 of 5</span>
+        <span class="q-counter" id="q-counter"><i class="fa-solid fa-list-ol"></i> Question 1 of 5</span><span class="quiz-level" id="q-level" style="display:none;"></span>
+        <div class="host-study-figure" aria-hidden="true"><svg viewBox="0 0 95 78" xmlns="http://www.w3.org/2000/svg"><ellipse cx="49" cy="73" rx="39" ry="4" fill="#d9dce3"/><path d="M8 62h78l-5 9H14z" fill="#7a4e2d"/><path d="M14 58h66v5H14z" fill="#a86f3d"/><g class="body"><path d="M29 59V41c0-8 7-13 17-13s17 7 17 16v15z" fill="#1747b1"/><path d="M38 30h12v10H38z" fill="#b76e45"/><circle cx="44" cy="22" r="13" fill="#c7835b"/><path d="M31 21c0-10 7-16 15-16 7 0 12 4 14 11-6-4-12-4-18-1l-8 11z" fill="#28221e"/></g><path d="M18 57c8-6 14-6 22 0v11c-8-5-14-5-22 0z" fill="#fff8e7" stroke="#8c6b37"/><path d="M40 57c8-6 14-6 22 0v11c-8-5-14-5-22 0z" fill="#f5e7b9" stroke="#8c6b37"/><g class="arm"><path d="M53 42l8 5 8 8-5 4-11-8-5-2z" fill="#c7835b"/><path d="M66 53l10-14" stroke="#30251d" stroke-width="2.5" stroke-linecap="round"/></g></svg></div>
         <div class="timer-num" id="timer-num"><i class="fa-solid fa-clock"></i> 20s</div>
         <div class="timer-bar"><div class="fill" id="timer-fill"></div></div>
         <div class="q-text" id="q-text">Question text appears here.</div>
@@ -289,6 +303,7 @@
         <h2 id="end-title">Game Over!</h2>
         <p id="end-sub" style="margin:0.5rem 0 1.5rem;opacity:0.9;">Theme: 1 Samuel 30:8 Pursue Overtake Recover All</p>
         <div id="end-scores"></div>
+        <div id="end-answer-review" class="answer-end-review" aria-label="Answer review shown after the final question"></div>
         <button id="play-again-btn" class="btn btn--yellow btn--large btn--block" style="margin-top:1.5rem;"><i class="fa-solid fa-rotate-left"></i> New Game</button>
         <a class="btn btn--outline btn--block" style="margin-top:0.8rem;" href="index.html"><i class="fa-solid fa-house"></i> Back to Home</a>
       </div>
@@ -306,7 +321,7 @@
     const state = {
       hostName: localStorage.getItem('chrisco_host_nickname') || 'Host', hostIcon: 'fa-solid fa-lion', hostId: '', hostToken: '', pin: '', mode: 'pursue',
       lobbyChannel: null, gameChannel: null, supabase: null,
-      players: {}, lobbyGames: {}, settings: { pacing:'host', answerVisibility:'immediate', timerSeconds:20, retries:'allow', privacy:'private' },
+      players: {}, lobbyGames: {}, settings: { pacing:'host', answerVisibility:'end', timerSeconds:20, retries:'allow', privacy:'private' },
       questions: [], questionsOverride: null, qIndex: 0, phase: 'setup',
       timer: null, timeLeft: 0, answers: {}, attemptedDevices: {}, revealed: false,
       currentQ: null, winner: null
@@ -333,6 +348,14 @@
     }
     function $(id) { return document.getElementById(id); }
     function esc(s) { const d = document.createElement('div'); d.textContent = s == null ? '' : String(s); return d.innerHTML; }
+    function celebrateHost() {
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      const canvas=$('host-confetti'),ctx=canvas.getContext('2d'),dpr=window.devicePixelRatio||1;
+      canvas.width=innerWidth*dpr;canvas.height=innerHeight*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);
+      const palette=['#ffc72c','#1747b1','#0b8554','#b42318','#f5e7b9'];
+      const bits=Array.from({length:170},()=>({x:innerWidth/2+(Math.random()-.5)*120,y:innerHeight*.56,vx:(Math.random()-.5)*9,vy:-Math.random()*10-3,r:Math.random()*6.28,vr:(Math.random()-.5)*.2,s:4+Math.random()*6,c:palette[Math.floor(Math.random()*palette.length)],life:130+Math.random()*60}));
+      let frame=0;function draw(){ctx.clearRect(0,0,innerWidth,innerHeight);let active=0;bits.forEach(b=>{if(b.life<=0)return;active++;b.x+=b.vx;b.y+=b.vy;b.vy+=.2;b.r+=b.vr;b.life--;ctx.save();ctx.translate(b.x,b.y);ctx.rotate(b.r);ctx.globalAlpha=Math.min(1,b.life/35);ctx.fillStyle=b.c;ctx.fillRect(-b.s/2,-b.s/2,b.s,b.s*.6);ctx.restore();});if(active&&frame++<220)requestAnimationFrame(draw);else ctx.clearRect(0,0,innerWidth,innerHeight);}requestAnimationFrame(draw);
+    }
     function statusPill(html, cls) { const p = $('status-pill'); p.className = 'status-pill ' + (cls||''); p.innerHTML = html; }
     function showScreen(id) {
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -531,6 +554,7 @@
           index: state.qIndex,
           total: state.questions.length,
           q: cur ? cur.q : null,
+          level: cur ? cur.level : null,
           options: cur ? cur.options : [],
           correct: cur && state.settings.answerVisibility === 'immediate' ? cur.correct : null,
           explain: cur && state.settings.answerVisibility === 'immediate' ? cur.explain : null,
@@ -574,9 +598,11 @@
 
     function showQuestion() {
       const q = state.questions[state.qIndex];
-      state.currentQ = { q: q.q, options: q.options, correct: q.correct, explain: q.explain };
+      state.currentQ = { q: q.q, options: q.options, correct: q.correct, explain: q.explain, level:q.level || null };
       state.attemptedDevices = {};
       $('q-counter').innerHTML = '<i class="fa-solid fa-list-ol"></i> Question ' + (state.qIndex+1) + ' of ' + state.questions.length;
+      const levelNode=$('q-level');
+      if(q.level){levelNode.textContent=q.level;levelNode.style.display='inline-flex';}else{levelNode.style.display='none';}
       const localized = window.localizeQuestion(q, (localStorage.getItem('chrisco_lang') || 'en'));
       $('q-text').textContent = localized.q;
       $('q-options').innerHTML = localized.options.map((o,i) => '<button class="opt" data-i="'+i+'"><span class="letter">'+LETTERS[i]+'</span><span>'+esc(o)+'</span></button>').join('');
@@ -587,7 +613,7 @@
       state.timeLeft = state.settings.timerSeconds;
       $('timer-num').innerHTML = '<i class="fa-solid fa-clock"></i> ' + state.timeLeft + 's';
       $('timer-fill').style.width = '100%';
-      state.gameChannel.send({ type: 'broadcast', event: 'question', payload: { index: state.qIndex, total: state.questions.length, q: q.q, options: q.options, seconds: state.timeLeft, settings:state.settings } });
+      state.gameChannel.send({ type: 'broadcast', event: 'question', payload: { index: state.qIndex, total: state.questions.length, q: q.q, level:q.level || null, options: q.options, seconds: state.timeLeft, settings:state.settings } });
       clearInterval(state.timer);
       if (state.timeLeft > 0) state.timer = setInterval(tickTimer, 1000); else $('timer-num').innerHTML = '<i class="fa-solid fa-infinity"></i> No timer';
     }
@@ -604,15 +630,20 @@
       clearInterval(state.timer);
       state.phase = 'reveal';
       const q = state.questions[state.qIndex];
-      $('q-options').querySelectorAll('.opt').forEach((b,i) => { if (i === q.correct) b.classList.add('correct'); });
-      const localized = window.localizeQuestion(q, (localStorage.getItem('chrisco_lang') || 'en'));
-      $('q-explain').innerHTML = '<i class="fa-solid fa-circle-info"></i> ' + esc(localized.explain);
-      $('q-explain').style.display = 'block';
+      const visibility=state.settings.answerVisibility;
+      if(visibility==='immediate'){
+        $('q-options').querySelectorAll('.opt').forEach((b,i) => { if (i === q.correct) b.classList.add('correct'); });
+        const localized = window.localizeQuestion(q, (localStorage.getItem('chrisco_lang') || 'en'));
+        $('q-explain').innerHTML = '<i class="fa-solid fa-circle-info"></i> ' + esc(localized.explain);
+        $('q-explain').style.display = 'block';
+      } else {
+        // End-only mode does not reveal correctness to the room or host until the final screen.
+        $('q-explain').style.display = 'none';
+      }
       $('reveal-btn').innerHTML = '<i class="fa-solid fa-arrow-right"></i> Next Question';
       state.revealed = true;
       Object.values(state.players).flat().filter(p => p && !p.isHost).forEach(p => { if (state.answers[p.deviceId || p.name] === q.correct) p.score = (p.score||0) + 100; p.answered = false; p.answer = null; });
       renderScores();
-      const visibility = state.settings.answerVisibility;
       const scores = Object.values(state.players).flat().filter(p => p && !p.isHost).map(p => ({name:p.name,score:p.score||0}));
       state.gameChannel.send({ type: 'broadcast', event: 'reveal', payload: { index: state.qIndex, correct: visibility === 'immediate' ? q.correct : null, explain: visibility === 'immediate' ? q.explain : null, visibility, scores } });
       updateLobbyPresence();
@@ -631,14 +662,24 @@
       all.sort((a,b) => (b.score||0) - (a.score||0));
       const winner = all[0];
       state.winner = winner ? winner.name : null;
-      $('end-title').textContent = 'Game Over!';
-      $('end-sub').innerHTML = 'Theme: <strong>1 Samuel 30:8 Pursue Overtake Recover All</strong>';
+      $('end-title').textContent = state.mode === 'beauty' ? 'Beauty for Ashes complete!' : 'Game Over!';
+      $('end-sub').innerHTML = state.mode === 'beauty' ? 'A journey through truth, freedom, comfort, and hope from <strong>Isaiah 61:1–3</strong>' : 'Theme: <strong>1 Samuel 30:8 Pursue Overtake Recover All</strong>';
       $('end-scores').innerHTML = all.map((p,i) => '<div class="score-row' + (i===0?' winner':'') + '"><span class="pavatar">' + iconHtml(p) + '</span><span class="pname">' + esc(p.name) + '</span><span class="pscore">' + (p.score||0) + '</span></div>').join('');
       $('end-trophy').innerHTML = winner ? '<i class="fa-solid fa-trophy"></i> ' + esc(winner.name) + ' wins!' : '<i class="fa-solid fa-trophy"></i>';
-      const answerKey = state.settings.answerVisibility === 'end' ? state.questions.map(q=>({q:q.q,options:q.options,correct:q.correct,explain:q.explain})) : undefined;
+      const answerKey = state.settings.answerVisibility === 'end' ? state.questions.map(q=>({q:q.q,options:q.options,correct:q.correct,explain:q.explain,level:q.level})) : undefined;
+      const review=$('end-answer-review'); review.replaceChildren(); review.style.display=answerKey?'grid':'none';
+      if(answerKey) answerKey.forEach((item,index)=>{
+        const localized=window.localizeQuestion(state.questions[index],localStorage.getItem('chrisco_lang')||'en');
+        const card=document.createElement('div');card.className='answer-end-item';
+        const question=document.createElement('strong');question.textContent=(index+1)+'. '+localized.q;
+        const response=document.createElement('div');response.textContent='Correct answer: '+localized.options[item.correct];
+        const explanation=document.createElement('div');explanation.textContent=localized.explain||'';
+        card.append(question,response,explanation);review.appendChild(card);
+      });
       state.gameChannel.send({ type: 'broadcast', event: 'end', payload: { winner: winner ? winner.name : null, scores:all.map(p=>({name:p.name,score:p.score||0})), answerKey } });
       updateLobbyPresence();
       showScreen('end');
+      celebrateHost();
     }
 
     function handleAnswer(a) {

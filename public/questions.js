@@ -154,112 +154,74 @@ const CHRISCO_QUESTIONS = [
 // All content is original and Bible based. No dashes in display text.
 const CHRISCO_BA_QUESTIONS = [
   {
-    q: "The Beauty for Ashes teaching takes its key scripture from which book of the Bible?",
-    options: ["Genesis", "Isaiah", "Hosea", "John"],
+    id: "q1", level: "Beginner",
+    q: "You are going through a painful season and wonder whether you are meant to stay stuck there. Which response best reflects the speaker’s teaching?",
+    options: ["Assume the hardship proves God wants you to remain there", "Search Scripture for truth, seek wise support, and take a constructive next step", "Ignore the problem because faith means never discussing it", "Blame yourself automatically for every difficult thing that happens"],
     correct: 1,
-    explain: "The key scripture is Isaiah chapter 61, verses 1 to 3, where the Lord promises beauty for ashes."
+    explain: "The teaching encourages seeking truth in Scripture and taking a constructive step, rather than assuming hardship means you must stay stuck."
   },
   {
-    q: "According to Isaiah 61:3, what does the Lord give to those who mourn in Zion?",
-    options: ["Gold and silver", "Beauty for ashes", "Crowns and jewels", "Power and authority"],
-    correct: 1,
-    explain: "Isaiah 61:3 says the Lord gives beauty for ashes, the oil of joy for mourning and the garment of praise for the spirit of heaviness."
-  },
-  {
-    q: "In which book of the Bible does Jesus say, You shall know the truth, and the truth shall set you free?",
-    options: ["Matthew", "John", "Luke", "Acts"],
-    correct: 1,
-    explain: "This promise is found in John 8:32 and it is the key verse of the Beauty for Ashes teaching."
-  },
-  {
-    q: "According to Hosea 4:6, why are God's people destroyed?",
-    options: ["For lack of faith", "For lack of knowledge", "For lack of prayer", "For lack of giving"],
-    correct: 1,
-    explain: "Hosea 4:6 says, My people are destroyed for lack of knowledge, so knowing the truth matters."
-  },
-  {
-    q: "In Genesis 1:31, what did God see when He looked at everything He had made?",
-    options: ["That it was incomplete", "That it was very good", "That it needed improvement", "That it was perfect only in parts"],
-    correct: 1,
-    explain: "Genesis 1:31 says God saw everything that He had made, and indeed it was very good."
-  },
-  {
-    q: "What is the mission of the thief, the devil, according to John 10:10?",
-    options: ["To test and prove", "To warn and correct", "To steal, kill and destroy", "To teach and guide"],
+    id: "q2", level: "Beginner",
+    q: "A believer has attended church for years but still feels controlled by a destructive habit. What does the teaching suggest is a useful first move?",
+    options: ["Pretend the habit is harmless so nobody worries", "Wait for someone else to notice and fix it", "Bring the pattern into the light, learn what Scripture says, and seek accountable help", "Conclude that knowing religious language means no further growth is needed"],
     correct: 2,
-    explain: "John 10:10 says the thief comes only to steal, kill and destroy, but Jesus came to give life abundantly."
+    explain: "The program emphasizes learning truth and seeking help to recognize and address destructive patterns."
   },
   {
-    q: "The teaching says the enemy destroys through three avenues. Which is the first avenue?",
-    options: ["Curses", "Sin", "Demonic possession", "Ignorance"],
+    id: "q3", level: "Beginner",
+    q: "Someone tells you that a choice against a clear boundary will have no consequences. Which response best applies the Genesis 3 example?",
+    options: ["Accept the reassurance because it sounds appealing", "Pause, test the claim against what you know is true, and step away from the temptation", "Keep discussing it until the boundary feels unnecessary", "Make the choice privately so nobody can advise you"],
     correct: 1,
-    explain: "The first avenue of attack is sin, which is trespassing against the law and command of God."
+    explain: "The Genesis 3 example warns that temptation can question a known boundary and minimize consequences."
   },
   {
-    q: "After the enemy lures a person into sin, what is the second avenue of attack?",
-    options: ["A blessing", "A curse", "A promotion", "A delay"],
-    correct: 1,
-    explain: "After sin, a curse in the form of judgment and punishment comes into the life, as with Cain in Genesis 4."
+    id: "q4", level: "Intermediate",
+    q: "You feel resentment growing toward a colleague and are tempted to retaliate. What is the closest application of God’s warning to Cain?",
+    options: ["Hide the resentment and wait for it to disappear", "Act quickly before the other person notices", "Recognize the danger early, master the impulse, and choose a right response", "Tell yourself anger makes any response acceptable"],
+    correct: 2,
+    explain: "In the Cain account, God warns Cain about sin and urges him to master it before acting."
   },
   {
-    q: "What does Proverbs 26:2 teach about a curse?",
-    options: ["All curses come from God", "A curse must have a cause and cannot land where there is no cause", "Curses have no effect on people", "Curses can be removed by good works"],
-    correct: 1,
-    explain: "Proverbs 26:2 says a curse does not come without cause, so it must be justified by an action."
-  },
-  {
-    q: "After Cain killed his brother Abel, what did Cain become?",
-    options: ["A king", "A vagabond and a wanderer", "A priest", "A ruler of a city"],
-    correct: 1,
-    explain: "Genesis 4:12 says Cain became a fugitive and a vagabond, and the ground would not yield its strength to him."
-  },
-  {
-    q: "What did Cain say to the Lord after he was punished?",
-    options: ["My punishment is greater than I can bear", "I have sinned", "Am I my brother's keeper", "The ground is cursed"],
+    id: "q5", level: "Intermediate",
+    q: "After making a serious mistake, you are tempted to lie so you can avoid embarrassment. What response best matches the talk about truth?",
+    options: ["Tell the truth, accept responsibility, and make amends where possible", "Create a more convincing story and ask others to repeat it", "Stay silent while allowing another person to take the blame", "Say that honesty matters only when there are no consequences"],
     correct: 0,
-    explain: "Genesis 4:13 records Cain saying, My punishment is greater than I can bear."
+    explain: "The talk emphasizes truth; a responsible response is honesty, accountability, and repair."
   },
   {
-    q: "In Genesis 3, what was the serpent's first question to Eve?",
-    options: ["Why are you in the garden?", "Where is your husband?", "Are you hungry?", "Did God really say, You shall not eat of every tree of the garden?"],
+    id: "q6", level: "Intermediate",
+    q: "A person’s harmful choice has hurt someone and damaged trust. What is the most responsible application of the Cain story?",
+    options: ["Assume the harm will disappear if it is never discussed", "Blame the person who was hurt for reacting", "Treat the choice as unimportant because forgiveness exists", "Acknowledge the action, seek forgiveness, repair what can be repaired, and accept fair consequences"],
     correct: 3,
-    explain: "Genesis 3:1 records the serpent asking, Did God really say, You shall not eat of every tree of the garden?"
+    explain: "The Cain story shows serious consequences; application includes acknowledging harm and accepting responsibility."
   },
   {
-    q: "According to the teaching, what comes as the third avenue of attack after sin and curse?",
-    options: ["Physical death", "Demonic possession and oppression", "Social rejection", "Financial loss"],
+    id: "q7", level: "Intermediate",
+    q: "A friend says they are carrying a burden alone and feel exhausted. Which response best reflects the invitation quoted in the program?",
+    options: ["Tell them that strong people should manage alone", "Encourage them to come to Jesus for rest and offer caring, practical support", "Tell them their grief proves they lack faith", "Change the subject so they stop talking about it"],
     correct: 1,
-    explain: "After sin and curse, the third avenue is demonic possession and oppression, where a force drives a person against their will."
+    explain: "The program quotes Jesus’ invitation to the weary to come to him for rest."
   },
   {
-    q: "What does 3 John 2 tell us the apostle prays for believers?",
-    options: ["That they may live long", "That they may prosper and be in health", "That they may be rich", "That they may be famous"],
-    correct: 1,
-    explain: "3 John 2 says, Beloved, I pray that you may prosper in all things and be in health, even as your soul prospers."
-  },
-  {
-    q: "What invitation does Jesus give in Matthew 11:28?",
-    options: ["Ask, and it shall be given to you", "Seek, and you shall find", "Come to me, all you who are weary and heavy laden, and I will give you rest", "Knock, and it shall be opened to you"],
+    id: "q8", level: "Advanced",
+    q: "Someone is grieving and feels overwhelmed. How could you put Isaiah 61’s comfort into practice?",
+    options: ["Demand that they praise immediately and stop mourning", "Tell them their grief is inconvenient for others", "Listen without dismissing their pain and offer steady, practical care", "Promise that every loss will be reversed by tomorrow"],
     correct: 2,
-    explain: "Matthew 11:28 says, Come to me, all you who labor and are heavy laden, and I will give you rest."
+    explain: "Isaiah 61 speaks of comfort for mourners; practical care listens without dismissing grief."
   },
   {
-    q: "According to the teaching, what is addiction?",
-    options: ["A medical problem only", "A lack of willpower only", "A spirit that possesses and oppresses the person", "A natural condition of youth"],
-    correct: 2,
-    explain: "The teaching says addiction is a spirit that possesses your life and oppresses you, forcing you to do what you do not want to do."
+    id: "q9", level: "Advanced",
+    q: "A person wants to stop an addiction but keeps returning to it and feels unable to cope alone. What is the wisest next step?",
+    options: ["Hide it and rely only on willpower", "Shame them until they promise to stop", "Tell them relapse proves they cannot change", "Seek trusted pastoral and professional support, build accountability, and take a safe next step"],
+    correct: 3,
+    explain: "The talk describes addiction as bondage; trusted pastoral and professional support can help someone take safe next steps."
   },
   {
-    q: "In the Gerasene demoniac story, where did the man possessed by demons live?",
-    options: ["In a palace", "Among the dead in the graveyards", "On a mountain", "In a synagogue"],
-    correct: 1,
-    explain: "The Gerasene demoniac lived among the tombs and cut himself with stones, until Jesus cast the demons out of him."
-  },
-  {
-    q: "What is the final message of the Beauty for Ashes teaching?",
-    options: ["There is still hope, and the Lord is able to set you free upon knowing the truth", "There is no way out of bondage", "Only miracles can deliver people", "People must wait for God to act without knowledge"],
+    id: "q10", level: "Advanced",
+    q: "You are facing illness and financial strain at the same time. Which response applies the message without making assumptions about the cause?",
+    options: ["Seek appropriate medical and practical help, explore Scripture and trusted support, and avoid blaming yourself without evidence", "Assume the hardship proves you are cursed", "Stop medical care and wait for a miracle", "Assume every setback means you have failed spiritually"],
     correct: 0,
-    explain: "The teaching closes with hope: the Lord is able to set you free and deliver you when you know the truth."
+    explain: "The response seeks appropriate medical, practical, and spiritual support without assuming hardship proves personal fault."
   }
 ];
 
@@ -275,6 +237,8 @@ const CHRISCO_MODES = {
 function pickQuestions(mode, count) {
   const cfg = CHRISCO_MODES[mode];
   const pool = [...(cfg && cfg.quiz ? cfg.quiz : CHRISCO_QUESTIONS)];
+  // Beauty for Ashes is intentionally sequenced Beginner to Intermediate to Advanced.
+  if (mode === "beauty") return pool.slice(0, count);
   for (let i = pool.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [pool[i], pool[j]] = [pool[j], pool[i]];

@@ -1,6 +1,7 @@
 /* Browser side of the lobby dashboard only. The always-on Node process owns the game host. */
 (function () {
   const hostName = 'Presbyter David Kirui';
+  const BEAUTY_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwxRRD8upXMq0icOmFxDJwd5WZ51sZtQ1_eMYUVjQ2zVTJ7Ywe8JL9ME9nBCYBvgJsk/exec';
   let client, lobby;
   const $ = id => document.getElementById(id);
   const escapeHtml = s => String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -23,6 +24,27 @@
     if (live) { $('lobby-live-banner').style.display = 'flex'; $('lobby-live-pin').textContent = live.pin; $('lobby-live-join').href = 'player.html?pin=' + encodeURIComponent(live.pin); }
     else $('lobby-live-banner').style.display = 'none';
   }
+  function loadBeautyRankings() {
+    const target = $('beauty-public-rankings'); if (!target) return;
+    const callback = '__chriscoRankings' + Date.now();
+    const script = document.createElement('script');
+    const timeout = setTimeout(() => finish(null), 12000);
+    function finish(rows) {
+      clearTimeout(timeout); delete window[callback]; script.remove(); target.replaceChildren();
+      if (!Array.isArray(rows) || !rows.length) { target.textContent = 'No completed quizzes yet. Be the first to join!'; return; }
+      rows.slice(0, 5).forEach((row, i) => {
+        const line = document.createElement('div'); line.style.cssText = 'display:flex;gap:.6rem;align-items:center;padding:.35rem .45rem;border-bottom:1px solid #e8ebf1;';
+        const rank = document.createElement('b'); rank.textContent = (i + 1) + '.'; rank.style.color = '#8a6114';
+        const nickname = document.createElement('span'); nickname.textContent = row.nickname || 'Quiz player'; nickname.style.flex = '1';
+        const score = document.createElement('strong'); score.textContent = (Number(row.score) || 0) + ' / ' + (Number(row.total) || 10); score.style.color = '#071a52';
+        line.append(rank, nickname, score); target.appendChild(line);
+      });
+    }
+    window[callback] = data => finish(data && data.rankings);
+    script.onerror = () => finish(null);
+    script.src = BEAUTY_SCRIPT_URL + '?action=leaderboard&callback=' + encodeURIComponent(callback);
+    document.head.appendChild(script);
+  }
   function connect(config) {
     client = window.supabase.createClient(config.url, config.key);
     lobby = client.channel('global-lobby')
@@ -31,6 +53,7 @@
       .subscribe(status => { if (status === 'SUBSCRIBED') render(lobby.presenceState()); });
   }
   window.addEventListener('DOMContentLoaded', () => {
+    loadBeautyRankings();
     const wrap = $('lang-select-wrap'); if (wrap) window.buildLangSelector(wrap);
     window.applyLang(window.getLang());
     const input = $('lobby-pin-input'), button = $('lobby-join-pin-btn');

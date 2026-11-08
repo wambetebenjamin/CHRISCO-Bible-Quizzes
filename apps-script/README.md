@@ -10,8 +10,9 @@ The result spreadsheet is **Chrisco_Quiz_Database** in the connected Drive. Its 
    - `GOOGLE_CLIENT_ID`: the OAuth Web Client ID used by Google Identity Services.
    - `HOST_OVERRIDE_ENABLED`: `false` (set `true` temporarily only when an authorized host is allowing a retry).
    - `QUIZ_ANSWER_KEY_JSON`: private JSON keyed by question IDs, with each entry containing its zero-based `correct` option index and optional `explain` text. Keep this value in Script Properties; do not put the correct indexes in public source or the browser.
+   - `QUIZ_HOST_EMAILS` (optional): comma-separated host email addresses. After each submitted quiz, the host receives that player's score, selected answers, correct answers, and explanations by email. Authorize the additional MailApp permission when redeploying.
 4. In Google Cloud Console, create a Web application OAuth client and add the production site origin to its authorized JavaScript origins. Put the same public Client ID in `GOOGLE_CLIENT_ID` in `public/player.html` and in Apps Script Script Properties.
-5. In Apps Script, choose **Deploy → New deployment → Web app**, select **Execute as me**, and set access to **Anyone**. Authorize the script's spreadsheet and URL-fetch permissions.
+5. In Apps Script, choose **Deploy → New deployment → Web app**, select **Execute as me**, and set access to **Anyone**. Authorize the script's spreadsheet and URL-fetch permissions. For updates after the first deploy, choose **Deploy → Manage deployments → Edit**, select **New version**, then deploy so the existing `/exec` URL serves the updated code. If using `QUIZ_HOST_EMAILS`, approve the MailApp permission when prompted.
 6. Copy the deployed URL ending in `/exec` into `APPS_SCRIPT_URL` in `public/player.html`.
 7. Test sign-in, the duplicate check, a submission, and result review from the Vercel origin before announcing the quiz.
 
@@ -19,4 +20,4 @@ The Apps Script verifies the Google ID token and its audience server-side, grade
 
 ## Question source
 
-The frontend and Apps Script now contain ten scenario-based questions derived from the transcript of the supplied Beauty for Ashes video. They test applying the teaching about truth, temptation, anger, accountability, burdens, grief, addiction, and seeking practical care. The correct choices and explanations are not included in public source; set their zero-based indexes and explanations privately in `QUIZ_ANSWER_KEY_JSON`, keeping IDs q1 through q10.
+The frontend and Apps Script contain ten scenario-based questions derived from the supplied Beauty for Ashes transcript, sequenced Beginner (q1–q3), Intermediate (q4–q7), then Advanced (q8–q10). The final review shows answers and explanations only after submission. The dashboard leaderboard exposes nicknames and scores only; it never returns emails or answer selections. The host email notification uses `QUIZ_HOST_EMAILS` and is sent after a player's completed submission.
