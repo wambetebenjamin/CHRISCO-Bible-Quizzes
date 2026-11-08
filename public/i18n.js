@@ -1858,6 +1858,25 @@ const CHRISCO_UI_ES = {
   share_copy: "Copiar"
 };
 
+const CHRISCO_BA_LABELS = {
+  en: { ba_credit_banner: "These questions are from Presbyter David Kirui’s YouTube episode one. Be blessed.", ba_video_reference: "Watch this YouTube segment ({timestamp})" },
+  sw: { ba_credit_banner: "Maswali haya yametokana na kipindi cha kwanza cha YouTube cha Presbyter David Kirui. Ubarikiwe.", ba_video_reference: "Tazama sehemu hii ya YouTube ({timestamp})" },
+  ki: { ba_credit_banner: "Mĩũri ĩno nĩ ya rũgendo rwa YouTube rwa mbere rwa Presbyter David Kirui. Ũrathime.", ba_video_reference: "Thomera gĩcunjĩ gĩkĩ kĩa YouTube ({timestamp})" },
+  luo: { ba_credit_banner: "Penjo gi duto oa e YouTube episode mokwongo mar Presbyter David Kirui. Bed gi gweth.", ba_video_reference: "Ne gichunj mar video ka ({timestamp})" },
+  luh: { ba_credit_banner: "Ebibuuzo bino biva mu episode eyasooka eya YouTube eya Presbyter David Kirui. Katonda akuwe omukisa.", ba_video_reference: "Lola ekitundu kino ekya YouTube ({timestamp})" },
+  kln: { ba_credit_banner: "Kipchoi chegu cheu YouTube episode nebo kipsengwet nebo Presbyter David Kirui. Konyit.", ba_video_reference: "Konyi ne segment nebo YouTube ({timestamp})" },
+  am: { ba_credit_banner: "እነዚህ ጥያቄዎች ከPresbyter David Kirui የመጀመሪያው የYouTube ክፍል የተወሰዱ ናቸው። ተባረኩ።", ba_video_reference: "ይህን የYouTube ክፍል ይመልከቱ ({timestamp})" },
+  om: { ba_credit_banner: "Gaaffileen kun kutaa YouTube isa jalqabaa kan Presbyter David Kirui irraa fudhataman. Eebbifamaa.", ba_video_reference: "Kutaa YouTube kana ilaalaa ({timestamp})" },
+  so: { ba_credit_banner: "Su’aalahan waxay ka yimaadeen qaybtii koowaad ee YouTube ee Presbyter David Kirui. Barako ku waara.", ba_video_reference: "Daawo qaybtaan YouTube ({timestamp})" },
+  ti: { ba_credit_banner: "እዞም ሕቶታት ካብ ቀዳማይ ክፋል YouTube ናይ Presbyter David Kirui ዝተወስዱ እዮም። ብሩኻት ኩኑ።", ba_video_reference: "ነዚ ክፋል YouTube ርአዩ ({timestamp})" },
+  fr: { ba_credit_banner: "Ces questions proviennent du premier épisode YouTube du Presbyter David Kirui. Soyez bénis.", ba_video_reference: "Regarder cet extrait YouTube ({timestamp})" },
+  ar: { ba_credit_banner: "هذه الأسئلة مأخوذة من الحلقة الأولى على يوتيوب لـ Presbyter David Kirui. كونوا مباركين.", ba_video_reference: "شاهد هذا المقطع على يوتيوب ({timestamp})" },
+  pt: { ba_credit_banner: "Estas perguntas vêm do primeiro episódio no YouTube do Presbyter David Kirui. Sejam abençoados.", ba_video_reference: "Assista a este trecho no YouTube ({timestamp})" },
+  es: { ba_credit_banner: "Estas preguntas provienen del primer episodio de YouTube del Presbyter David Kirui. Sean bendecidos.", ba_video_reference: "Ver este segmento de YouTube ({timestamp})" }
+};
+const CHRISCO_UI_BY_LANG = { en: CHRISCO_UI_EN, sw: CHRISCO_UI_SW, ki: CHRISCO_UI_KI, luo: CHRISCO_UI_LUO, luh: CHRISCO_UI_LUH, kln: CHRISCO_UI_KLN, am: CHRISCO_UI_AM, om: CHRISCO_UI_OM, so: CHRISCO_UI_SO, ti: CHRISCO_UI_TI, fr: CHRISCO_UI_FR, ar: CHRISCO_UI_AR, pt: CHRISCO_UI_PT, es: CHRISCO_UI_ES };
+Object.keys(CHRISCO_BA_LABELS).forEach(function (lang) { Object.assign(CHRISCO_UI_BY_LANG[lang], CHRISCO_BA_LABELS[lang]); });
+
 const CHRISCO_UI = Object.assign({}, CHRISCO_UI_EN, { en: CHRISCO_UI_EN, sw: CHRISCO_UI_SW, ki: CHRISCO_UI_KI, luo: CHRISCO_UI_LUO, luh: CHRISCO_UI_LUH, kln: CHRISCO_UI_KLN, am: CHRISCO_UI_AM, om: CHRISCO_UI_OM, so: CHRISCO_UI_SO, ti: CHRISCO_UI_TI, fr: CHRISCO_UI_FR, ar: CHRISCO_UI_AR, pt: CHRISCO_UI_PT, es: CHRISCO_UI_ES });
 
 const CHRISCO_UI_LIVE_ROOM = {
