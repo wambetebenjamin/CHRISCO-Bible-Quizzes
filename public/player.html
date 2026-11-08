@@ -12,7 +12,8 @@
     body { margin:0; background:var(--paper); color:var(--ink); font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
     header { background:var(--navy); color:#fff; padding:16px 20px; box-shadow:0 4px 18px #071a5230; }
     .header-inner { max-width:780px; margin:auto; display:flex; align-items:center; gap:12px; }
-    .brand-mark { display:grid; place-items:center; width:42px; height:42px; border-radius:13px; background:var(--gold); color:var(--navy); font-size:21px; font-weight:900; }
+    .brand-mark { display:grid; place-items:center; width:42px; height:42px; border-radius:13px; background:var(--gold); color:var(--navy); }
+    .brand-mark svg { display:block; width:33px; height:33px; }
     .brand { font-size:17px; line-height:1.1; font-weight:900; letter-spacing:.02em; }
     .brand small { display:block; margin-top:4px; color:#ffda70; font-size:10px; letter-spacing:.16em; }
     main { width:min(100% - 28px,720px); margin:28px auto 56px; }
@@ -51,8 +52,12 @@
     .nav-row { display:flex; justify-content:space-between; gap:10px; margin-top:22px; }
     .answer-review { margin-top:24px; display:grid; gap:14px; }
     .review-item { padding:16px; border:1px solid var(--line); border-radius:14px; background:#fbfcff; }
-    .question-stage { display:flex; align-items:center; justify-content:space-between; gap:18px; }
-    .question-stage-copy { flex:1; min-width:0; }
+    .question-stage { display:block; }
+    .question-stage-copy { min-width:0; }
+    .question-stage .question { display:block; width:100%; padding:18px 20px; border:1px solid #dce3f1; border-left:5px solid var(--blue); border-radius:14px; background:#f8faff; margin:0 0 12px; }
+    .question-stage .source-note { display:inline-flex; align-items:center; min-height:40px; padding:8px 12px; border-radius:10px; background:#eef3ff; text-decoration:none; }
+    .question-stage .source-note:hover { background:#e2eaff; }
+    .question-stage .work-figure { margin:8px 0 12px auto; }
     .level-chip { display:inline-flex; align-items:center; gap:7px; border-radius:999px; padding:6px 12px; margin:0 0 10px; background:#f5e7b9; color:#523d10; font-size:12px; font-weight:900; letter-spacing:.06em; text-transform:uppercase; }
     .source-note { display:inline-block; margin:2px 0 16px; color:var(--blue); font-size:13px; font-weight:750; text-decoration:underline; text-underline-offset:3px; }
     .source-note:hover { color:var(--navy); }
@@ -88,7 +93,7 @@
 </head>
 <body>
   <canvas id="confetti-canvas" aria-hidden="true"></canvas>
-  <header><div class="header-inner"><div class="brand-mark" aria-hidden="true">✦</div><div class="brand">CHRISCO<small>BIBLE QUIZZES</small></div></div></header>
+  <header><div class="header-inner"><div class="brand-mark" aria-hidden="true"><svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><circle cx="25" cy="10" r="6" fill="#c7835b"/><path d="M14 28c1-7 5-11 11-11s10 4 11 11l-2 5H16z" fill="#1747b1"/><path d="M12 31c5-4 9-4 13 0v8c-4-3-8-3-13 0zM25 31c4-4 8-4 12 0v8c-4-3-8-3-12 0z" fill="#fff8e7" stroke="#8c6b37" stroke-width="1.5" stroke-linejoin="round"/><path d="M16 34h6m-6 3h6m7-3h5m-5 3h5" stroke="#c2a66b" stroke-width="1" stroke-linecap="round"/><path d="M26 20c5 2 7 6 7 10" fill="none" stroke="#c7835b" stroke-width="3" stroke-linecap="round"/></svg></div><div class="brand">CHRISCO<small>BIBLE QUIZZES</small></div></div></header>
   <main>
     <section class="panel" id="signin-panel">
       <h1>Beauty for Ashes: Put It Into Practice</h1>
@@ -113,7 +118,7 @@
       <div class="progress-row"><span id="question-count">Question 1 of 5</span><span id="progress-percent">0% complete</span></div>
       <div class="progress-track" aria-hidden="true"><div class="progress-fill" id="progress-fill"></div></div>
       <div class="question-stage">
-        <div class="question-stage-copy"><div class="level-chip" id="question-level">Beginner</div><h2 class="question" id="question-text"></h2><a class="source-note" id="question-source" href="https://youtu.be/aDLRHK2GO6k?si=rMwSlEZ_RU1UafPN" target="_blank" rel="noopener noreferrer">Watch this YouTube segment</a></div>
+        <div class="question-stage-copy"><div class="level-chip" id="question-level">Beginner</div><h2 class="question" id="question-text" aria-live="polite"></h2><a class="source-note" id="question-source" href="https://youtu.be/aDLRHK2GO6k?si=rMwSlEZ_RU1UafPN" target="_blank" rel="noopener noreferrer">Watch this YouTube segment</a></div>
         <div class="work-figure" role="img" aria-label="A reader studying and writing in a Bible">
           <svg viewBox="0 0 150 122" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
             <ellipse cx="82" cy="111" rx="62" ry="7" fill="#dce3f1"/>
@@ -241,13 +246,13 @@
     function renderQuestion() {
       const q=QUIZ[state.current];
       byId('question-count').textContent='Question '+(state.current+1)+' of '+QUIZ.length;
+      byId('question-text').textContent=q.q;
       byId('question-level').textContent=q.level+' · '+({Beginner:'Foundations',Intermediate:'Put it into practice',Advanced:'Deeper discernment'}[q.level]||'');
-      const source=byId('question-source');source.textContent=window.L('ba_video_reference').replace('{timestamp}',q.timestamp||'');source.href=(q.videoUrl||'https://youtu.be/aDLRHK2GO6k')+'&t='+(Number(q.timestampSeconds)||0)+'s';
+      const source=byId('question-source');const videoLabel=window.L?window.L('ba_video_reference'):'Optional: watch this YouTube segment ({timestamp})';source.textContent=videoLabel.replace('{timestamp}',q.timestamp||'');source.href=(q.videoUrl||'https://youtu.be/aDLRHK2GO6k')+'&t='+(Number(q.timestampSeconds)||0)+'s';
       const answered=state.answers.filter(answer=>answer!==null).length;
       const percentage=Math.round(answered/QUIZ.length*100);
       byId('progress-percent').textContent=percentage+'% complete';
       byId('progress-fill').style.width=percentage+'%';
-      byId('question-text').textContent=q.q;
       const options=byId('options'); options.replaceChildren();
       q.options.forEach((label,index)=>{
         const button=document.createElement('button'); button.type='button';

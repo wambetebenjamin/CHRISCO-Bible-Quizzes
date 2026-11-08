@@ -245,7 +245,7 @@ const CHRISCO_ICONS = [
   { icon: "fa-solid fa-fire",     emoji: "🔥", label: "Fire" },
   { icon: "fa-solid fa-sailboat", emoji: "⛵", label: "Boat" },
   { icon: "fa-solid fa-harp",     emoji: "🎵", label: "Harp" },
-  { icon: "fa-solid fa-star",     emoji: "⭐", label: "Star" }
+  { icon: "fa-solid fa-book-open-reader", emoji: "📖", label: "Bible Reader" }
 ];
 
 // Localize a question for a display language. Looks up translations keyed by the

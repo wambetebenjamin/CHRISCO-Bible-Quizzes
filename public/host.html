@@ -140,7 +140,7 @@
     .screen.active { display: block; }
     .question-card { background: #fff; border-radius: 24px; padding: 2rem 1.6rem; box-shadow: 0 14px 35px rgba(0,0,0,0.12); margin-bottom: 1.5rem; }
     .q-counter { display: inline-flex; align-items: center; gap: 0.4rem; background: var(--primary); color: #fff; font-weight: 700; padding: 0.4rem 1rem; border-radius: 50px; font-size: 0.85rem; }
-    .q-text { font-size: clamp(1.1rem, 3vw, 1.6rem); font-weight: 800; color: var(--primary); margin: 1rem 0; line-height: 1.4; }
+    .q-text { display:block; width:100%; min-height:72px; padding:1rem 1.2rem; border:1px solid #d7e0f2; border-left:5px solid var(--primary); border-radius:14px; background:#f7f9ff; font-size:clamp(1.1rem,3vw,1.6rem); font-weight:800; color:#071a52; margin:1rem 0 .7rem; line-height:1.5; overflow-wrap:anywhere; }
     .timer-bar { height: 10px; background: #eee; border-radius: 6px; overflow: hidden; margin-bottom: 1.5rem; }
     .timer-bar .fill { height: 100%; background: linear-gradient(90deg, var(--green), var(--secondary), var(--red)); width: 100%; transition: width 1s linear; }
     .timer-num { text-align: right; font-weight: 800; color: var(--red); font-size: 1.1rem; margin-bottom: 1rem; }
@@ -172,9 +172,10 @@
     .settings-panel h3 { margin-bottom:.45rem; }
     .settings-panel p { margin:.4rem 0; }
     .quiz-level { display:inline-flex; padding:.32rem .75rem; margin-left:.55rem; border-radius:999px; background:#f5e7b9; color:#523d10; font-size:.73rem; font-weight:900; letter-spacing:.05em; text-transform:uppercase; vertical-align:middle; }
-    .q-source { display:inline-block;margin:-.35rem 0 1rem;color:var(--primary);font-weight:750;font-size:.82rem;text-decoration:underline;text-underline-offset:3px; }
+    .q-source { display:inline-flex;align-items:center;min-height:40px;margin:0 0 .85rem;padding:.55rem .8rem;border-radius:10px;background:#eef3ff;color:var(--primary);font-weight:750;font-size:.82rem;text-decoration:none; }
+    .q-source:hover { background:#e2eaff;text-decoration:underline;text-underline-offset:3px; }
     .answer-end-item a { display:inline-block;color:#ffe08a;font-weight:750;margin-top:.4rem; }
-    .host-study-figure { width:94px; height:78px; float:right; margin:-.2rem 0 .3rem .5rem; }
+    .host-study-figure { width:82px; height:68px; margin:0 0 .8rem auto; clear:both; }
     .host-study-figure svg { width:100%; height:100%; overflow:visible; }
     .host-study-figure .arm { transform-origin:57px 43px; animation:host-write .7s ease-in-out infinite alternate; }
     .host-study-figure .body { transform-origin:49px 42px; animation:host-breathe 3s ease-in-out infinite; }
@@ -270,11 +271,12 @@
       </div>
       <div class="question-card">
         <span class="q-counter" id="q-counter"><i class="fa-solid fa-list-ol"></i> Question 1 of 5</span><span class="quiz-level" id="q-level" style="display:none;"></span>
-        <div class="host-study-figure" aria-hidden="true"><svg viewBox="0 0 95 78" xmlns="http://www.w3.org/2000/svg"><ellipse cx="49" cy="73" rx="39" ry="4" fill="#d9dce3"/><path d="M8 62h78l-5 9H14z" fill="#7a4e2d"/><path d="M14 58h66v5H14z" fill="#a86f3d"/><g class="body"><path d="M29 59V41c0-8 7-13 17-13s17 7 17 16v15z" fill="#1747b1"/><path d="M38 30h12v10H38z" fill="#b76e45"/><circle cx="44" cy="22" r="13" fill="#c7835b"/><path d="M31 21c0-10 7-16 15-16 7 0 12 4 14 11-6-4-12-4-18-1l-8 11z" fill="#28221e"/></g><path d="M18 57c8-6 14-6 22 0v11c-8-5-14-5-22 0z" fill="#fff8e7" stroke="#8c6b37"/><path d="M40 57c8-6 14-6 22 0v11c-8-5-14-5-22 0z" fill="#f5e7b9" stroke="#8c6b37"/><g class="arm"><path d="M53 42l8 5 8 8-5 4-11-8-5-2z" fill="#c7835b"/><path d="M66 53l10-14" stroke="#30251d" stroke-width="2.5" stroke-linecap="round"/></g></svg></div>
+
         <div class="timer-num" id="timer-num"><i class="fa-solid fa-clock"></i> 20s</div>
         <div class="timer-bar"><div class="fill" id="timer-fill"></div></div>
-        <div class="q-text" id="q-text">Question text appears here.</div>
+        <div class="q-text" id="q-text" aria-live="polite">Question text appears here.</div>
         <a class="q-source" id="q-source" href="https://youtu.be/aDLRHK2GO6k?si=rMwSlEZ_RU1UafPN" target="_blank" rel="noopener noreferrer">Watch this YouTube segment</a>
+        <div class="host-study-figure" aria-hidden="true"><svg viewBox="0 0 95 78" xmlns="http://www.w3.org/2000/svg"><ellipse cx="49" cy="73" rx="39" ry="4" fill="#d9dce3"/><path d="M8 62h78l-5 9H14z" fill="#7a4e2d"/><path d="M14 58h66v5H14z" fill="#a86f3d"/><g class="body"><path d="M29 59V41c0-8 7-13 17-13s17 7 17 16v15z" fill="#1747b1"/><path d="M38 30h12v10H38z" fill="#b76e45"/><circle cx="44" cy="22" r="13" fill="#c7835b"/><path d="M31 21c0-10 7-16 15-16 7 0 12 4 14 11-6-4-12-4-18-1l-8 11z" fill="#28221e"/></g><path d="M18 57c8-6 14-6 22 0v11c-8-5-14-5-22 0z" fill="#fff8e7" stroke="#8c6b37"/><path d="M40 57c8-6 14-6 22 0v11c-8-5-14-5-22 0z" fill="#f5e7b9" stroke="#8c6b37"/><g class="arm"><path d="M53 42l8 5 8 8-5 4-11-8-5-2z" fill="#c7835b"/><path d="M66 53l10-14" stroke="#30251d" stroke-width="2.5" stroke-linecap="round"/></g></svg></div>
         <div class="options" id="q-options"></div>
         <div class="explain" id="q-explain" style="display:none;"></div>
         <button id="reveal-btn" class="btn btn--green btn--block" style="display:none;margin-top:1.2rem;"></button>
@@ -284,7 +286,7 @@
         <ul id="player-list" class="player-list"><li class="empty">Waiting for players to join with this PIN...</li></ul>
       </div>
       <div class="scoreboard">
-        <h3><i class="fa-solid fa-ranking-star"></i> Live Leaderboard and Rankings</h3>
+        <h3><i class="fa-solid fa-trophy"></i> Live Leaderboard and Rankings</h3>
         <div id="live-scores"></div>
       </div>
     </div>
@@ -609,9 +611,9 @@
       $('q-counter').innerHTML = '<i class="fa-solid fa-list-ol"></i> Question ' + (state.qIndex+1) + ' of ' + state.questions.length;
       const levelNode=$('q-level');
       if(q.level){levelNode.textContent=q.level;levelNode.style.display='inline-flex';}else{levelNode.style.display='none';}
-      const localized = window.localizeQuestion(q, (localStorage.getItem('chrisco_lang') || 'en'));
+      const localized = window.localizeQuestion ? window.localizeQuestion(q, (localStorage.getItem('chrisco_lang') || 'en')) : q;
       $('q-text').textContent = localized.q;
-      const source=$('q-source');source.style.display=q.videoUrl?'inline-block':'none';if(q.videoUrl){source.textContent=window.L('ba_video_reference').replace('{timestamp}',q.timestamp||'');source.href=q.videoUrl+'&t='+(Number(q.timestampSeconds)||0)+'s';}
+      const source=$('q-source');source.style.display=q.videoUrl?'inline-flex':'none';if(q.videoUrl){const videoLabel=window.L?window.L('ba_video_reference'):'Optional: watch this YouTube segment ({timestamp})';source.textContent=videoLabel.replace('{timestamp}',q.timestamp||'');source.href=q.videoUrl+'&t='+(Number(q.timestampSeconds)||0)+'s';}
       $('q-options').innerHTML = localized.options.map((o,i) => '<button class="opt" data-i="'+i+'"><span class="letter">'+LETTERS[i]+'</span><span>'+esc(o)+'</span></button>').join('');
       $('q-explain').style.display = 'none';
       $('reveal-btn').style.display = 'block';
