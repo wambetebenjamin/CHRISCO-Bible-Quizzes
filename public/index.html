@@ -9,11 +9,16 @@
   <meta property="og:site_name" content="CHRISCO Bible Quizzes" />
   <meta property="og:title" content="CHRISCO Bible Quizzes | Make Learning Awesome!" />
   <meta property="og:description" content="Play Bible quizzes with friends. Host a game, share the PIN, and compete. Theme: 1 Samuel 30:8 Pursue Overtake Recover All." />
-  <meta property="og:image" content="https://chrisco-bible-quizzes.vercel.app/image-search/bright-colorful-worship-church-backgroun-1.jpg" />
+  <meta property="og:image" content="https://chrisco-bible-quizzes.vercel.app/social-preview.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:alt" content="CHRISCO Bible Quizzes: Read Scripture. Think deeply. Play together." />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="CHRISCO Bible Quizzes | Make Learning Awesome!" />
   <meta name="twitter:description" content="Play Bible quizzes with friends. Host a game, share the PIN, and compete. Theme: 1 Samuel 30:8 Pursue Overtake Recover All." />
-  <meta name="twitter:image" content="https://chrisco-bible-quizzes.vercel.app/image-search/bright-colorful-worship-church-backgroun-1.jpg" />
+  <meta name="twitter:image" content="https://chrisco-bible-quizzes.vercel.app/social-preview.png" />
+  <meta name="twitter:image:alt" content="CHRISCO Bible Quizzes: Read Scripture. Think deeply. Play together." />
   <!-- Premium Icons (Font Awesome Free via CDN) -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <!-- Kahoot-style font (Montserrat) with fallback -->
@@ -93,8 +98,8 @@
     }
     .hero::before {
       content: ''; position: absolute; inset: 0;
-      background: url('./image-search/bright-colorful-worship-church-backgroun-1.jpg') center/cover no-repeat;
-      opacity: 0.18; mix-blend-mode: overlay;
+      background: radial-gradient(circle at 88% 18%, rgba(255,192,10,0.14), transparent 240px);
+      opacity: 1;
     }
     .hero-blobs span {
       position: absolute; border-radius: 50%; filter: blur(40px); opacity: 0.5;
@@ -198,13 +203,10 @@
     }
     .game-card:hover::before { transform: scale(1.08); }
     .game-card > * { position: relative; z-index: 2; }
-    .game-card.pursue::before { background-image: url('./image-search/bright-colorful-worship-church-backgroun-1.jpg'); }
-    .game-card.overtake::before { background-image: url('./image-search/david-bible-battle-victory-colorful-illu-3.jpg'); }
-    .game-card.recover::before { background-image: url('./image-search/david-bible-battle-victory-colorful-illu-2.jpg'); }
-    .game-card.beauty::before { background-image: url('./image-search/bright-colorful-worship-church-backgroun-1.jpg'); }
     .game-card.pursue { background: linear-gradient(160deg, #00008B, #000051); }
     .game-card.overtake { background: linear-gradient(160deg, #FF8C00, #c75c00); }
     .game-card.recover { background: linear-gradient(160deg, #006400, #003d00); }
+    .game-card.beauty { background: linear-gradient(160deg, #46178f, #2a0e5c); }
     .card-tag {
       align-self: flex-end; font-size: 0.7rem; font-weight: 700; letter-spacing: 1.5px;
       text-transform: uppercase; padding: 0.4rem 0.9rem; border-radius: 20px;
@@ -247,7 +249,8 @@
     .cc-4 { background: linear-gradient(160deg, #00008B, #0d7bf0); }
     .cc-5 { background: linear-gradient(160deg, #ffc00a, #ff8c00); }
     .cc-6 { background: linear-gradient(160deg, #e21b3c, #46178f); }
-    .carousel-card img { border-radius: 12px; width: 100%; height: 110px; object-fit: cover; display: block; }
+    .carousel-art { display:grid; place-items:center; width:100%; height:110px; border:1px solid rgba(255,255,255,.28); border-radius:12px; background:rgba(255,255,255,.12); }
+    .carousel-art i { font-size:2.8rem; color:#fff; }
     .carousel-nav { display: flex; justify-content: center; gap: 0.8rem; margin-top: 1rem; }
     .carousel-nav button {
       width: 46px; height: 46px; border-radius: 50%; border: none; cursor: pointer;
@@ -280,9 +283,6 @@
       background: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.7) 100%);
     }
     .feature-card > * { position: relative; z-index: 2; }
-    .fc-1::before { background-image: url('./image-search/bright-colorful-worship-church-backgroun-2.jpg'); }
-    .fc-2::before { background-image: url('./image-search/bible-study-colorful-books-rainbow-brigh-2.jpg'); }
-    .fc-3::before { background-image: url('./image-search/1-samuel-30-8-pursue-overtake-recover-bi-2.jpg'); }
     .fc-1 { background: linear-gradient(160deg, #46178f, #00008B); }
     .fc-2 { background: linear-gradient(160deg, #006400, #0aa3a3); }
     .fc-3 { background: linear-gradient(160deg, #FF8C00, #e21b3c); }
@@ -347,7 +347,6 @@
 
   <!-- ===== Hero ===== -->
   <section class="hero">
-    <div class="hero-blobs"><span></span><span></span><span></span></div>
     <div class="hero-content">
       <div class="hero-badge" data-i18n="hero_badge"><i class="fa-solid fa-bolt"></i> REAL-TIME MULTIPLAYER BIBLE GAMES</div>
       <h1 data-i18n="hero_title">Make Bible Learning Awesome!</h1>
@@ -410,27 +409,27 @@
     <div class="carousel-wrap">
       <div class="carousel-track" id="carousel-track">
         <div class="carousel-card cc-1">
-          <img src="./image-search/bible-study-colorful-books-rainbow-brigh-1.jpg" alt="Bible study" />
+          <div class="carousel-art" aria-hidden="true"><i class="fa-solid fa-book-open-reader"></i></div>
           <div><h3 data-i18n="carousel_1_title">Sunday School</h3><p data-i18n="carousel_1_desc">Engage kids with interactive quizzes in class.</p></div>
         </div>
         <div class="carousel-card cc-2">
-          <img src="./image-search/bible-study-colorful-books-rainbow-brigh-2.jpg" alt="Bible study rainbow" />
+          <div class="carousel-art" aria-hidden="true"><i class="fa-solid fa-people-group"></i></div>
           <div><h3 data-i18n="carousel_2_title">Family Nights</h3><p data-i18n="carousel_2_desc">Turn dinner time into Bible trivia fun.</p></div>
         </div>
         <div class="carousel-card cc-3">
-          <img src="./image-search/bible-study-colorful-books-rainbow-brigh-3.jpg" alt="Open Bible" />
+          <div class="carousel-art" aria-hidden="true"><i class="fa-solid fa-bolt"></i></div>
           <div><h3 data-i18n="carousel_3_title">Youth Groups</h3><p data-i18n="carousel_3_desc">Race against friends in speed mode.</p></div>
         </div>
         <div class="carousel-card cc-4">
-          <img src="./image-search/bright-colorful-worship-church-backgroun-2.jpg" alt="Worship" />
+          <div class="carousel-art" aria-hidden="true"><i class="fa-solid fa-people-roof"></i></div>
           <div><h3 data-i18n="carousel_4_title">Small Groups</h3><p data-i18n="carousel_4_desc">Deepen your faith with group challenges.</p></div>
         </div>
         <div class="carousel-card cc-5">
-          <img src="./image-search/bright-colorful-worship-church-backgroun-3.jpg" alt="Church" />
+          <div class="carousel-art" aria-hidden="true"><i class="fa-solid fa-church"></i></div>
           <div><h3 data-i18n="carousel_5_title">Church Events</h3><p data-i18n="carousel_5_desc">Live games on stage for everyone.</p></div>
         </div>
         <div class="carousel-card cc-6">
-          <img src="./image-search/1-samuel-30-8-pursue-overtake-recover-bi-2.jpg" alt="Bible theme" />
+          <div class="carousel-art" aria-hidden="true"><i class="fa-solid fa-book-bible"></i></div>
           <div><h3 data-i18n="carousel_6_title">Personal Growth</h3><p data-i18n="carousel_6_desc">Practice solo and track your progress.</p></div>
         </div>
       </div>
