@@ -154,64 +154,64 @@ const CHRISCO_QUESTIONS = [
 // All content is original and Bible based. No dashes in display text.
 const CHRISCO_BA_QUESTIONS = [
   {
-    id:"q1", level:"Beginner", type:"multiple-choice", minister:"Presbyter David Kirui", timestamp:"02:19–03:44", timestampSeconds:139, videoUrl:"https://youtu.be/aDLRHK2GO6k?si=rMwSlEZ_RU1UafPN",
-    q:"Presbyter David Kirui opens with Isaiah 61:1–3. A friend hears “beauty for ashes” and assumes every painful loss must be reversed quickly. Which response best reflects the passage as he introduces it?",
+    id:"q1", level:"Beginner", type:"multiple-choice", timestamp:"02:19–03:44", timestampSeconds:139, videoUrl:"https://youtu.be/aDLRHK2GO6k?si=rMwSlEZ_RU1UafPN",
+    q:"Isaiah 61:1–3 introduces the image of “beauty for ashes.” A friend assumes every painful loss must be reversed quickly. Which response best reflects the passage?",
     options:["Treat the promise as a guarantee that every external loss will reverse quickly, and defer practical action until then.", "Read the passage as hope for the brokenhearted and freedom for captives, then ask how its truth speaks to the situation.", "Read the text as comfort for grief, but not as guidance about the freedom or truth it also names.", "Use present hardship alone to identify a specific spiritual cause before checking the facts or seeking wise counsel."],
-    correct:1, explain:"Kirui presents Isaiah 61:1–3 as good news for the brokenhearted, liberty for captives, and comfort for mourners. The passage gives hope; it is not a license to diagnose another person’s hardship or promise an immediate outcome."
+    correct:1, explain:"Isaiah 61:1–3 is presented as good news for the brokenhearted, liberty for captives, and comfort for mourners. The passage gives hope; it is not a license to diagnose another person’s hardship or promise an immediate outcome."
   },
   {
-    id:"q2", level:"Beginner", type:"true-false", minister:"Presbyter David Kirui", timestamp:"02:51–04:11", timestampSeconds:171, videoUrl:"https://youtu.be/aDLRHK2GO6k?si=rMwSlEZ_RU1UafPN",
-    q:"TRUE OR FALSE: Kirui links Jesus’ promise that truth sets people free to Hosea’s warning about lack of knowledge, framing the program as helping listeners compare Scripture with their own situation.",
+    id:"q2", level:"Beginner", type:"true-false", timestamp:"02:51–04:11", timestampSeconds:171, videoUrl:"https://youtu.be/aDLRHK2GO6k?si=rMwSlEZ_RU1UafPN",
+    q:"TRUE OR FALSE: The teaching links Jesus’ promise that truth sets people free to Hosea’s warning about lack of knowledge, and invites listeners to compare Scripture with their own situation.",
     options:["True", "False"],
-    correct:0, explain:"True. Kirui connects the promise of freedom through truth with Hosea 4:6 and says the program will help listeners understand Scripture in relation to their own situations."
+    correct:0, explain:"True. The teaching connects freedom through truth with Hosea 4:6 and encourages listeners to understand Scripture in relation to their situations."
   },
   {
-    id:"q3", level:"Beginner", type:"multiple-choice", minister:"Presbyter David Kirui", timestamp:"04:14–06:42", timestampSeconds:254, videoUrl:"https://youtu.be/aDLRHK2GO6k?si=rMwSlEZ_RU1UafPN",
-    q:"Kirui contrasts God calling creation “very good” with people asking, “Why am I going through this?” Which conclusion best reflects that contrast without claiming more than the passage itself establishes?",
+    id:"q3", level:"Beginner", type:"multiple-choice", timestamp:"04:14–06:42", timestampSeconds:254, videoUrl:"https://youtu.be/aDLRHK2GO6k?si=rMwSlEZ_RU1UafPN",
+    q:"Genesis calls creation “very good,” while people still ask, “Why am I going through this?” Which conclusion best reflects that contrast without claiming more than the passage establishes?",
     options:["Read “very good” as evidence that current suffering is unreal or should simply be dismissed.", "Use the original good creation to assume every setback has the same cause as Cain’s wrongdoing.", "The contrast invites people to seek truth about their situation and intended good, instead of treating distress as their identity.", "Use Genesis 1:31 to measure a person’s faith by their current health, comfort, or income."],
-    correct:2, explain:"Kirui uses Genesis 1:31 to contrast God’s good creation with painful present circumstances and to prompt the question “Why am I going through this?” The question invites reflection, not a one-size-fits-all diagnosis."
+    correct:2, explain:"Genesis 1:31 is used to contrast God’s good creation with painful present circumstances and to prompt the question “Why am I going through this?” The question invites reflection, not a one-size-fits-all diagnosis."
   },
   {
-    id:"q4", level:"Intermediate", type:"true-false", minister:"Presbyter David Kirui", timestamp:"07:30–08:40", timestampSeconds:450, videoUrl:"https://youtu.be/aDLRHK2GO6k?si=rMwSlEZ_RU1UafPN",
-    q:"TRUE OR FALSE: Kirui emphasizes that Jesus’ listeners in John 8 were already believers; the conversation about freedom therefore goes beyond political captivity and turns to slavery to sin.",
+    id:"q4", level:"Intermediate", type:"true-false", timestamp:"07:30–08:40", timestampSeconds:450, videoUrl:"https://youtu.be/aDLRHK2GO6k?si=rMwSlEZ_RU1UafPN",
+    q:"TRUE OR FALSE: Jesus’ listeners in John 8 were already believers; the conversation about freedom therefore goes beyond political captivity and turns to slavery to sin.",
     options:["True", "False"],
-    correct:0, explain:"True. Kirui points out that Jesus was speaking to believers, who objected that they had never been slaves; he then highlights Jesus’ statement that whoever sins is a slave to sin."
+    correct:0, explain:"True. Jesus is speaking to believers, who objected that they had never been slaves; he then highlights Jesus’ statement that whoever sins is a slave to sin."
   },
   {
-    id:"q5", level:"Intermediate", type:"multiple-choice", minister:"Presbyter David Kirui", timestamp:"19:42–21:14", timestampSeconds:1182, videoUrl:"https://youtu.be/aDLRHK2GO6k?si=rMwSlEZ_RU1UafPN",
-    q:"You realize that a lie you told has harmed someone and damaged trust. Which response best applies Kirui’s contrast between truth and lies while taking responsibility for the real harm?",
+    id:"q5", level:"Intermediate", type:"multiple-choice", timestamp:"19:42–21:14", timestampSeconds:1182, videoUrl:"https://youtu.be/aDLRHK2GO6k?si=rMwSlEZ_RU1UafPN",
+    q:"You realize that a lie you told has harmed someone and damaged trust. Which response best applies the teaching’s contrast between truth and lies while taking responsibility for the real harm?",
     options:["Explain the pressure behind the lie first, and let the harmed person decide whether your story needs correcting.", "Offer an apology, but avoid naming the lie if doing so might make the relationship more difficult.", "Tell the truth, acknowledge the harm, seek forgiveness, and make appropriate repairs without demanding instant trust.", "Publish every detail to demonstrate transparency, without considering the affected person’s privacy."],
-    correct:2, explain:"Kirui stresses truthfulness and uses Cain’s actions to show that choices have consequences. In real life, accountability includes honesty and proportionate repair, while recognizing that trust may take time."
+    correct:2, explain:"The teaching stresses truthfulness and uses Cain’s actions to show that choices have consequences. In real life, accountability includes honesty and proportionate repair, while recognizing that trust may take time."
   },
   {
-    id:"q6", level:"Intermediate", type:"true-false", minister:"Presbyter David Kirui", timestamp:"22:29–23:17", timestampSeconds:1349, videoUrl:"https://youtu.be/aDLRHK2GO6k?si=rMwSlEZ_RU1UafPN",
-    q:"TRUE OR FALSE: In Kirui’s account of Cain, the warning that sin was at the door came after Cain murdered Abel, leaving him no opportunity to master it.",
+    id:"q6", level:"Intermediate", type:"true-false", timestamp:"22:29–23:17", timestampSeconds:1349, videoUrl:"https://youtu.be/aDLRHK2GO6k?si=rMwSlEZ_RU1UafPN",
+    q:"TRUE OR FALSE: In the account of Cain, the warning that sin was at the door came after Cain murdered Abel, leaving him no opportunity to master it.",
     options:["True", "False"],
-    correct:1, explain:"False. Kirui places God’s warning before Cain’s murder: sin is at the door, and Cain must master it before acting."
+    correct:1, explain:"False. God’s warning comes before Cain’s murder: sin is at the door, and Cain must master it before acting."
   },
   {
-    id:"q7", level:"Intermediate", type:"multiple-choice", minister:"Presbyter David Kirui", timestamp:"14:41–15:32", timestampSeconds:881, videoUrl:"https://youtu.be/aDLRHK2GO6k?si=rMwSlEZ_RU1UafPN",
-    q:"A friend says they are carrying a heavy burden alone and do not know what to do next. What response best echoes the invitation Kirui quotes from Matthew 11:28?",
+    id:"q7", level:"Intermediate", type:"multiple-choice", timestamp:"14:41–15:32", timestampSeconds:881, videoUrl:"https://youtu.be/aDLRHK2GO6k?si=rMwSlEZ_RU1UafPN",
+    q:"A friend says they are carrying a heavy burden alone and do not know what to do next. What response best echoes Jesus’ invitation in Matthew 11:28?",
     options:["Offer to listen, encourage them to bring the burden to Jesus, and ask what practical support would help now.", "Promise a timeline for relief so their hope stays strong.", "Tell them carrying the burden quietly is part of faithful endurance; do not involve anyone else.", "Give advice before listening, because action is more useful than acknowledging how heavy it feels."],
-    correct:0, explain:"Kirui quotes Jesus’ invitation to the weary and heavy laden to come to him for rest. A caring application can include prayer, listening, and practical support without promising a quick fix."
+    correct:0, explain:"The teaching quotes Jesus’ invitation to the weary and heavy laden to come to him for rest. A caring application can include prayer, listening, and practical support without promising a quick fix."
   },
   {
-    id:"q8", level:"Advanced", type:"true-false", minister:"Presbyter David Kirui", timestamp:"39:04–40:44", timestampSeconds:2344, videoUrl:"https://youtu.be/aDLRHK2GO6k?si=rMwSlEZ_RU1UafPN",
-    q:"TRUE OR FALSE: In the framework Kirui develops from John 10:10 and his later examples, he names sin, curse or judgment, and demonic possession or oppression as three avenues of destruction.",
+    id:"q8", level:"Advanced", type:"true-false", timestamp:"39:04–40:44", timestampSeconds:2344, videoUrl:"https://youtu.be/aDLRHK2GO6k?si=rMwSlEZ_RU1UafPN",
+    q:"TRUE OR FALSE: The teaching’s framework from John 10:10 and later examples names sin, curse or judgment, and demonic possession or oppression as three avenues of destruction.",
     options:["True", "False"],
-    correct:0, explain:"True. Kirui explicitly describes these three avenues in his teaching. This question checks what he said, not whether every hardship can be diagnosed from that framework."
+    correct:0, explain:"True. The teaching explicitly describes these three avenues. This question checks what he said, not whether every hardship can be diagnosed from that framework."
   },
   {
-    id:"q9", level:"Advanced", type:"multiple-choice", minister:"Presbyter David Kirui", timestamp:"41:59–43:18", timestampSeconds:2519, videoUrl:"https://youtu.be/aDLRHK2GO6k?si=rMwSlEZ_RU1UafPN",
+    id:"q9", level:"Advanced", type:"multiple-choice", timestamp:"41:59–43:18", timestampSeconds:2519, videoUrl:"https://youtu.be/aDLRHK2GO6k?si=rMwSlEZ_RU1UafPN",
     q:"Someone says an addiction feels stronger than their intention to stop, and they are ashamed to tell anyone. Which response applies the teaching about bondage while responding responsibly to the person in front of you?",
     options:["Assure them that willpower alone is the answer and encourage them to keep the struggle private until they succeed.", "Offer spiritual support but discourage professional assessment because the issue is only spiritual.", "Listen without shaming them, encourage trusted spiritual support and qualified professional help, and agree on a safe next step.", "Make continued support conditional on the person stopping immediately and never relapsing."],
-    correct:2, explain:"Kirui describes addiction as a form of bondage and urges people to know the truth. A safe application is compassionate support that can include trusted spiritual care, professional help, and concrete accountability."
+    correct:2, explain:"The teaching describes addiction as a form of bondage and urges people to know the truth. A safe application is compassionate support that can include trusted spiritual care, professional help, and concrete accountability."
   },
   {
-    id:"q10", level:"Advanced", type:"true-false", minister:"Presbyter David Kirui", timestamp:"31:51–37:14", timestampSeconds:1911, videoUrl:"https://youtu.be/aDLRHK2GO6k?si=rMwSlEZ_RU1UafPN",
-    q:"TRUE OR FALSE: Kirui says the serpent first contradicted God’s instruction openly, before asking Eve a question about it.",
+    id:"q10", level:"Advanced", type:"true-false", timestamp:"31:51–37:14", timestampSeconds:1911, videoUrl:"https://youtu.be/aDLRHK2GO6k?si=rMwSlEZ_RU1UafPN",
+    q:"TRUE OR FALSE: The serpent first contradicted God’s instruction openly, before asking Eve a question about it.",
     options:["True", "False"],
-    correct:1, explain:"False. Kirui describes the exchange as beginning with a seemingly small question, followed by a challenge to God’s instruction and the claim that Eve would not die. He uses it to warn that persuasion can make a boundary seem harmless."
+    correct:1, explain:"False. The exchange begins with a seemingly small question, followed by a challenge to God’s instruction and the claim that Eve would not die. He uses it to warn that persuasion can make a boundary seem harmless."
   }
 ];
 
