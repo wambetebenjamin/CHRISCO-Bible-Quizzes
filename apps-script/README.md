@@ -19,4 +19,4 @@ The Apps Script verifies the Google ID token and its audience server-side, grade
 
 ## Question source
 
-No YouTube URL or extracted YouTube question set was present in the repository or request context. The frontend and Apps Script therefore contain a small set of starter Bible questions. Replace the question text/options in both files with the approved video quiz, keeping IDs and ordering identical, and set the matching correct indexes privately in `QUIZ_ANSWER_KEY_JSON`.
+The frontend and Apps Script now contain ten scenario-based questions derived from the transcript of the supplied Beauty for Ashes video. They test applying the teaching about truth, temptation, anger, accountability, burdens, grief, addiction, and seeking practical care. The correct choices and explanations are not included in public source; set their zero-based indexes and explanations privately in `QUIZ_ANSWER_KEY_JSON`, keeping IDs q1 through q10.

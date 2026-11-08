@@ -61,8 +61,8 @@
   <header><div class="header-inner"><div class="brand-mark" aria-hidden="true">✦</div><div class="brand">CHRISCO<small>BIBLE QUIZZES</small></div></div></header>
   <main>
     <section class="panel" id="signin-panel">
-      <h1>Join the Bible Quiz</h1>
-      <p class="lead">Sign in to verify your one-time entry. Your score is saved when you submit; correct answers are shown only after the quiz.</p>
+      <h1>Beauty for Ashes: Put It Into Practice</h1>
+      <p class="lead">Sign in for your one-time entry, then answer ten real-life scenarios about truth, temptation, accountability, grief, and seeking help. Your score and the correct answers appear only after you submit.</p>
       <div class="signin-box">
         <div class="signin-label">Sign in to continue</div>
         <div id="google-signin"></div>
@@ -110,13 +110,18 @@
     const GOOGLE_CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID';
     const APPS_SCRIPT_URL = 'YOUR_APPS_SCRIPT_URL';
     // The answer key is deliberately not shipped to the browser; grading happens in Code.gs.
-    // Replace this display list and the matching question prompts/options in Code.gs with approved YouTube questions.
+    // These application questions are based on the supplied Beauty for Ashes transcript.
     const QUIZ = [
-      { id:'q1', q:'Who built an ark before the great flood?', options:['Moses','Noah','David','Solomon'] },
-      { id:'q2', q:'What did David use to strike Goliath?', options:['A spear','A bow','A sling and a stone','A sword'] },
-      { id:'q3', q:'Which city’s walls fell after the Israelites marched around them?', options:['Jerusalem','Bethlehem','Jericho','Nazareth'] },
-      { id:'q4', q:'Who was thrown into the lions’ den?', options:['Daniel','Joseph','Samuel','Elijah'] },
-      { id:'q5', q:'Which disciple denied knowing Jesus three times?', options:['John','Thomas','Peter','Andrew'] }
+      { id:'q1', q:'You are going through a painful season and wonder whether you are meant to stay stuck there. Which response best reflects the speaker’s teaching?', options:['Assume the hardship proves God wants you to remain there','Search Scripture for truth, seek wise support, and take a constructive next step','Ignore the problem because faith means never discussing it','Blame yourself automatically for every difficult thing that happens'] },
+      { id:'q2', q:'A believer has attended church for years but still feels controlled by a destructive habit. What does the teaching suggest is a useful first move?', options:['Pretend the habit is harmless so nobody worries','Wait for someone else to notice and fix it','Bring the pattern into the light, learn what Scripture says, and seek accountable help','Conclude that knowing religious language means no further growth is needed'] },
+      { id:'q3', q:'Someone tells you that a choice against a clear boundary will have no consequences. Which response best applies the Genesis 3 example?', options:['Accept the reassurance because it sounds appealing','Pause, test the claim against what you know is true, and step away from the temptation','Keep discussing it until the boundary feels unnecessary','Make the choice privately so nobody can advise you'] },
+      { id:'q4', q:'You feel resentment growing toward a colleague and are tempted to retaliate. What is the closest application of God’s warning to Cain?', options:['Hide the resentment and wait for it to disappear','Act quickly before the other person notices','Recognize the danger early, master the impulse, and choose a right response','Tell yourself anger makes any response acceptable'] },
+      { id:'q5', q:'After making a serious mistake, you are tempted to lie so you can avoid embarrassment. What response best matches the talk about truth?', options:['Tell the truth, accept responsibility, and make amends where possible','Create a more convincing story and ask others to repeat it','Stay silent while allowing another person to take the blame','Say that honesty matters only when there are no consequences'] },
+      { id:'q6', q:'A person’s harmful choice has hurt someone and damaged trust. What is the most responsible application of the Cain story?', options:['Assume the harm will disappear if it is never discussed','Blame the person who was hurt for reacting','Treat the choice as unimportant because forgiveness exists','Acknowledge the action, seek forgiveness, repair what can be repaired, and accept fair consequences'] },
+      { id:'q7', q:'A friend says they are carrying a burden alone and feel exhausted. Which response best reflects the invitation quoted in the program?', options:['Tell them that strong people should manage alone','Encourage them to come to Jesus for rest and offer caring, practical support','Tell them their grief proves they lack faith','Change the subject so they stop talking about it'] },
+      { id:'q8', q:'Someone is grieving and feels overwhelmed. How could you put Isaiah 61’s comfort into practice?', options:['Demand that they praise immediately and stop mourning','Tell them their grief is inconvenient for others','Listen without dismissing their pain and offer steady, practical care','Promise that every loss will be reversed by tomorrow'] },
+      { id:'q9', q:'A person wants to stop an addiction but keeps returning to it and feels unable to cope alone. What is the wisest next step?', options:['Hide it and rely only on willpower','Shame them until they promise to stop','Tell them relapse proves they cannot change','Seek trusted pastoral and professional support, build accountability, and take a safe next step'] },
+      { id:'q10', q:'You are facing illness and financial strain at the same time. Which response applies the message without making assumptions about the cause?', options:['Seek appropriate medical and practical help, explore Scripture and trusted support, and avoid blaming yourself without evidence','Assume the hardship proves you are cursed','Stop medical care and wait for a miracle','Assume every setback means you have failed spiritually'] }
     ];
     const state = { idToken:'', email:'', nickname:'', answers:Array(QUIZ.length).fill(null), current:0, busy:false };
     const byId = id => document.getElementById(id);
