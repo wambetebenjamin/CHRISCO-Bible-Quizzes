@@ -1,0 +1,25 @@
+/* Shared CHRISCO game-stage atmosphere and hand-authored mascot styling. */
+.chrisco-mascot { display:block; object-fit:contain; filter:drop-shadow(0 16px 18px rgba(10,25,65,.24)); transform-style:preserve-3d; animation:mascot-hover 4.8s ease-in-out infinite; }
+.mascot-hero { position:absolute; z-index:1; right:clamp(1rem,4vw,3rem); bottom:-12px; width:clamp(130px,18vw,225px); max-height:94%; pointer-events:none; }
+.hero-content { position:relative; z-index:2; }
+.hero:has(.mascot-hero) { isolation:isolate; }
+.sound-toggle { display:inline-flex; align-items:center; justify-content:center; gap:.4rem; min-height:38px; padding:.45rem .7rem; border:1px solid rgba(255,255,255,.3); border-radius:10px; background:rgba(255,255,255,.13); color:#fff; font-family:inherit; font-size:.78rem; font-weight:700; line-height:1; cursor:pointer; white-space:nowrap; }
+.sound-toggle:hover { background:rgba(255,255,255,.22); transform:translateY(-1px); }
+.sound-toggle:focus-visible { outline:3px solid #ffc72c; outline-offset:2px; }
+.sound-toggle .sound-label { display:inline; }
+.header-inner .sound-toggle { margin-left:auto; }
+.mascot-player { width:48px; height:48px; margin-left:auto; flex:0 0 auto; }
+/* A softly lit quiz arena behind the host's question stage. */
+#question-screen { position:relative; isolation:isolate; padding:clamp(.65rem,2vw,1.2rem); overflow:hidden; border-radius:28px; background:radial-gradient(ellipse at 50% 0%,rgba(255,192,10,.24),transparent 48%),linear-gradient(145deg,#101e52,#17154b 56%,#24145c); box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 24px 55px rgba(5,13,43,.22); }
+#question-screen::before { content:""; position:absolute; z-index:-1; inset:0; pointer-events:none; opacity:.45; background:radial-gradient(circle at 14% 22%,#72b7ff 0 2px,transparent 3px),radial-gradient(circle at 83% 34%,#ffd56e 0 2px,transparent 3px),radial-gradient(circle at 72% 78%,#d9c8ff 0 1.5px,transparent 2.5px),radial-gradient(ellipse at 50% 100%,rgba(90,120,255,.32),transparent 58%); background-size:190px 180px,240px 200px,150px 170px,100% 100%; }
+#question-screen.active { animation:arena-arrive .55s cubic-bezier(.2,.8,.2,1) both; }
+#question-screen .question-card { position:relative; border:1px solid rgba(255,255,255,.72); background:linear-gradient(140deg,rgba(255,255,255,.99),rgba(238,244,255,.97)); box-shadow:0 24px 58px rgba(0,0,0,.27),inset 0 1px 0 #fff; }
+#question-screen .scoreboard { border:1px solid rgba(255,255,255,.55); box-shadow:0 14px 32px rgba(0,0,0,.18); }
+#quiz-panel { background:linear-gradient(145deg,#fff 0%,#f7f9ff 62%,#fff7e9 100%); }
+#quiz-panel .question-stage { position:relative; padding:clamp(.8rem,2vw,1.3rem); border:1px solid #dbe5f8; border-radius:20px; background:radial-gradient(circle at 94% 7%,rgba(255,204,91,.23),transparent 31%),linear-gradient(140deg,#fff,#f1f5ff); box-shadow:0 14px 35px rgba(19,50,112,.1); }
+#quiz-panel .work-figure { filter:drop-shadow(0 12px 12px rgba(20,42,80,.15)); }
+@keyframes mascot-hover { 0%,100% { transform:translateY(0) rotateY(-5deg); } 50% { transform:translateY(-8px) rotateY(5deg); } }
+@keyframes arena-arrive { from { opacity:.65; transform:translateY(8px) scale(.992); } to { opacity:1; transform:none; } }
+@media(max-width:900px) { .mascot-hero { width:120px; right:.5rem; opacity:.35; } }
+@media(max-width:600px) { .mascot-hero { display:none; } .sound-toggle { min-height:36px; padding:.4rem .55rem; } .sound-toggle .sound-label { display:none; } .mascot-player { width:40px; height:40px; } }
+@media(prefers-reduced-motion:reduce) { .chrisco-mascot,.mascot-hero,#question-screen.active { animation:none !important; } }
