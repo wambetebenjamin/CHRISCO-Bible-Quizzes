@@ -5,7 +5,7 @@
 // Facebook / X show a thumbnail with the right message for whoever shares.
 
 const THEME = '1 Samuel 30:8 Pursue Overtake Recover All';
-const IMAGE_PATH = '/social-preview-v2.png';
+const IMAGE_PATH = '/social-preview-v3.png';
 
 const MODE_NAMES = { pursue: 'David Quiz', overtake: 'Overtake', recover: 'Recover All', beauty: 'Beauty for Ashes' };
 
@@ -33,7 +33,7 @@ export default async function handler(req, res) {
   const title = role === 'host' ? modeName : (nickname || 'A friend') + ' invites you to ' + modeName + ' by Presbyter David Kirui';
   const description = title;
   const origin = baseUrl(req);
-  const shareUrl = origin + '/api/share?role=' + role + '&pin=' + encodeURIComponent(pin) +
+  const shareUrl = origin + '/invite?role=' + role + '&pin=' + encodeURIComponent(pin) +
     '&host=' + encodeURIComponent(host) + '&name=' + encodeURIComponent(nickname) + '&mode=' + encodeURIComponent(mode);
   const joinUrl = origin + '/?pin=' + encodeURIComponent(pin);
   const imageUrl = origin + IMAGE_PATH;
@@ -57,13 +57,13 @@ export default async function handler(req, res) {
   <meta property="og:image:type" content="image/png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
-  <meta property="og:image:alt" content="CHRISCO Bible Quizzes with a hand drawn open Bible in navy, cream, and gold" />
+  <meta property="og:image:alt" content="CHRISCO homepage preview with Host a Game and Join with PIN actions" />
   <meta property="og:url" content="` + shareUrl + `" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="` + title + `" />
   <meta name="twitter:description" content="` + description + `" />
   <meta name="twitter:image" content="` + imageUrl + `" />
-  <meta name="twitter:image:alt" content="CHRISCO Bible Quizzes with a hand drawn open Bible in navy, cream, and gold" />
+  <meta name="twitter:image:alt" content="CHRISCO homepage preview with Host a Game and Join with PIN actions" />
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
