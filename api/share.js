@@ -5,7 +5,7 @@
 // Facebook / X show a thumbnail with the right message for whoever shares.
 
 const THEME = '1 Samuel 30:8 Pursue Overtake Recover All';
-const IMAGE_PATH = '/social-preview.png';
+const IMAGE_PATH = '/social-preview-v2.png';
 
 const MODE_NAMES = { pursue: 'David Quiz', overtake: 'Overtake', recover: 'Recover All', beauty: 'Beauty for Ashes' };
 
