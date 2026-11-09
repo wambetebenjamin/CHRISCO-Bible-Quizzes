@@ -2,8 +2,8 @@
   "outputDirectory": "public",
   "cleanUrls": true,
   "rewrites": [
-    { "source": "/host-game", "destination": "/host.html" },
-    { "source": "/join-game", "destination": "/player.html" },
+    { "source": "/host-game", "destination": "/host" },
+    { "source": "/join-game", "destination": "/player" },
     { "source": "/invite", "destination": "/api/share" }
   ]
 }
