@@ -36,8 +36,7 @@ export default async function handler(req, res) {
   const origin = baseUrl(req);
   const shareUrl = origin + '/api/share?role=' + role + '&pin=' + encodeURIComponent(pin) +
     '&host=' + encodeURIComponent(host) + '&name=' + encodeURIComponent(nickname) + '&mode=' + encodeURIComponent(mode);
-  const joinUrl = origin + '/player.html?pin=' + encodeURIComponent(pin) +
-    '&host=' + encodeURIComponent(host) + '&mode=' + encodeURIComponent(mode);
+  const joinUrl = origin + '/?pin=' + encodeURIComponent(pin);
   const imageUrl = origin + IMAGE_PATH;
   let heading = title;
   let body = title;
@@ -107,14 +106,9 @@ export default async function handler(req, res) {
 <body>
   <div class="preview">
     <img src="` + imageUrl + `" alt="CHRISCO Bible Quiz" />
-    <span class="badge">GAME PIN ` + pin + `</span>
     <div class="content">
       <h1>` + heading + `</h1>
-      <p>` + description + `</p>
-      <div class="theme"><i class="fa-solid fa-fire"></i> Theme: ` + THEME + `</div>
-      <a class="join" href="` + joinUrl + `"><i class="fa-solid fa-right-to-bracket"></i> Join Game</a>
-      <div class="foot">This is how your link previews in WhatsApp, Facebook and X.</div>
-      <a class="host-btn" href="` + origin + `/host.html"><i class="fa-solid fa-gamepad"></i> Want to host your own game?</a>
+      <a class="join" href="` + joinUrl + `"><i class="fa-solid fa-right-to-bracket"></i> Join Quiz</a>
     </div>
   </div>
 </body>
