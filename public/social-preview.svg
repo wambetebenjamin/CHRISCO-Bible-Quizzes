@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">CHRISCO Bible Quizzes</title>
+  <desc id="desc">A clean editorial invitation to read Scripture, think deeply, and play together.</desc>
+  <rect width="1200" height="630" fill="#F5F1E8"/>
+  <rect width="748" height="630" fill="#0B1D3A"/>
+  <rect x="748" width="8" height="630" fill="#C79B3B"/>
+
+  <text x="82" y="92" fill="#D8B45C" font-family="DejaVu Sans, sans-serif" font-size="22" font-weight="700" letter-spacing="4">CHRISCO</text>
+  <path d="M82 124h72" stroke="#C79B3B" stroke-width="4"/>
+
+  <text x="78" y="264" fill="#FFFDF7" font-family="DejaVu Serif, Georgia, serif" font-size="78" font-weight="700" letter-spacing="-2">BIBLE</text>
+  <text x="78" y="354" fill="#FFFDF7" font-family="DejaVu Serif, Georgia, serif" font-size="78" font-weight="700" letter-spacing="-2">QUIZZES</text>
+  <text x="82" y="414" fill="#D8B45C" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="700" letter-spacing="2">READ. REFLECT. PLAY.</text>
+  <text x="82" y="468" fill="#E4E7EC" font-family="DejaVu Sans, sans-serif" font-size="24">Learn Scripture together.</text>
+  <path d="M82 536h564" stroke="#52617A" stroke-width="1"/>
+  <text x="82" y="576" fill="#AEB9CB" font-family="DejaVu Sans, sans-serif" font-size="14" letter-spacing="2">CHRISCO BIBLE QUIZZES</text>
+
+  <circle cx="976" cy="300" r="196" fill="none" stroke="#E3D9C5" stroke-width="2"/>
+  <circle cx="976" cy="300" r="174" fill="none" stroke="#E3D9C5" stroke-width="1"/>
+  <path d="M830 236c51-17 99-10 146 19v178c-47-29-95-36-146-19z" fill="#FFFCF5" stroke="#0B1D3A" stroke-width="5" stroke-linejoin="round"/>
+  <path d="M976 255c47-29 95-36 146-19v178c-51-17-99-10-146 19z" fill="#FFFCF5" stroke="#0B1D3A" stroke-width="5" stroke-linejoin="round"/>
+  <path d="M976 257v176" stroke="#C79B3B" stroke-width="5"/>
+  <path d="M852 276c35-8 66-5 94 6M852 307c35-8 66-5 94 6M852 338c35-8 66-5 94 6M1006 282c28-11 59-14 94-6M1006 313c28-11 59-14 94-6M1006 344c28-11 59-14 94-6" fill="none" stroke="#9C8B6B" stroke-width="3" stroke-linecap="round"/>
+  <path d="M826 442h300" stroke="#C79B3B" stroke-width="3"/>
+  <text x="976" y="488" text-anchor="middle" fill="#0B1D3A" font-family="DejaVu Sans, sans-serif" font-size="14" font-weight="700" letter-spacing="3">SCRIPTURE · WISDOM · COMMUNITY</text>
+</svg>
