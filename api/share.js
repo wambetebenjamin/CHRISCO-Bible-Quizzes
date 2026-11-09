@@ -57,13 +57,13 @@ export default async function handler(req, res) {
   <meta property="og:image:type" content="image/png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
-  <meta property="og:image:alt" content="CHRISCO Bible Quizzes: Read Scripture. Think deeply. Play together." />
+  <meta property="og:image:alt" content="CHRISCO Bible Quizzes with a hand drawn open Bible in navy, cream, and gold" />
   <meta property="og:url" content="` + shareUrl + `" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="` + title + `" />
   <meta name="twitter:description" content="` + description + `" />
   <meta name="twitter:image" content="` + imageUrl + `" />
-  <meta name="twitter:image:alt" content="CHRISCO Bible Quizzes: Read Scripture. Think deeply. Play together." />
+  <meta name="twitter:image:alt" content="CHRISCO Bible Quizzes with a hand drawn open Bible in navy, cream, and gold" />
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
