@@ -9,16 +9,16 @@
   <meta property="og:site_name" content="CHRISCO Bible Quizzes" />
   <meta property="og:title" content="CHRISCO Bible Quizzes | Host a live Bible Quiz game" />
   <meta property="og:description" content="Host a live multiplayer Bible quiz game. Share the PIN, answer questions, see the scoreboard. Theme: 1 Samuel 30:8 Pursue Overtake Recover All." />
-  <meta property="og:image" content="https://chrisco-bible-quizzes.vercel.app/social-preview-v2.png" />
+  <meta property="og:image" content="https://chrisco-bible-quizzes.vercel.app/social-preview-v3.png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta property="og:image:type" content="image/png" />
-  <meta property="og:image:alt" content="CHRISCO Bible Quizzes with a hand drawn open Bible in navy, cream, and gold" />
+  <meta property="og:image:alt" content="CHRISCO homepage preview with Host a Game and Join with PIN actions" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="CHRISCO Bible Quizzes | Host a live Bible Quiz game" />
   <meta name="twitter:description" content="Host a live multiplayer Bible quiz game. Share the PIN, answer questions, see the scoreboard. Theme: 1 Samuel 30:8 Pursue Overtake Recover All." />
-  <meta name="twitter:image" content="https://chrisco-bible-quizzes.vercel.app/social-preview-v2.png" />
-  <meta name="twitter:image:alt" content="CHRISCO Bible Quizzes with a hand drawn open Bible in navy, cream, and gold" />
+  <meta name="twitter:image" content="https://chrisco-bible-quizzes.vercel.app/social-preview-v3.png" />
+  <meta name="twitter:image:alt" content="CHRISCO homepage preview with Host a Game and Join with PIN actions" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <script src="vendor/supabase.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -202,8 +202,8 @@
   <canvas id="host-confetti" aria-hidden="true"></canvas>
   <div class="topbar">
     <div class="topbar-inner">
-      <a class="brand" href="index.html"><span class="brand-logo"><i class="fa-solid fa-crosshairs"></i></span><span class="brand-text">CHRISCO<small>BIBLE QUIZZES</small></span></a>
-      <div class="topbar-actions"><div id="lang-select-wrap" class="topbar-lang"></div><a class="btn btn--outline" href="player.html"><i class="fa-solid fa-right-to-bracket"></i> <span data-i18n="join">Join</span></a><a class="btn btn--yellow" href="host.html"><i class="fa-solid fa-gamepad"></i> <span data-i18n="host">Host</span></a></div>
+      <a class="brand" href="/"><span class="brand-logo"><i class="fa-solid fa-crosshairs"></i></span><span class="brand-text">CHRISCO<small>BIBLE QUIZZES</small></span></a>
+      <div class="topbar-actions"><div id="lang-select-wrap" class="topbar-lang"></div><a class="btn btn--outline" href="/join-game"><i class="fa-solid fa-right-to-bracket"></i> <span data-i18n="join">Join</span></a><a class="btn btn--yellow" href="/host-game"><i class="fa-solid fa-gamepad"></i> <span data-i18n="host">Host</span></a></div>
     </div>
   </div>
 
@@ -320,7 +320,7 @@
         <div id="end-scores"></div>
         <div id="end-answer-review" class="answer-end-review" aria-label="Answer review shown after the final question"></div>
         <button id="play-again-btn" class="btn btn--yellow btn--large btn--block" style="margin-top:1.5rem;"><i class="fa-solid fa-rotate-left"></i> New Game</button>
-        <a class="btn btn--outline btn--block" style="margin-top:0.8rem;" href="index.html"><i class="fa-solid fa-house"></i> Back to Home</a>
+        <a class="btn btn--outline btn--block" style="margin-top:0.8rem;" href="/"><i class="fa-solid fa-house"></i> Back to Home</a>
       </div>
     </div>
   </div>
@@ -442,7 +442,7 @@
     }
 
     function hostShareUrl() {
-      return window.location.origin + '/api/share?role=host' +
+      return window.location.origin + '/invite?role=host' +
         '&pin=' + encodeURIComponent(state.pin) +
         '&mode=' + encodeURIComponent(state.mode);
     }

@@ -25,12 +25,15 @@ app.get('/api/config', (_req, res) => {
   if (!config.url || !config.key) return res.status(503).json({ error: 'Supabase client configuration is not set.' });
   res.set('Cache-Control', 'public, max-age=300').json(config);
 });
-app.use(express.static(path.join(__dirname, 'public')));
+app.get('/host-game', (_req, res) => res.sendFile(path.join(__dirname, 'public', 'host.html')));
+app.get('/join-game', (_req, res) => res.sendFile(path.join(__dirname, 'public', 'player.html')));
+app.use(express.static(path.join(__dirname, 'public'), { extensions: ['html'] }));
 
 app.get('/api/health', (_req, res) => {
   const database = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
   res.status(200).json({ ok: true, service: 'chrisco-master-server', database, autoHost: autoHost.state, autoHostStandbyQuestions: autoHost.state.standbyQuestions || 0 });
 });
+app.use('/invite', require('./routes/share'));
 app.use('/api/share', require('./routes/share'));
 app.use('/api/camp', require('./routes/camp'));
 app.use('/api/combat', require('./routes/combat'));

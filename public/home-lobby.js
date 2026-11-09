@@ -20,7 +20,7 @@
     if (!nickname) return;
     let config; try { config = JSON.parse(button.closest('[data-share-config]').getAttribute('data-share-config')); } catch (_) { return; }
     const params = new URLSearchParams({role:'player',pin:config.pin,host:'Presbyter David Kirui',name:nickname,mode:config.mode});
-    const url = window.location.origin + '/api/share?' + params.toString();
+    const url = window.location.origin + '/invite?' + params.toString();
     const quiz = ({pursue:'David Quiz',overtake:'Overtake Quiz',recover:'Recover All Quiz',beauty:'Beauty for Ashes Quiz'})[config.mode] || 'Bible Quiz';
     const text = nickname + ' invites you to ' + quiz + ' by Presbyter David Kirui. ' + url;
     const kind = button.dataset.shareKind;
@@ -38,13 +38,13 @@
       const displayHost = g.hostName || g.name || 'Host';
       const rankings = Array.isArray(g.rankings) ? g.rankings.slice(0,3).map((row,i) => '<span>' + (i+1) + '. ' + escapeHtml(row.name) + ' <strong>' + (Number(row.score)||0) + '</strong></span>').join('') : '';
       const joinControl = String(g.pin) === '777777'
-        ? `<button class="btn btn--yellow gt-join" type="button" onclick="window.location.href = 'player.html?pin=777777';"><i class="fa-solid fa-right-to-bracket"></i> Join ${escapeHtml(g.name || 'Game')}</button>`
-        : '<a class="btn btn--yellow gt-join" href="player.html?pin=' + encodeURIComponent(g.pin) + '"><i class="fa-solid fa-right-to-bracket"></i> Join ' + escapeHtml(g.name || 'Game') + '</a>';
+        ? `<button class="btn btn--yellow gt-join" type="button" onclick="window.location.href = '/join-game?pin=777777';"><i class="fa-solid fa-right-to-bracket"></i> Join ${escapeHtml(g.name || 'Game')}</button>`
+        : '<a class="btn btn--yellow gt-join" href="/join-game?pin=' + encodeURIComponent(g.pin) + '"><i class="fa-solid fa-right-to-bracket"></i> Join ' + escapeHtml(g.name || 'Game') + '</a>';
       const safeMode = ['pursue','overtake','recover','beauty'].includes(g.mode) ? g.mode : '';
       return '<article class="game-tile ' + (playing ? 'playing' : 'waiting') + (safeMode ? ' mode-' + safeMode : '') + '"><div class="gt-pin">' + escapeHtml(g.pin) + '</div><div class="gt-mode">' + escapeHtml(modeName(g)) + '</div><div class="gt-host"><i class="fa-solid fa-user"></i> ' + escapeHtml(displayHost) + '</div><div class="gt-meta"><span><i class="fa-solid fa-users"></i> ' + n + ' ' + escapeHtml(window.L(n === 1 ? 'lobby_player' : 'lobby_players')) + '</span><span>' + escapeHtml(window.L(playing ? 'lobby_playing' : 'lobby_waiting')) + '</span></div>' + (rankings ? '<div class="gt-rankings"><strong>Live rankings</strong>' + rankings + '</div>' : '') + joinControl + shareMarkup(g) + '</article>';
     }).join('') : '<div class="game-tile gt-empty"><i class="fa-solid fa-hourglass-half"></i> ' + escapeHtml(window.L('lobby_empty_player')) + '</div>';
     const live = unique.find(g => g.hostName === hostName || g.name === hostName || g.name === 'Beauty for Ashes');
-    if (live) { $('lobby-live-banner').style.display = 'flex'; $('lobby-live-pin').textContent = live.pin; $('lobby-live-join').href = 'player.html?pin=' + encodeURIComponent(live.pin); }
+    if (live) { $('lobby-live-banner').style.display = 'flex'; $('lobby-live-pin').textContent = live.pin; $('lobby-live-join').href = '/join-game?pin=' + encodeURIComponent(live.pin); }
     else $('lobby-live-banner').style.display = 'none';
   }
   async function copyShareLink(button) {
@@ -99,7 +99,7 @@
     const input = $('lobby-pin-input'), button = $('lobby-join-pin-btn');
     const invitePin = new URLSearchParams(window.location.search).get('pin') || '';
     if (input && /^\d{4,6}$/.test(invitePin)) { input.value = invitePin; input.focus({preventScroll:true}); }
-    if (input && button) button.addEventListener('click', () => { const pin = input.value.trim(); if (/^\d{4,6}$/.test(pin)) location.href = 'player.html?pin=' + encodeURIComponent(pin); });
+    if (input && button) button.addEventListener('click', () => { const pin = input.value.trim(); if (/^\d{4,6}$/.test(pin)) location.href = '/join-game?pin=' + encodeURIComponent(pin); });
     fetch('/api/config').then(r => r.ok ? r.json() : Promise.reject()).catch(() => fetch('/config.js').then(r => r.text()).then(t => {
       const m = t.match(/SUPABASE_URL\s*=\s*['"]([^'"]+)['"][\s\S]*?SUPABASE_ANON_KEY\s*=\s*['"]([^'"]+)['"]/);
       if (!m) throw Error('Supabase config unavailable'); return {url:m[1],key:m[2]};

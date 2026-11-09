@@ -3,22 +3,22 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>CHRISCO Bible Quizzes | Make Learning Awesome!</title>
-  <meta name="description" content="Play Bible quizzes with friends. Host a game, share the PIN, and compete. Theme: 1 Samuel 30:8 Pursue Overtake Recover All." />
+  <title>CHRISCO Bible Quizzes | Make Bible Learning Awesome!</title>
+  <meta name="description" content="Host a private Bible quiz for youth groups, Sunday school, or camp, or join a public game. Read Scripture, think deeply, and play together." />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="CHRISCO Bible Quizzes" />
-  <meta property="og:title" content="CHRISCO Bible Quizzes | Make Learning Awesome!" />
-  <meta property="og:description" content="Play Bible quizzes with friends. Host a game, share the PIN, and compete. Theme: 1 Samuel 30:8 Pursue Overtake Recover All." />
-  <meta property="og:image" content="https://chrisco-bible-quizzes.vercel.app/social-preview-v2.png" />
+  <meta property="og:title" content="CHRISCO Bible Quizzes | Make Bible Learning Awesome!" />
+  <meta property="og:description" content="Host a private Bible quiz for youth groups, Sunday school, or camp, or join a public game. Read Scripture, think deeply, and play together." />
+  <meta property="og:image" content="https://chrisco-bible-quizzes.vercel.app/social-preview-v3.png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta property="og:image:type" content="image/png" />
-  <meta property="og:image:alt" content="CHRISCO Bible Quizzes with a hand drawn open Bible in navy, cream, and gold" />
+  <meta property="og:image:alt" content="CHRISCO homepage preview with Host a Game and Join with PIN actions" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="CHRISCO Bible Quizzes | Make Learning Awesome!" />
-  <meta name="twitter:description" content="Play Bible quizzes with friends. Host a game, share the PIN, and compete. Theme: 1 Samuel 30:8 Pursue Overtake Recover All." />
-  <meta name="twitter:image" content="https://chrisco-bible-quizzes.vercel.app/social-preview-v2.png" />
-  <meta name="twitter:image:alt" content="CHRISCO Bible Quizzes with a hand drawn open Bible in navy, cream, and gold" />
+  <meta name="twitter:title" content="CHRISCO Bible Quizzes | Make Bible Learning Awesome!" />
+  <meta name="twitter:description" content="Host a private Bible quiz for youth groups, Sunday school, or camp, or join a public game. Read Scripture, think deeply, and play together." />
+  <meta name="twitter:image" content="https://chrisco-bible-quizzes.vercel.app/social-preview-v3.png" />
+  <meta name="twitter:image:alt" content="CHRISCO homepage preview with Host a Game and Join with PIN actions" />
   <!-- Premium Icons (Font Awesome Free via CDN) -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <!-- Kahoot-style font (Montserrat) with fallback -->
@@ -368,14 +368,14 @@
   <!-- ===== Top Bar ===== -->
   <div class="topbar">
     <div class="topbar-inner">
-      <a class="brand" href="index.html">
+      <a class="brand" href="/">
         <span class="brand-logo"><i class="fa-solid fa-crosshairs"></i></span>
         <span class="brand-text">CHRISCO<small>BIBLE QUIZZES</small></span>
       </a>
       <div class="topbar-actions">
         <div id="lang-select-wrap" class="topbar-lang"></div>
-        <a class="btn btn--outline" href="player.html"><i class="fa-solid fa-right-to-bracket"></i> <span data-i18n="join">Join</span></a>
-        <a class="btn btn--yellow" href="host.html"><i class="fa-solid fa-gamepad"></i> <span data-i18n="host">Host</span></a>
+        <a class="btn btn--outline" href="/join-game"><i class="fa-solid fa-right-to-bracket"></i> <span data-i18n="join">Join</span></a>
+        <a class="btn btn--yellow" href="/host-game"><i class="fa-solid fa-gamepad"></i> <span data-i18n="host">Host</span></a>
       </div>
     </div>
   </div>
@@ -388,8 +388,8 @@
       <h1 data-i18n="hero_title">Make Bible Learning Awesome!</h1>
       <p class="hero-sub" data-i18n="hero_sub">Play together with friends and family. Host a game, share the PIN, and compete to Pursue Overtake Recover All from 1 Samuel 30:8.</p>
       <div class="hero-actions">
-        <a class="btn btn--yellow btn--large" href="host.html"><i class="fa-solid fa-gamepad"></i> <span data-i18n="hero_cta_host">Host a Game</span></a>
-        <a class="btn btn--outline btn--large" href="player.html"><i class="fa-solid fa-right-to-bracket"></i> <span data-i18n="hero_cta_join">Join with PIN</span></a>
+        <a class="btn btn--yellow btn--large" href="/host-game"><i class="fa-solid fa-gamepad"></i> <span data-i18n="hero_cta_host">Host a Game</span></a>
+        <a class="btn btn--outline btn--large" href="/join-game"><i class="fa-solid fa-right-to-bracket"></i> <span data-i18n="hero_cta_join">Join with PIN</span></a>
       </div>
       <div class="hero-stats">
         <div class="hero-stat"><div class="num">4</div><div class="lbl" data-i18n="stat_modes">Game Modes</div></div>
@@ -424,7 +424,7 @@
       <section class="dashboard-panel open-games-section" aria-labelledby="open-games-heading" style="margin-top:2rem;padding:1rem;background:#f3f4f6;border-radius:8px;text-align:center;">
         <h3 id="open-games-heading" data-i18n="live_open_title">Live Open Games</h3>
         <p data-i18n="live_public_description">Join the 24/7 public room instantly.</p>
-        <button type="button" onclick="window.location.href='player.html?pin=777777'" data-i18n="live_public_cta" style="background:#2563eb;color:white;padding:15px 30px;font-size:1.2rem;border:none;border-radius:8px;cursor:pointer;font-weight:bold;width:100%;max-width:400px;">
+        <button type="button" onclick="window.location.href='/join-game?pin=777777'" data-i18n="live_public_cta" style="background:#2563eb;color:white;padding:15px 30px;font-size:1.2rem;border:none;border-radius:8px;cursor:pointer;font-weight:bold;width:100%;max-width:400px;">
           JOIN LIVE: Beauty for Ashes
         </button>
         <div class="public-share-block">
@@ -511,8 +511,8 @@
     <h2 data-i18n="cta_title">Ready to make learning awesome?</h2>
     <p>Start a game now and share the PIN with your friends. Theme: <strong style="color: var(--yellow);">1 Samuel 30:8 Pursue Overtake Recover All</strong>.</p>
     <div class="hero-actions">
-      <a class="btn btn--yellow btn--large" href="host.html"><i class="fa-solid fa-gamepad"></i> <span data-i18n="cta_host">Host a Game Now</span></a>
-      <a class="btn btn--outline btn--large" href="player.html"><i class="fa-solid fa-right-to-bracket"></i> <span data-i18n="cta_player">I am a Player</span></a>
+      <a class="btn btn--yellow btn--large" href="/host-game"><i class="fa-solid fa-gamepad"></i> <span data-i18n="cta_host">Host a Game Now</span></a>
+      <a class="btn btn--outline btn--large" href="/join-game"><i class="fa-solid fa-right-to-bracket"></i> <span data-i18n="cta_player">I am a Player</span></a>
     </div>
   </section>
 
@@ -531,14 +531,14 @@
 
   <!-- ===== Footer ===== -->
   <footer>
-    <a class="brand" href="index.html">
+    <a class="brand" href="/">
       <span class="brand-logo"><i class="fa-solid fa-crosshairs"></i></span>
       <span class="brand-text">CHRISCO<small>BIBLE QUIZZES</small></span>
     </a>
     <div class="socials">
-      <a href="host.html" aria-label="Host"><i class="fa-solid fa-gamepad"></i></a>
-      <a href="player.html" aria-label="Join"><i class="fa-solid fa-right-to-bracket"></i></a>
-      <a href="index.html" aria-label="Home"><i class="fa-solid fa-house"></i></a>
+      <a href="/host-game" aria-label="Host"><i class="fa-solid fa-gamepad"></i></a>
+      <a href="/join-game" aria-label="Join"><i class="fa-solid fa-right-to-bracket"></i></a>
+      <a href="/" aria-label="Home"><i class="fa-solid fa-house"></i></a>
     </div>
     <p data-i18n="footer_copy">&copy; 2026 CHRISCO Bible Quizzes. Theme: 1 Samuel 30:8 Pursue Overtake Recover All.</p>
   </footer>

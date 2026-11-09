@@ -356,7 +356,7 @@
       const nickname=byId('nickname').value.trim();
       if(!nickname){setStatus('nickname-status','Enter your nickname before sharing.','error');byId('nickname').focus();return;}
       const params=new URLSearchParams({role:'player',pin:new URLSearchParams(location.search).get('pin')||'777777',name:nickname,mode:'beauty'});
-      const url=location.origin+'/api/share?'+params.toString();
+      const url=location.origin+'/invite?'+params.toString();
       const caption=nickname+' invites you to Beauty for Ashes by Presbyter David Kirui.';
       const message=caption+' '+url;
       if(kind==='copy'){navigator.clipboard.writeText(message).then(()=>setStatus('nickname-status','Personalized invitation copied.','success')).catch(()=>window.prompt('Copy your invitation:',message));return;}
