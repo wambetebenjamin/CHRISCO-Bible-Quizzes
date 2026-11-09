@@ -218,7 +218,7 @@
         <p>Choose a quiz mode or prepare custom source based questions, then create a private PIN room. Share the PIN so players can join.</p>
         <div class="field">
           <label for="host-name">Your Name</label>
-          <input type="text" class="name-input" id="host-name" placeholder="e.g. Pastor David" maxlength="16" autocomplete="off" />
+          <input type="text" class="name-input" id="host-name" placeholder="Enter your nickname" maxlength="16" autocomplete="nickname" required />
         </div>
         <div class="field">
           <label><i class="fa-solid fa-icons"></i> Pick your icon (optional)</label>
@@ -441,18 +441,18 @@
       $('live-scores').innerHTML = all.map((p,i) => '<div class="score-row' + (i===0?' winner':'') + '"><span class="pavatar">' + iconHtml(p) + '</span><span class="pname">' + esc(p.name) + '</span><span class="pscore">' + (p.score||0) + '</span></div>').join('');
     }
 
-    function hostShareUrl(nickname) {
+    function hostShareUrl() {
       return window.location.origin + '/api/share?role=host' +
         '&host=' + encodeURIComponent('Presbyter David Kirui') +
-        '&name=' + encodeURIComponent(nickname) +
+        '&name=' + encodeURIComponent(state.hostName) +
         '&pin=' + encodeURIComponent(state.pin) +
         '&mode=' + encodeURIComponent(state.mode);
     }
 
     function shareGame(kind) {
-      const nickname = (window.prompt('Enter your nickname to personalize the quiz invitation:', state.hostName || '') || '').trim().slice(0,40);
-      if (!nickname) return;
-      const url = hostShareUrl(nickname);
+      const nickname = String(state.hostName || '').trim();
+      if (!nickname || !state.pin) { alert('Enter your nickname and create a game before sharing.'); return; }
+      const url = hostShareUrl();
       const quizName = ({pursue:'David Quiz',overtake:'Overtake Quiz',recover:'Recover All Quiz',beauty:'Beauty for Ashes Quiz'})[state.mode] || 'Bible Quiz';
       const text = nickname + ' invites you to ' + quizName + ' by Presbyter David Kirui. ' + url;
       const enc = encodeURIComponent(text);
@@ -495,7 +495,12 @@
     }
 
     function createGame() {
-      const name = $('host-name').value.trim() || 'Host';
+      const name = $('host-name').value.trim();
+      if (!name) {
+        $('status-pill').innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> Enter a nickname before creating your game.';
+        $('host-name').focus();
+        return;
+      }
       state.hostName = name;
       localStorage.setItem('chrisco_host_nickname', name);
       state.settings = readSettings();
