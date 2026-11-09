@@ -14,7 +14,7 @@ router.get('/', (req, res) => {
   const title = `${inviter} invites you to ${quiz} by Presbyter David Kirui`;
   const description = title;
   const image = `${base}/social-preview.png`;
-  const joinUrl = `${base}/player.html?pin=${encodeURIComponent(pin)}&host=${encodeURIComponent(host)}&mode=${encodeURIComponent(modeKey)}`;
+  const joinUrl = `${base}/?pin=${encodeURIComponent(pin)}`;
   res.type('html').send(`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>${title}</title><meta name="description" content="${description}"><meta property="og:type" content="website"><meta property="og:site_name" content="CHRISCO Bible Quizzes"><meta property="og:title" content="${title}"><meta property="og:description" content="${description}"><meta property="og:image" content="${image}"><meta property="og:image:secure_url" content="${image}"><meta property="og:image:type" content="image/png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="Premium CHRISCO Bible Quizzes invitation thumbnail"><meta property="og:url" content="${base}/api/share?role=${role}&amp;pin=${encodeURIComponent(pin)}&amp;host=${encodeURIComponent(host)}&amp;name=${encodeURIComponent(nickname)}&amp;mode=${encodeURIComponent(modeKey)}"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="${title}"><meta name="twitter:description" content="${description}"><meta name="twitter:image" content="${image}"></head><body><main><img src="${image}" alt="CHRISCO Bible Quizzes"><h1>${title}</h1><a href="${joinUrl}">Join this quiz</a></main></body></html>`);
 });
 module.exports = router;

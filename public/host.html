@@ -454,7 +454,7 @@
       if (!nickname) return;
       const url = hostShareUrl(nickname);
       const quizName = ({pursue:'David Quiz',overtake:'Overtake Quiz',recover:'Recover All Quiz',beauty:'Beauty for Ashes Quiz'})[state.mode] || 'Bible Quiz';
-      const text = nickname + ' invites you to ' + quizName + ' by Presbyter David Kirui. PIN ' + state.pin + '. ' + url;
+      const text = nickname + ' invites you to ' + quizName + ' by Presbyter David Kirui. ' + url;
       const enc = encodeURIComponent(text);
       const uenc = encodeURIComponent(url);
       if (kind === 'whatsapp') window.open('https://wa.me/?text=' + enc, '_blank');

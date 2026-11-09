@@ -22,9 +22,9 @@
     const params = new URLSearchParams({role:'player',pin:config.pin,host:'Presbyter David Kirui',name:nickname,mode:config.mode});
     const url = window.location.origin + '/api/share?' + params.toString();
     const quiz = ({pursue:'David Quiz',overtake:'Overtake Quiz',recover:'Recover All Quiz',beauty:'Beauty for Ashes Quiz'})[config.mode] || 'Bible Quiz';
-    const text = nickname + ' invites you to ' + quiz + ' by Presbyter David Kirui. PIN ' + config.pin + '. ' + url;
+    const text = nickname + ' invites you to ' + quiz + ' by Presbyter David Kirui. ' + url;
     const kind = button.dataset.shareKind;
-    if (kind === 'copy') { navigator.clipboard.writeText(url).then(()=>{button.innerHTML='<i class="fa-solid fa-check"></i> Copied';}).catch(()=>window.prompt('Copy this quiz invitation link:',url)); return; }
+    if (kind === 'copy') { navigator.clipboard.writeText(text).then(()=>{button.innerHTML='<i class="fa-solid fa-check"></i> Copied';}).catch(()=>window.prompt('Copy this quiz invitation:',text)); return; }
     const target = kind === 'whatsapp' ? 'https://wa.me/?text='+encodeURIComponent(text) : kind === 'facebook' ? 'https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(url)+'&quote='+encodeURIComponent(text) : 'https://twitter.com/intent/tweet?text='+encodeURIComponent(text);
     window.open(target,'_blank','noopener,noreferrer');
   }
@@ -97,6 +97,8 @@
     const wrap = $('lang-select-wrap'); if (wrap) window.buildLangSelector(wrap);
     window.applyLang(window.getLang());
     const input = $('lobby-pin-input'), button = $('lobby-join-pin-btn');
+    const invitePin = new URLSearchParams(window.location.search).get('pin') || '';
+    if (input && /^\d{4,6}$/.test(invitePin)) { input.value = invitePin; input.focus({preventScroll:true}); }
     if (input && button) button.addEventListener('click', () => { const pin = input.value.trim(); if (/^\d{4,6}$/.test(pin)) location.href = 'player.html?pin=' + encodeURIComponent(pin); });
     fetch('/api/config').then(r => r.ok ? r.json() : Promise.reject()).catch(() => fetch('/config.js').then(r => r.text()).then(t => {
       const m = t.match(/SUPABASE_URL\s*=\s*['"]([^'"]+)['"][\s\S]*?SUPABASE_ANON_KEY\s*=\s*['"]([^'"]+)['"]/);
