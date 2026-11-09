@@ -10,8 +10,7 @@ router.get('/', (req, res) => {
   const modeKey = String(req.query.mode || 'pursue').trim();
   const quiz = modes[modeKey] || 'Bible Quiz';
   const base = `${req.protocol}://${req.get('host')}`;
-  const inviter = nickname || host;
-  const title = `${inviter} invites you to ${quiz} by Presbyter David Kirui`;
+  const title = role === 'host' ? quiz : `${nickname || 'A friend'} invites you to ${quiz} by Presbyter David Kirui`;
   const description = title;
   const image = `${base}/social-preview.png`;
   const joinUrl = `${base}/?pin=${encodeURIComponent(pin)}`;
