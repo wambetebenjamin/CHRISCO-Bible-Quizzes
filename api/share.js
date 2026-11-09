@@ -25,35 +25,22 @@ function baseUrl(req) {
 export default async function handler(req, res) {
   const q = req.query || {};
   const role = q.role === 'player' ? 'player' : 'host';
-  const host = esc((q.host || q.hostName || '').toString().trim() || 'Host');
-  const name = esc((q.name || '').toString().trim() || 'A friend');
-  const icon = esc((q.icon || '').toString().trim() || 'fa-solid fa-lion');
-  const emoji = esc((q.emoji || '').toString().trim() || '🦁');
-  const pin = esc((q.pin || '').toString().trim() || '???');
-  const mode = esc((q.mode || '').toString().trim() || 'pursue');
-  const modeName = MODE_NAMES[mode] || 'David Quiz';
-
+  const host = esc((q.host || 'Presbyter David Kirui').toString().trim());
+  const nickname = esc((q.name || '').toString().trim());
+  const pin = esc((q.pin || '').toString().trim());
+  const mode = (q.mode || 'pursue').toString().trim();
+  const modeName = MODE_NAMES[mode] || 'Bible Quiz';
+  const inviter = nickname || host;
+  const title = inviter + ' invites you to ' + modeName + ' by Presbyter David Kirui';
+  const description = title;
   const origin = baseUrl(req);
-  const shareUrl = origin + '/api/share?role=' + role + '&pin=' + encodeURIComponent(pin);
-
-  let title, description, heading, body;
-  if (role === 'player') {
-    title = emoji + ' ' + name + ' invited you to ' + modeName + '! PIN ' + pin;
-    description = emoji + ' ' + name + ' is playing a live ' + modeName + ' game and wants you to join. PIN: ' + pin + '. Tap to play now.';
-    heading = emoji + ' ' + name + ' invites you';
-    body = 'A live ' + modeName + ' game is running. Join with one tap and play together.';
-  } else {
-    title = 'CHRISCO ' + modeName + '. Join ' + host + "'s game! PIN " + pin;
-    description = host + ' is hosting a live ' + modeName + ' game. PIN: ' + pin + '. Join and play together!';
-    heading = 'Join ' + host + "'s " + modeName + ' game';
-    body = 'Live multiplayer ' + modeName + '. Share the PIN, answer questions, and play together.';
-  }
-
+  const shareUrl = origin + '/api/share?role=' + role + '&pin=' + encodeURIComponent(pin) +
+    '&host=' + encodeURIComponent(host) + '&name=' + encodeURIComponent(nickname) + '&mode=' + encodeURIComponent(mode);
   const joinUrl = origin + '/player.html?pin=' + encodeURIComponent(pin) +
-    '&host=' + encodeURIComponent(host) +
-    '&name=' + encodeURIComponent(name) +
-    '&icon=' + encodeURIComponent(icon) +
-    '&mode=' + encodeURIComponent(mode);
+    '&host=' + encodeURIComponent(host) + '&mode=' + encodeURIComponent(mode);
+  const imageUrl = origin + IMAGE_PATH;
+  let heading = title;
+  let body = title;
 
   const html = `<!doctype html>
 <html lang="en">
@@ -67,8 +54,8 @@ export default async function handler(req, res) {
   <meta property="og:site_name" content="CHRISCO Bible Quizzes" />
   <meta property="og:title" content="` + title + `" />
   <meta property="og:description" content="` + description + `" />
-  <meta property="og:image" content="` + origin + IMAGE_PATH + `" />
-  <meta property="og:image:secure_url" content="` + origin + IMAGE_PATH + `" />
+  <meta property="og:image" content="` + imageUrl + `" />
+  <meta property="og:image:secure_url" content="` + imageUrl + `" />
   <meta property="og:image:type" content="image/png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
@@ -77,7 +64,7 @@ export default async function handler(req, res) {
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="` + title + `" />
   <meta name="twitter:description" content="` + description + `" />
-  <meta name="twitter:image" content="` + origin + IMAGE_PATH + `" />
+  <meta name="twitter:image" content="` + imageUrl + `" />
   <meta name="twitter:image:alt" content="CHRISCO Bible Quizzes: Read Scripture. Think deeply. Play together." />
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -119,11 +106,11 @@ export default async function handler(req, res) {
 </head>
 <body>
   <div class="preview">
-    <img src="` + origin + IMAGE_PATH + `" alt="CHRISCO Bible Quiz" />
+    <img src="` + imageUrl + `" alt="CHRISCO Bible Quiz" />
     <span class="badge">GAME PIN ` + pin + `</span>
     <div class="content">
       <h1>` + heading + `</h1>
-      <p>` + body + `</p>
+      <p>` + description + `</p>
       <div class="theme"><i class="fa-solid fa-fire"></i> Theme: ` + THEME + `</div>
       <a class="join" href="` + joinUrl + `"><i class="fa-solid fa-right-to-bracket"></i> Join Game</a>
       <div class="foot">This is how your link previews in WhatsApp, Facebook and X.</div>

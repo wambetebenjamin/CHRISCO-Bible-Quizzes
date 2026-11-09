@@ -7,18 +7,26 @@
   const escapeHtml = s => String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const modeName = g => (window.CHRISCO_MODES[g.mode] || {}).name || g.mode || 'Bible Quiz';
   function shareMarkup(g) {
-    const host = g.hostName || g.name || 'Host';
-    const mode = ['pursue','overtake','recover','beauty'].includes(g.mode) ? g.mode : 'pursue';
-    const params = new URLSearchParams({role:'player',pin:String(g.pin || ''),host:host,name:host,mode:mode});
-    const url = window.location.origin + '/api/share?' + params.toString();
-    const invite = host + ' invites you to ' + modeName(g) + '. Game PIN: ' + g.pin + '.';
-    const encodedUrl = encodeURIComponent(url), encodedInvite = encodeURIComponent(invite);
-    return '<div class="lobby-share-row" aria-label="Share this hosted quiz">' +
-      '<a class="lobby-share-btn whatsapp" href="https://wa.me/?text=' + encodedInvite + '%20' + encodedUrl + '" target="_blank" rel="noopener noreferrer" aria-label="Share on WhatsApp"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>' +
-      '<a class="lobby-share-btn facebook" href="https://www.facebook.com/sharer/sharer.php?u=' + encodedUrl + '&amp;quote=' + encodedInvite + '" target="_blank" rel="noopener noreferrer" aria-label="Share on Facebook"><i class="fa-brands fa-facebook-f"></i> Facebook</a>' +
-      '<a class="lobby-share-btn x-share" href="https://twitter.com/intent/tweet?text=' + encodedInvite + '&amp;url=' + encodedUrl + '" target="_blank" rel="noopener noreferrer" aria-label="Share on X"><i class="fa-brands fa-x-twitter"></i> X</a>' +
-      '<button class="lobby-share-btn copy-share" type="button" data-share-copy="' + escapeHtml(url) + '"><i class="fa-solid fa-link"></i> Copy link</button>' +
+    const config = escapeHtml(JSON.stringify({pin:String(g.pin || ''),mode:['pursue','overtake','recover','beauty'].includes(g.mode)?g.mode:'pursue'}));
+    return '<div class="lobby-share-row" aria-label="Share this hosted quiz" data-share-config="' + config + '">' +
+      '<button class="lobby-share-btn whatsapp" type="button" data-share-kind="whatsapp"><i class="fa-brands fa-whatsapp"></i> WhatsApp</button>' +
+      '<button class="lobby-share-btn facebook" type="button" data-share-kind="facebook"><i class="fa-brands fa-facebook-f"></i> Facebook</button>' +
+      '<button class="lobby-share-btn x-share" type="button" data-share-kind="x"><i class="fa-brands fa-x-twitter"></i> X</button>' +
+      '<button class="lobby-share-btn copy-share" type="button" data-share-kind="copy"><i class="fa-solid fa-link"></i> Copy link</button>' +
       '</div>';
+  }
+  function launchShare(button) {
+    let nickname = (window.prompt('Enter your nickname to personalize the quiz invitation:', '') || '').trim().slice(0,40);
+    if (!nickname) return;
+    let config; try { config = JSON.parse(button.closest('[data-share-config]').getAttribute('data-share-config')); } catch (_) { return; }
+    const params = new URLSearchParams({role:'player',pin:config.pin,host:'Presbyter David Kirui',name:nickname,mode:config.mode});
+    const url = window.location.origin + '/api/share?' + params.toString();
+    const quiz = ({pursue:'David Quiz',overtake:'Overtake Quiz',recover:'Recover All Quiz',beauty:'Beauty for Ashes Quiz'})[config.mode] || 'Bible Quiz';
+    const text = nickname + ' invites you to ' + quiz + ' by Presbyter David Kirui. PIN ' + config.pin + '. ' + url;
+    const kind = button.dataset.shareKind;
+    if (kind === 'copy') { navigator.clipboard.writeText(url).then(()=>{button.innerHTML='<i class="fa-solid fa-check"></i> Copied';}).catch(()=>window.prompt('Copy this quiz invitation link:',url)); return; }
+    const target = kind === 'whatsapp' ? 'https://wa.me/?text='+encodeURIComponent(text) : kind === 'facebook' ? 'https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(url)+'&quote='+encodeURIComponent(text) : 'https://twitter.com/intent/tweet?text='+encodeURIComponent(text);
+    window.open(target,'_blank','noopener,noreferrer');
   }
   function render(presence) {
     const entries = Object.values(presence || {}).flat().filter(g => g && g.pin && !['idle','closed'].includes(String(g.status || '').toLowerCase()) && (g.isPublic === true || g.privacy === 'public' || (!g.privacy && g.isPublic !== false)));
@@ -82,8 +90,8 @@
     const beautyShare = $('beauty-share-links');
     if (beautyShare) beautyShare.innerHTML = shareMarkup({pin:'777777',mode:'beauty',hostName:'Presbyter David Kirui'});
     document.addEventListener('click', event => {
-      const copyButton = event.target.closest('[data-share-copy]');
-      if (copyButton) copyShareLink(copyButton);
+      const shareButton = event.target.closest('[data-share-kind]');
+      if (shareButton) launchShare(shareButton);
     });
     loadBeautyRankings();
     const wrap = $('lang-select-wrap'); if (wrap) window.buildLangSelector(wrap);
