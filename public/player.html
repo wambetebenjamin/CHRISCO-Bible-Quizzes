@@ -23,6 +23,11 @@
     .lead { color:var(--muted); line-height:1.65; }
     .section { margin-top:22px; }
     .resume-actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:20px; }
+    .nickname-share-actions { display:flex; flex-wrap:wrap; gap:8px; }
+    .nickname-share-actions .btn { min-height:42px; padding:9px 14px; }
+    .nickname-share-actions .share-whatsapp { background:#168c50; }
+    .nickname-share-actions .share-facebook { background:#1877f2; }
+    .nickname-share-actions .share-x { background:#111; }
     .consent-row { display:flex; align-items:flex-start; gap:11px; margin:20px 0 10px; padding:15px; border:1px solid var(--line); border-radius:12px; background:#f8faff; font-weight:650; line-height:1.5; }
     .consent-row input { flex:0 0 auto; width:20px; height:20px; margin-top:2px; accent-color:var(--blue); }
     .resume-actions .btn { flex:1 1 180px; }
@@ -138,6 +143,15 @@
       <label class="field-label" for="nickname">Your nickname</label>
       <input id="nickname" type="text" maxlength="40" autocomplete="nickname" placeholder="Enter a nickname">
       <p id="nickname-status" class="status" role="status" aria-live="polite"></p>
+      <div class="nickname-share section">
+        <p class="lead">Invite friends using your name.</p>
+        <div class="nickname-share-actions">
+          <button class="btn share-whatsapp" type="button" data-personal-share="whatsapp">WhatsApp</button>
+          <button class="btn share-facebook" type="button" data-personal-share="facebook">Facebook</button>
+          <button class="btn share-x" type="button" data-personal-share="x">X</button>
+          <button class="btn" type="button" data-personal-share="copy">Copy link</button>
+        </div>
+      </div>
       <div class="section"><button class="btn gold" id="start-quiz" type="button">Start quiz</button></div>
     </section>
 
@@ -338,6 +352,17 @@
         document.head.appendChild(script);
       });
     }
+    function shareAsPlayer(kind) {
+      const nickname=byId('nickname').value.trim();
+      if(!nickname){setStatus('nickname-status','Enter your nickname before sharing.','error');byId('nickname').focus();return;}
+      const params=new URLSearchParams({role:'player',pin:new URLSearchParams(location.search).get('pin')||'777777',name:nickname,mode:'beauty'});
+      const url=location.origin+'/api/share?'+params.toString();
+      const caption=nickname+' invites you to Beauty for Ashes by Presbyter David Kirui.';
+      const message=caption+' '+url;
+      if(kind==='copy'){navigator.clipboard.writeText(message).then(()=>setStatus('nickname-status','Personalized invitation copied.','success')).catch(()=>window.prompt('Copy your invitation:',message));return;}
+      const target=kind==='whatsapp'?'https://wa.me/?text='+encodeURIComponent(message):kind==='facebook'?'https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(url)+'&quote='+encodeURIComponent(caption):'https://twitter.com/intent/tweet?text='+encodeURIComponent(caption)+'&url='+encodeURIComponent(url);
+      window.open(target,'_blank','noopener,noreferrer');
+    }
     function startQuiz() {
       const name=byId('nickname').value.trim();
       if (!name || name.length>40) { setStatus('nickname-status','Enter a nickname up to 40 characters.','error'); return; }
@@ -427,6 +452,7 @@
     byId('continue-data-consent').addEventListener('click',continueAfterConsent);
     byId('decline-data-consent').addEventListener('click',()=>{state.idToken='';state.email='';state.dataConsent=false;state.pendingProgress=null;showPanel('signin-panel');setStatus('signin-status','Sign in again if you decide to save your quiz progress.');});
     byId('start-quiz').addEventListener('click',startQuiz);
+    document.querySelectorAll('[data-personal-share]').forEach(button=>button.addEventListener('click',()=>shareAsPlayer(button.dataset.personalShare)));
     byId('resume-quiz').addEventListener('click',resumeSavedQuiz);
     byId('restart-quiz').addEventListener('click',startFreshQuiz);
     byId('previous-question').addEventListener('click',()=>moveQuestion(-1));

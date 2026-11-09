@@ -30,8 +30,7 @@ export default async function handler(req, res) {
   const pin = esc((q.pin || '').toString().trim());
   const mode = (q.mode || 'pursue').toString().trim();
   const modeName = MODE_NAMES[mode] || 'Bible Quiz';
-  const inviter = nickname || host;
-  const title = inviter + ' invites you to ' + modeName + ' by Presbyter David Kirui';
+  const title = role === 'host' ? modeName : (nickname || 'A friend') + ' invites you to ' + modeName + ' by Presbyter David Kirui';
   const description = title;
   const origin = baseUrl(req);
   const shareUrl = origin + '/api/share?role=' + role + '&pin=' + encodeURIComponent(pin) +
