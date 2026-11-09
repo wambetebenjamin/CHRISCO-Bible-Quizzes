@@ -193,6 +193,7 @@
     @media(prefers-reduced-motion:reduce){.host-study-figure .arm,.host-study-figure .body{animation:none !important;}}
     @media (max-width: 600px) { .topbar-inner { flex-wrap: wrap; } .card { padding: 1.4rem 1.2rem; } .pin-display { letter-spacing: 4px; padding: 0.7rem; } .question-card { padding: 1.4rem 1.1rem; } .lobby-grid { grid-template-columns: 1fr; } }
   </style>
+  <link rel="stylesheet" href="game-experience.css" />
 </head>
 <body>
   <canvas id="host-confetti" aria-hidden="true"></canvas>
@@ -203,7 +204,7 @@
     </div>
   </div>
 
-  <section class="hero"><div class="hero-content"><h1><i class="fa-solid fa-gamepad"></i> Host a Game</h1><p>Create a Bible Quiz game, share the PIN, and play. Theme: <strong>1 Samuel 30:8 Pursue Overtake Recover All</strong></p></div></section>
+  <section class="hero"><img class="chrisco-mascot mascot-hero" src="quiz-mascot.svg" alt="" aria-hidden="true" /><div class="hero-content"><h1><i class="fa-solid fa-gamepad"></i> Host a Game</h1><p>Create a Bible Quiz game, share the PIN, and play. Theme: <strong>1 Samuel 30:8 Pursue Overtake Recover All</strong></p></div></section>
 
   <div class="container">
     <!-- Identity / Create Game -->
@@ -326,6 +327,7 @@
   <script src="questions.js"></script>
   <script src="i18n.js"></script>
   <script src="questions-i18n.js"></script>
+  <script src="game-experience.js"></script>
   <script>
     const LETTERS = ['A','B','C','D'];
     const LOBBY_CHANNEL = 'global-lobby';
@@ -596,6 +598,7 @@
 
     function startGame() {
       if (!state.gameChannel || state.phase === 'question' || state.phase === 'reveal') return;
+      if(window.ChriscoFX)window.ChriscoFX.play('start');
       const cfg = window.CHRISCO_MODES[state.mode];
       state.questions = state.questionsOverride ? state.questionsOverride.slice() : window.pickQuestions(state.mode, cfg.rounds);
       state.questionsOverride = null;
@@ -609,6 +612,7 @@
     }
 
     function showQuestion() {
+      if(state.qIndex>0&&window.ChriscoFX)window.ChriscoFX.play('next');
       const q = state.questions[state.qIndex];
       state.currentQ = { q: q.q, options: q.options, correct: q.correct, explain: q.explain, level:q.level || null };
       $('beauty-credit-footer').style.display=state.mode==='beauty'?'block':'none';
@@ -634,6 +638,7 @@
 
     function tickTimer() {
       state.timeLeft--;
+      if(state.timeLeft>0&&state.timeLeft<=5&&window.ChriscoFX)window.ChriscoFX.play('tick');
       $('timer-num').innerHTML = '<i class="fa-solid fa-clock"></i> ' + Math.max(0,state.timeLeft) + 's';
       $('timer-fill').style.width = Math.max(0, state.timeLeft / Math.max(1,state.settings.timerSeconds) * 100) + '%';
       if (state.timeLeft <= 0) { clearInterval(state.timer); revealAnswer(); }
@@ -641,6 +646,7 @@
 
     function revealAnswer() {
       if (state.phase !== 'question' || state.revealed) return;
+      if(window.ChriscoFX)window.ChriscoFX.play('reveal');
       clearInterval(state.timer);
       state.phase = 'reveal';
       const q = state.questions[state.qIndex];
@@ -671,6 +677,7 @@
     }
 
     function finishGame() {
+      if(window.ChriscoFX)window.ChriscoFX.play('complete');
       state.phase = 'end';
       $('beauty-credit-footer').style.display=state.mode==='beauty'?'block':'none';
       const all = Object.values(state.players).flat().filter(p => p && !p.isHost);

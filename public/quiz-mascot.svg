@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 340" role="img" aria-labelledby="title desc">
+  <title id="title">CHRISCO quiz guide</title>
+  <desc id="desc">A friendly young Bible quiz guide holding an open book.</desc>
+  <defs>
+    <radialGradient id="orb" cx="34%" cy="24%" r="78%"><stop stop-color="#fff4bd"/><stop offset=".42" stop-color="#b7d6ff"/><stop offset="1" stop-color="#7956cf"/></radialGradient>
+    <linearGradient id="jacket" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#5c8fff"/><stop offset=".48" stop-color="#1747b1"/><stop offset="1" stop-color="#0d286b"/></linearGradient>
+    <linearGradient id="skin" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#e6a578"/><stop offset=".55" stop-color="#bf7249"/><stop offset="1" stop-color="#8e4c35"/></linearGradient>
+    <linearGradient id="page" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fffdf2"/><stop offset="1" stop-color="#e7d7ad"/></linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffe28a"/><stop offset=".55" stop-color="#d5a638"/><stop offset="1" stop-color="#98670d"/></linearGradient>
+    <filter id="shadow" x="-40%" y="-40%" width="180%" height="190%"><feDropShadow dx="0" dy="12" stdDeviation="9" flood-color="#10255b" flood-opacity=".28"/></filter>
+  </defs>
+  <ellipse cx="151" cy="315" rx="89" ry="14" fill="#122654" opacity=".16"/>
+  <circle cx="151" cy="158" r="126" fill="url(#orb)" opacity=".34"/>
+  <circle cx="151" cy="158" r="113" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="2" stroke-dasharray="3 9"/>
+  <g fill="#fff7d7" opacity=".9"><path d="m52 90 3 8 8 3-8 3-3 8-3-8-8-3 8-3z"/><path d="m242 125 2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/><circle cx="223" cy="72" r="3"/><circle cx="73" cy="194" r="2.5"/></g>
+  <g filter="url(#shadow)">
+    <!-- shoulders and body -->
+    <path d="M67 282c5-54 32-83 83-83s78 29 83 83l-8 22H75z" fill="url(#jacket)" stroke="#153b8d" stroke-width="3"/>
+    <path d="M111 216c14 12 25 18 39 18s27-7 40-19l-11 42h-57z" fill="#84b4ff" opacity=".3"/>
+    <path d="M137 198h27v34c-8 9-19 9-27 0z" fill="url(#skin)"/>
+    <!-- ears and face -->
+    <ellipse cx="103" cy="136" rx="12" ry="18" fill="#b96945"/>
+    <ellipse cx="197" cy="136" rx="12" ry="18" fill="#a85d40"/>
+    <path d="M105 111c0-34 19-55 46-55 29 0 47 22 47 56v25c0 36-20 58-47 58-27 0-46-23-46-58z" fill="url(#skin)"/>
+    <path d="M102 123c-8-43 11-75 48-77 28-2 47 16 52 45-14-10-27-16-42-14-24 2-34 17-47 34l-8 28z" fill="#251e22"/>
+    <path d="M110 100c13-20 28-28 47-28 14 0 29 6 41 19-16-6-30-7-42-3-18 6-29 17-43 32z" fill="#40313a"/>
+    <path d="M122 134c5-4 11-4 16 0m25 0c5-4 11-4 16 0" fill="none" stroke="#512c27" stroke-width="3" stroke-linecap="round"/>
+    <ellipse cx="131" cy="144" rx="3.4" ry="4.2" fill="#242135"/><ellipse cx="172" cy="144" rx="3.4" ry="4.2" fill="#242135"/>
+    <circle cx="132" cy="142.5" r="1.1" fill="#fff"/><circle cx="173" cy="142.5" r="1.1" fill="#fff"/>
+    <path d="M149 148l-4 14 7 2" fill="none" stroke="#96553b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M137 172c8 7 18 7 26 0" fill="none" stroke="#743b35" stroke-width="3" stroke-linecap="round"/>
+    <ellipse cx="121" cy="162" rx="8" ry="4" fill="#e78978" opacity=".4"/><ellipse cx="180" cy="162" rx="8" ry="4" fill="#e78978" opacity=".35"/>
+    <!-- book -->
+    <path d="M89 251c20-12 39-11 61 2v46c-21-13-41-14-61-2z" fill="url(#page)" stroke="#8b6a32" stroke-width="2.5"/>
+    <path d="M150 253c22-13 41-14 61-2v46c-20-12-40-11-61 2z" fill="#f8edcf" stroke="#8b6a32" stroke-width="2.5"/>
+    <path d="M150 253v46" stroke="#9d7b3e" stroke-width="2"/>
+    <path d="M101 264c13-6 26-5 39 1m-39 8c13-5 26-4 39 2m22-10c13-6 26-7 39-2m-39 10c13-5 26-5 39 0" fill="none" stroke="#c7aa6a" stroke-width="2" stroke-linecap="round"/>
+    <path d="M150 230v24" stroke="url(#gold)" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="150" cy="239" r="6" fill="url(#gold)" stroke="#fff3ca" stroke-width="1.5"/>
+  </g>
+  <path d="M84 299h134" stroke="#fff" stroke-opacity=".7" stroke-width="2" stroke-linecap="round"/>
+</svg>

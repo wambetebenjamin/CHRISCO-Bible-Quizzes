@@ -98,10 +98,11 @@
     .attribution-banner { max-width:850px; margin:0 auto 12px; padding:12px 18px; border:1px solid #e4d39c; border-radius:14px; background:linear-gradient(120deg,#fff8e4,#fff); color:#58491f; font-size:14px; font-weight:750; line-height:1.5; }
     @media(max-width:520px) { main { margin-top:16px; } .nav-row .btn { flex:1; padding-inline:10px; } }
   </style>
+  <link rel="stylesheet" href="game-experience.css" />
 </head>
 <body>
   <canvas id="confetti-canvas" aria-hidden="true"></canvas>
-  <header><div class="header-inner"><div class="brand-mark" aria-hidden="true"><svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><circle cx="25" cy="10" r="6" fill="#c7835b"/><path d="M14 28c1-7 5-11 11-11s10 4 11 11l-2 5H16z" fill="#1747b1"/><path d="M12 31c5-4 9-4 13 0v8c-4-3-8-3-13 0zM25 31c4-4 8-4 12 0v8c-4-3-8-3-12 0z" fill="#fff8e7" stroke="#8c6b37" stroke-width="1.5" stroke-linejoin="round"/><path d="M16 34h6m-6 3h6m7-3h5m-5 3h5" stroke="#c2a66b" stroke-width="1" stroke-linecap="round"/><path d="M26 20c5 2 7 6 7 10" fill="none" stroke="#c7835b" stroke-width="3" stroke-linecap="round"/></svg></div><div class="brand">CHRISCO<small>BIBLE QUIZZES</small></div></div></header>
+  <header><div class="header-inner"><div class="brand-mark" aria-hidden="true"><svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><circle cx="25" cy="10" r="6" fill="#c7835b"/><path d="M14 28c1-7 5-11 11-11s10 4 11 11l-2 5H16z" fill="#1747b1"/><path d="M12 31c5-4 9-4 13 0v8c-4-3-8-3-13 0zM25 31c4-4 8-4 12 0v8c-4-3-8-3-12 0z" fill="#fff8e7" stroke="#8c6b37" stroke-width="1.5" stroke-linejoin="round"/><path d="M16 34h6m-6 3h6m7-3h5m-5 3h5" stroke="#c2a66b" stroke-width="1" stroke-linecap="round"/><path d="M26 20c5 2 7 6 7 10" fill="none" stroke="#c7835b" stroke-width="3" stroke-linecap="round"/></svg></div><div class="brand">CHRISCO<small>BIBLE QUIZZES</small></div><img class="chrisco-mascot mascot-player" src="quiz-mascot.svg" alt="Friendly quiz guide holding an open book" /></div></header>
   <main>
     <section class="panel" id="signin-panel">
       <h1>Beauty for Ashes: Put It Into Practice</h1>
@@ -182,6 +183,7 @@
   <footer><div class="attribution-banner" data-i18n="ba_credit_banner">These questions are from Presbyter David Kirui’s YouTube episode one. Be blessed.</div>CHRISCO Bible Quizzes</footer>
 
   <script src="/i18n.js"></script>
+  <script src="game-experience.js"></script>
   <script>
     // The OAuth Client ID is public; never put a client secret in the browser.
     const GOOGLE_CLIENT_ID = '1048157545653-ihf719b13o6sdpcsfv3bef1peggkaspp.apps.googleusercontent.com';
@@ -261,6 +263,7 @@
     function resumeSavedQuiz() {
       const saved=normalizeProgress(state.pendingProgress);if(!saved)return;
       state.nickname=saved.nickname||'';state.answers=saved.answers.slice();state.current=saved.current;state.elapsedBeforeSession=saved.elapsedSeconds;state.sessionStartedAt=Date.now();state.pendingProgress=null;
+      if(window.ChriscoFX)window.ChriscoFX.play('start');
       if(!state.nickname){byId('nickname').value='';showPanel('nickname-panel');return;}
       showPanel('quiz-panel');renderQuestion();
     }
@@ -337,6 +340,7 @@
       if (!name || name.length>40) { setStatus('nickname-status','Enter a nickname up to 40 characters.','error'); return; }
       if(!state.dataConsent){showPanel('data-consent-panel');return;}
       state.nickname=name; state.current=0; state.answers=Array(QUIZ.length).fill(null);state.elapsedBeforeSession=0;state.sessionStartedAt=Date.now();
+      if(window.ChriscoFX)window.ChriscoFX.play('start');
       showPanel('quiz-panel'); renderQuestion();
     }
     function renderQuestion() {
@@ -358,7 +362,7 @@
         const letter=document.createElement('span'); letter.className='letter'; letter.textContent=String.fromCharCode(65+index);
         const text=document.createElement('span'); text.textContent=label;
         button.append(letter,text);
-        button.addEventListener('click',()=>{state.answers[state.current]=index;setStatus('quiz-status','');renderQuestion();});
+        button.addEventListener('click',()=>{state.answers[state.current]=index;if(window.ChriscoFX)window.ChriscoFX.play('select');setStatus('quiz-status','');renderQuestion();});
         options.appendChild(button);
       });
       byId('previous-question').classList.toggle('hidden',state.current===0);
@@ -368,7 +372,7 @@
       setStatus('quiz-status','');
       saveProgress();
     }
-    function moveQuestion(delta) { state.current=Math.max(0,Math.min(QUIZ.length-1,state.current+delta)); renderQuestion(); }
+    function moveQuestion(delta) { state.current=Math.max(0,Math.min(QUIZ.length-1,state.current+delta));if(window.ChriscoFX)window.ChriscoFX.play('next');renderQuestion(); }
     async function submitQuiz() {
       if (state.busy) return;
       if (state.answers.some(answer=>answer===null)) { setStatus('quiz-status','Answer every question before submitting.','error'); return; }
@@ -395,6 +399,7 @@
       return hours?hours+'h '+minutes+'m '+remainder+'s':minutes?minutes+'m '+remainder+'s':remainder+'s';
     }
     function showResults(result) {
+      if(window.ChriscoFX)window.ChriscoFX.play('complete');
       clearSavedProgress();
       byId('final-score').textContent=(Number(result.score)||0)+' / '+(Number(result.total)||QUIZ.length);
       byId('final-caption').textContent='Thank you for completing the quiz, '+(result.nickname||state.nickname)+'. Your score is shown above; review every answer below.';
