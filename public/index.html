@@ -322,6 +322,17 @@
     .cta h2 { font-size: clamp(1.8rem, 4vw, 3rem); font-weight: 900; margin-bottom: 0.8rem; }
     .cta p { max-width: 560px; margin: 0 auto 2rem; opacity: 0.9; line-height: 1.5; }
     .cta .hero-actions { justify-content: center; }
+    .support-cta { padding:3rem 1rem; background:#fff; }
+    .support-cta-card { max-width:900px; margin:0 auto; padding:clamp(1.4rem,4vw,2.4rem); display:flex; align-items:center; justify-content:space-between; gap:1.5rem; flex-wrap:wrap; border:1px solid #e4d39c; border-radius:24px; background:linear-gradient(115deg,#fff9e9,#fff 65%,#f5f1ff); box-shadow:0 12px 30px rgba(7,26,82,.1); }
+    .support-cta-copy { flex:1 1 360px; }
+    .support-cta-kicker { display:inline-flex; align-items:center; gap:.45rem; color:#785814; font-size:.78rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
+    .support-cta h2 { margin:.5rem 0; color:var(--primary); font-size:clamp(1.45rem,3vw,2rem); }
+    .support-cta p { max-width:610px; color:#596274; line-height:1.65; }
+    .support-cta-actions { display:flex; align-items:center; gap:.7rem; flex-wrap:wrap; }
+    .support-cta .whatsapp-support { background:#168c50; color:white; box-shadow:0 6px 16px rgba(22,140,80,.22); }
+    .support-cta .support-phone { color:var(--primary); font-weight:800; text-decoration:none; white-space:nowrap; }
+    .support-cta .support-phone:hover { text-decoration:underline; }
+    @media(max-width:600px) { .support-cta-card { align-items:flex-start; } .support-cta-actions { width:100%; } .support-cta-actions .btn { flex:1 1 100%; justify-content:center; } }
 
     /* ===== Footer ===== */
     footer {
@@ -499,6 +510,20 @@
     <div class="hero-actions">
       <a class="btn btn--yellow btn--large" href="host.html"><i class="fa-solid fa-gamepad"></i> <span data-i18n="cta_host">Host a Game Now</span></a>
       <a class="btn btn--outline btn--large" href="player.html"><i class="fa-solid fa-right-to-bracket"></i> <span data-i18n="cta_player">I am a Player</span></a>
+    </div>
+  </section>
+
+  <section class="support-cta" aria-labelledby="support-youth-title">
+    <div class="support-cta-card">
+      <div class="support-cta-copy">
+        <span class="support-cta-kicker"><i class="fa-solid fa-heart"></i> Community support</span>
+        <h2 id="support-youth-title">Support our youth projects</h2>
+        <p>Help us keep creating encouraging spaces for young people. If you’d like to support a project or buy the team a coffee, message us on WhatsApp and we’ll get back to you.</p>
+      </div>
+      <div class="support-cta-actions">
+        <a class="btn btn--large whatsapp-support" href="https://wa.me/254112272061?text=Hello%20CHRISCO%2C%20I%27d%20like%20to%20support%20your%20youth%20projects." target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-whatsapp"></i> Message us on WhatsApp</a>
+        <a class="support-phone" href="tel:+254112272061">+254 112 272 061</a>
+      </div>
     </div>
   </section>
 
