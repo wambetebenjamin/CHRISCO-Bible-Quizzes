@@ -97,6 +97,9 @@
     footer { padding:18px; text-align:center; color:#78839a; font-size:12px; }
     .attribution-banner { max-width:850px; margin:0 auto 12px; padding:12px 18px; border:1px solid #e4d39c; border-radius:14px; background:linear-gradient(120deg,#fff8e4,#fff); color:#58491f; font-size:14px; font-weight:750; line-height:1.5; }
     @media(max-width:520px) { main { margin-top:16px; } .nav-row .btn { flex:1; padding-inline:10px; } }
+
+    /* Scores and historical leaderboards are hidden for the fresh start. */
+    #final-score,.leaderboard-box { display:none !important; }
   </style>
   <link rel="stylesheet" href="game-experience.css" />
 </head>
@@ -106,7 +109,7 @@
   <main>
     <section class="panel" id="signin-panel">
       <h1>Beauty for Ashes: Put It Into Practice</h1>
-      <p class="lead">Sign in for your one-time entry, then answer ten real-life scenarios about truth, temptation, accountability, grief, and seeking help. Your score and the correct answers appear only after you submit.</p>
+      <p class="lead">Sign in for your one-time entry, then answer ten real-life scenarios about truth, temptation, accountability, grief, and seeking help. Your answers and explanations appear after you submit.</p>
       <div class="signin-box">
         <div class="signin-label">Sign in to continue</div>
         <div id="google-signin"></div>
@@ -402,7 +405,7 @@
       if(window.ChriscoFX)window.ChriscoFX.play('complete');
       clearSavedProgress();
       byId('final-score').textContent=(Number(result.score)||0)+' / '+(Number(result.total)||QUIZ.length);
-      byId('final-caption').textContent='Thank you for completing the quiz, '+(result.nickname||state.nickname)+'. Your score is shown above; review every answer below.';
+      byId('final-caption').textContent='Thank you for completing the quiz, '+(result.nickname||state.nickname)+'. You can review every answer below.';
       const totalTime=byId('total-time-result');const timeLabel=window.L?window.L('ba_total_time'):'Total time: {time}';totalTime.textContent=timeLabel.replace('{time}',formatElapsedTime(result.elapsedSeconds??state.elapsedBeforeSession));totalTime.hidden=false;
       const review=byId('answer-review'); review.replaceChildren();
       (result.answerKey||[]).forEach((item,index)=>{

@@ -192,6 +192,9 @@
     #host-confetti { position:fixed;inset:0;width:100%;height:100%;z-index:90;pointer-events:none; }
     @media(prefers-reduced-motion:reduce){.host-study-figure .arm,.host-study-figure .body{animation:none !important;}}
     @media (max-width: 600px) { .topbar-inner { flex-wrap: wrap; } .card { padding: 1.4rem 1.2rem; } .pin-display { letter-spacing: 4px; padding: 0.7rem; } .question-card { padding: 1.4rem 1.1rem; } .lobby-grid { grid-template-columns: 1fr; } }
+
+    /* Keep the new games score free while retaining gameplay state internally. */
+    .scoreboard:has(#live-scores),#end-scores,.player-list li strong { display:none !important; }
   </style>
   <link rel="stylesheet" href="game-experience.css" />
 </head>
@@ -292,7 +295,7 @@
         <ul id="player-list" class="player-list"><li class="empty">Waiting for players to join with this PIN...</li></ul>
       </div>
       <div class="scoreboard">
-        <h3><i class="fa-solid fa-trophy"></i> Live Leaderboard and Rankings</h3>
+        <h3><i class="fa-solid fa-users"></i> Players
         <div id="live-scores"></div>
       </div>
     </div>
@@ -438,16 +441,20 @@
       $('live-scores').innerHTML = all.map((p,i) => '<div class="score-row' + (i===0?' winner':'') + '"><span class="pavatar">' + iconHtml(p) + '</span><span class="pname">' + esc(p.name) + '</span><span class="pscore">' + (p.score||0) + '</span></div>').join('');
     }
 
-    function hostShareUrl() {
+    function hostShareUrl(nickname) {
       return window.location.origin + '/api/share?role=host' +
-        '&host=' + encodeURIComponent(state.hostName) +
+        '&host=' + encodeURIComponent('Presbyter David Kirui') +
+        '&name=' + encodeURIComponent(nickname) +
         '&pin=' + encodeURIComponent(state.pin) +
         '&mode=' + encodeURIComponent(state.mode);
     }
 
     function shareGame(kind) {
-      const url = hostShareUrl();
-      const text = 'CHRISCO Bible Quiz! Join my game. PIN: ' + state.pin + '. Live multiplayer Bible quiz. Theme: 1 Samuel 30:8 Pursue Overtake Recover All. Play at ' + url;
+      const nickname = (window.prompt('Enter your nickname to personalize the quiz invitation:', state.hostName || '') || '').trim().slice(0,40);
+      if (!nickname) return;
+      const url = hostShareUrl(nickname);
+      const quizName = ({pursue:'David Quiz',overtake:'Overtake Quiz',recover:'Recover All Quiz',beauty:'Beauty for Ashes Quiz'})[state.mode] || 'Bible Quiz';
+      const text = nickname + ' invites you to ' + quizName + ' by Presbyter David Kirui. PIN ' + state.pin + '. ' + url;
       const enc = encodeURIComponent(text);
       const uenc = encodeURIComponent(url);
       if (kind === 'whatsapp') window.open('https://wa.me/?text=' + enc, '_blank');
