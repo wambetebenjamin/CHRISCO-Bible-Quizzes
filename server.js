@@ -25,6 +25,12 @@ app.get('/api/config', (_req, res) => {
   if (!config.url || !config.key) return res.status(503).json({ error: 'Supabase client configuration is not set.' });
   res.set('Cache-Control', 'public, max-age=300').json(config);
 });
+app.post('/api/evangelism-quiz', async (req, res, next) => {
+  try {
+    const { default: handler } = await import('./api/evangelism-quiz.js');
+    await handler(req, res);
+  } catch (error) { next(error); }
+});
 app.get('/host-game', (_req, res) => res.sendFile(path.join(__dirname, 'public', 'host.html')));
 app.get('/join-game', (_req, res) => res.sendFile(path.join(__dirname, 'public', 'player.html')));
 app.use(express.static(path.join(__dirname, 'public'), { extensions: ['html'] }));
