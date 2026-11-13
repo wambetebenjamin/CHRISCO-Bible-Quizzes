@@ -19,7 +19,15 @@
 
 /* Match the supplied nature-board feel on the completed-score surface, without replacing content. */
 .final-score{margin:14px auto;padding:14px;border:1px solid #cfe1e8;border-bottom:5px solid #61a872;border-radius:14px;background:linear-gradient(180deg,#e1f1f8 0%,#f4fafd 78%,#d8ebd7 78%);color:#1b365d;font:700 24px Fredoka,system-ui,sans-serif;box-shadow:0 5px 14px rgba(27,54,93,.08)}
-</style>
+/* Match the public nature leaderboard at the completed-game screen without changing the quiz flow. */
+.finish{position:relative;isolation:isolate;background:linear-gradient(180deg,#7ab8cc 0%,#a3d5df 22%,#f4fafd 47%,#e8f4fa 100%)}
+.finish:before{content:"";position:absolute;z-index:-1;left:-8%;right:-8%;bottom:0;height:52px;pointer-events:none;background:linear-gradient(180deg,transparent 0 12%,#a8d3a9 12% 54%,#4ca363 54%);border-radius:48% 42% 0 0/35% 45% 0 0}
+.finish .final-score{border-color:#cce2ec;border-bottom-color:#61a872;border-radius:16px;background:linear-gradient(180deg,#fff 0%,#f1f8fa 78%,#d8ebd7 78%);box-shadow:0 8px 20px rgba(27,54,93,.12)}
+.finish .ranking-link{border:2px solid #cbe3f0;border-radius:12px;background:#fff!important;color:#1582c4!important;box-shadow:0 4px 10px rgba(27,54,93,.1);transition:transform .2s ease,box-shadow .2s ease}
+.finish .ranking-link:hover{transform:translateY(-2px);box-shadow:0 7px 15px rgba(27,54,93,.16)}
+.finish .review-heading{color:#1b365d}
+@media(prefers-reduced-motion:reduce){.finish .ranking-link{transition:none}}
+  </style>
 </head>
 <body>
 <div class="quiz-card" id="quiz-card">
