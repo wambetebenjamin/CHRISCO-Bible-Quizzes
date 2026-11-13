@@ -153,9 +153,13 @@
     .dashboard-split { max-width:1100px; margin:0 auto; display:grid; grid-template-columns:minmax(260px,.8fr) minmax(0,1.4fr); gap:1.2rem; align-items:start; }
     .dashboard-panel { border:1px solid #e3e5ee; background:#fff; border-radius:18px; padding:1.2rem; box-shadow:0 6px 18px rgba(0,0,0,.07); }
     .dashboard-panel h3 { margin:0 0 .4rem; color:var(--primary); }
+    .open-games-section{margin:0!important;padding:1.25rem!important;background:#f6f7fb!important;border:1px solid #e3e7f1!important;text-align:left!important;box-shadow:none!important}
+    .open-games-heading{display:flex;justify-content:space-between;align-items:center;gap:1rem;margin-bottom:1rem}.open-games-heading h3{font-size:1.35rem}.open-games-heading p{margin:0!important;font-size:.88rem}.eyebrow{display:block;margin-bottom:.25rem;color:#64708b;font-size:.66rem;font-weight:900;letter-spacing:.14em}.open-games-live,.mode-pill,.live-dot-label{display:inline-flex;align-items:center;gap:.4rem;white-space:nowrap;border-radius:999px;font-size:.64rem;font-weight:900;letter-spacing:.05em}.open-games-live{padding:.48rem .65rem;background:#e8f5ec;color:#17683b}.open-games-live i,.live-dot-label i{font-size:.5rem;color:#25a553}.open-games-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch;gap:1rem}.open-game-card{min-width:0;overflow:hidden;border:1px solid #e0e5ef;border-radius:16px;background:#fff;box-shadow:0 7px 20px rgba(12,29,76,.08)}.open-game-art{position:relative;display:block;aspect-ratio:1.9/1;overflow:hidden;background:#00008b;color:#fff;text-decoration:none}.open-game-art:after{position:absolute;inset:0;content:"";background:linear-gradient(90deg,rgba(0,0,45,.24),transparent 68%);pointer-events:none}.open-game-art img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .35s ease}.open-game-art:hover img{transform:scale(1.035)}.art-kicker,.art-title,.art-pill{position:absolute;z-index:1;left:5%;text-shadow:0 2px 10px rgba(0,0,35,.35)}.art-kicker{top:14%;font-size:clamp(.52rem,1vw,.72rem);font-weight:900;letter-spacing:.12em;color:#ffc00a}.art-title{top:31%;display:grid;gap:.05rem;font-family:Montserrat,system-ui,sans-serif;font-size:clamp(1.05rem,2.45vw,2rem);font-weight:900;line-height:.98;letter-spacing:-.035em}.art-title strong{color:#fff}.art-title b{color:#ff9b20}.art-pill{bottom:12%;padding:.35rem .6rem;border-radius:8px;background:#006400;color:#fff;font-size:clamp(.55rem,.95vw,.72rem);font-weight:900;letter-spacing:.04em;text-shadow:none}.beauty-pill{background:#ff8c00;color:#17113d}.open-game-content{padding:.95rem 1rem .9rem}.open-game-meta{display:flex;justify-content:space-between;align-items:center;gap:.5rem}.mode-pill{padding:.34rem .55rem;background:#eef0f7;color:#343e63}.live-dot-label{color:#23643a}.open-game-content h4{margin:.58rem 0 .32rem;color:#071a52;font-size:1.05rem;font-weight:900}.open-game-content p{min-height:3.1em;margin:0 0 .7rem!important;color:#58647b!important;font-size:.83rem;line-height:1.5}.open-game-cta{width:100%;justify-content:center;min-height:42px}.live-player-note{min-height:0!important;margin:.58rem 0 0!important;padding:.55rem .65rem;border-radius:9px;background:#f0f7f1;color:#17683b!important;font-size:.76rem!important;font-weight:800}.evangelism-rankings{margin:0!important;padding:.85rem 1rem 1rem;border-top:1px solid #edf0f5;scroll-margin-top:90px}.evangelism-rankings h5,.beauty-public-rankings h5{margin:0 0 .25rem;color:#071a52;font-size:.88rem}.evangelism-rankings h5 i{margin-right:.3rem;color:#ff8c00}.evangelism-rankings>p{margin:0 0 .45rem!important;color:#6b7487!important;font-size:.73rem;line-height:1.35}.ranking-list{display:grid;gap:.18rem;color:#16213c;font-size:.8rem}.beauty-share{margin:.2rem auto 1rem!important;padding:0 1rem}.beauty-share .public-share-title{font-size:.78rem}.beauty-public-rankings{display:none!important}
+
     .dashboard-panel p { color:#666; line-height:1.5; margin-bottom:.8rem; }
     .lobby-section .lobby-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 1rem; }
-    @media(max-width:750px){ .dashboard-split{grid-template-columns:1fr;} }
+    @media(max-width:750px){ .dashboard-split{grid-template-columns:1fr;} .open-games-grid{grid-template-columns:1fr 1fr;} }
+    @media(max-width:560px){.open-games-grid{grid-template-columns:1fr}.open-games-section{padding:1rem!important}.open-games-heading{align-items:flex-start}.open-games-live{font-size:.58rem}.open-game-art{aspect-ratio:1.85/1}.art-title{font-size:clamp(1.35rem,7vw,2rem)}.art-pill{font-size:.65rem}.open-game-content p{min-height:0!important}}
     .game-tile { border-radius: 18px; padding: 1.2rem; color: #fff; background: linear-gradient(160deg, #46178f, #00008B); box-shadow: 0 8px 20px rgba(0,0,0,0.18); display: flex; flex-direction: column; gap: 0.5rem; }
     .game-tile.waiting { background: linear-gradient(160deg, #6b4f1f, #3d2e0f); }
     .game-tile.playing { background: linear-gradient(160deg, #006400, #003d00); }
@@ -361,7 +365,14 @@
 
     /* Fresh start: do not display historical rankings or scores. */
     .beauty-public-rankings,.gt-rankings { display:none !important; }
-  </style>
+
+/* Nature-inspired leaderboard treatment based on the supplied board; site colors/content remain. */
+.evangelism-rankings{position:relative;isolation:isolate;margin:0!important;padding:1rem .9rem .95rem;border-top:1px solid #edf0f5;scroll-margin-top:90px;overflow:hidden;background:linear-gradient(180deg,#e4f2f7 0%,#f2f8f9 72%,#e5f1e5 100%)}
+.evangelism-rankings:before{content:"";position:absolute;z-index:-1;left:-8%;right:-8%;bottom:0;height:25px;background:#a8d3a9;border-radius:55% 45% 0 0/75% 85% 0 0}.evangelism-rankings:after{content:"";position:absolute;z-index:-2;left:30%;right:-12%;bottom:0;height:34px;background:#c2dfc4;border-radius:75% 0 0 0/90% 0 0 0}
+.evangelism-rankings h5{margin:0 0 .25rem;color:#1b365d;font-size:.95rem}.evangelism-rankings h5 i{margin-right:.3rem;color:#b56a32}.evangelism-rankings>p{margin:0 0 .65rem!important;color:#5d7b93!important;font-size:.73rem;line-height:1.35}
+.ranking-list{position:relative;display:grid;gap:.42rem;color:#1b365d;font-size:.8rem}.rank-row{display:grid;grid-template-columns:28px 32px minmax(0,1fr) auto;align-items:center;gap:.55rem;min-height:46px;padding:.38rem .55rem;border:1px solid #e1edf1;border-radius:12px;background:rgba(255,255,255,.96);box-shadow:0 3px 9px rgba(27,54,93,.07);animation:rankEnter .3s ease both}.rank-row:nth-child(1){border-color:#e5c983;background:#fffdf4}.rank-pos{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:#eaf2f4;color:#526b7b;font-weight:900;font-size:.76rem}.rank-pos.top-one{background:#f2d68e;color:#725016}.rank-pos.top-two{background:#d7e1e6;color:#435565}.rank-pos.top-three{background:#e5b99e;color:#75462d}.rank-avatar{display:grid;place-items:center;width:30px;height:30px;border:2px solid #fff;border-radius:50%;background:#dbeaf0;color:#1b365d;font-size:.82rem;font-weight:900;box-shadow:0 1px 4px #1b365d20}.rank-name{overflow:hidden;color:#1b365d;font-size:.8rem;font-weight:800;text-overflow:ellipsis;white-space:nowrap}.rank-score{padding:.28rem .5rem;border-radius:8px;background:#edf5e9;color:#31583c;font-size:.77rem;font-weight:900;white-space:nowrap}.rank-score small{margin-left:2px;color:#5d7b93;font-size:.66rem;font-weight:700}@keyframes rankEnter{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:560px){.rank-row{grid-template-columns:26px 30px minmax(0,1fr) auto;gap:.4rem;padding:.35rem .45rem}.rank-name{font-size:.76rem}.rank-score{font-size:.72rem}}
+</style>
   <link rel="stylesheet" href="game-experience.css" />
 </head>
 <body>
@@ -421,26 +432,29 @@
           <button id="lobby-join-pin-btn" class="btn btn--green"><i class="fa-solid fa-right-to-bracket"></i> Join Game</button>
         </div>
       </section>
-      <section class="dashboard-panel open-games-section" aria-labelledby="open-games-heading" style="margin-top:2rem;padding:1rem;background:#f3f4f6;border-radius:8px;text-align:center;">
-        <h3 id="open-games-heading" data-i18n="live_open_title">Live Open Games</h3>
-        <p data-i18n="live_public_description">Join the 24/7 public room instantly.</p>
-        <div style="max-width:520px;margin:0 auto 1.2rem;padding:1rem;text-align:left;background:#fff;border:1px solid #dce3f1;border-radius:14px;">
-          <h4 style="margin:0 0 .45rem;color:#071a52;">Good News: Evangelism</h4>
-          <p style="margin:0 0 .8rem;color:#526078;">Sign in, share the quiz with friends, and explore the gospel through five challenging rounds. Get feedback as you answer, then review the Scripture-based explanations. Pause and continue later on this device.</p>
-          <a class="btn btn--yellow" href="/evangelism-quiz">Start the 25-question quiz</a>
+      <section class="dashboard-panel open-games-section" aria-labelledby="open-games-heading">
+        <div class="open-games-heading"><div><span class="eyebrow">PLAY NOW</span><h3 id="open-games-heading" data-i18n="live_open_title">Live Open Games</h3><p data-i18n="live_public_description">Choose a public game and jump right in.</p></div><span class="open-games-live"><i class="fa-solid fa-circle"></i> OPEN TO PLAY</span></div>
+        <div class="open-games-grid">
+          <article class="open-game-card evangelism-game-card">
+            <a class="open-game-art" href="/evangelism-quiz" aria-label="Play Good News: Evangelism">
+              <img src="/evangelism-thumbnail.webp?v=2" alt="Young people exploring an open Bible together" loading="lazy">
+              <span class="art-kicker">CHRISCO BIBLE QUIZ</span><span class="art-title"><strong>GOOD NEWS</strong><b>EVANGELISM</b></span><span class="art-pill">25 QUESTIONS</span>
+            </a>
+            <div class="open-game-content"><div class="open-game-meta"><span class="mode-pill">SELF-PACED</span><span class="live-dot-label"><i class="fa-solid fa-circle"></i> OPEN</span></div><h4>Good News: Evangelism</h4><p>Explore the gospel and Christian witness in five thoughtful rounds. Your answers stay hidden until you finish.</p><a class="btn btn--yellow open-game-cta" href="/evangelism-quiz"><i class="fa-solid fa-play"></i> Play Evangelism</a><p id="evangelism-live-players" role="status" aria-live="polite" class="live-player-note">Checking for players currently playing…</p></div>
+            <section id="evangelism-rankings" class="evangelism-rankings" aria-labelledby="evangelism-rankings-title">
+              <h5 id="evangelism-rankings-title"><i class="fa-solid fa-ranking-star"></i> Evangelism rankings</h5><p>Best scores from completed 25-question attempts.</p><div id="evangelism-rankings-list" aria-live="polite" class="ranking-list">Loading rankings…</div>
+            </section>
+          </article>
+          <article class="open-game-card beauty-game-card">
+            <a class="open-game-art" href="/join-game?pin=777777" aria-label="Join Beauty for Ashes">
+              <img src="/beauty-for-ashes-thumbnail.webp?v=2" alt="Flowers and new growth rising from ashes at sunrise" loading="lazy">
+              <span class="art-kicker">CHRISCO LIVE GAME</span><span class="art-title"><strong>BEAUTY FOR</strong><b>ASHES</b></span><span class="art-pill beauty-pill">JOIN PIN 777777</span>
+            </a>
+            <div class="open-game-content"><div class="open-game-meta"><span class="mode-pill">PUBLIC ROOM</span><span class="live-dot-label"><i class="fa-solid fa-circle"></i> 24/7</span></div><h4>Beauty for Ashes</h4><p>Join the ongoing public Bible quiz and play with others using the live game PIN.</p><a class="btn btn--yellow open-game-cta" href="/join-game?pin=777777"><i class="fa-solid fa-right-to-bracket"></i> Join live game</a></div>
+            <div class="public-share-block beauty-share"><span class="public-share-title">Invite a friend to Beauty for Ashes</span><div id="beauty-share-links" class="lobby-share-row" aria-label="Share Beauty for Ashes"></div><p id="beauty-share-feedback" class="share-feedback" role="status" aria-live="polite"></p></div>
+            <section class="beauty-public-rankings" aria-labelledby="beauty-rankings-title"><h5 id="beauty-rankings-title">Beauty for Ashes · Top scores</h5><div id="beauty-public-rankings" aria-live="polite">Loading rankings…</div></section>
+          </article>
         </div>
-        <button type="button" onclick="window.location.href='/join-game?pin=777777'" data-i18n="live_public_cta" style="background:#2563eb;color:white;padding:15px 30px;font-size:1.2rem;border:none;border-radius:8px;cursor:pointer;font-weight:bold;width:100%;max-width:400px;">
-          JOIN LIVE: Beauty for Ashes
-        </button>
-        <div class="public-share-block">
-          <span class="public-share-title">Share Beauty for Ashes before you join</span>
-          <div id="beauty-share-links" class="lobby-share-row" aria-label="Share Beauty for Ashes"></div>
-          <p id="beauty-share-feedback" class="share-feedback" role="status" aria-live="polite"></p>
-        </div>
-        <section class="beauty-public-rankings" aria-labelledby="beauty-rankings-title" style="max-width:400px;margin:1.2rem auto 0;text-align:left;background:#fff;border:1px solid #dce3f1;border-radius:14px;padding:1rem;">
-          <h4 id="beauty-rankings-title" style="margin:0 0 .65rem;color:#071a52;">Beauty for Ashes · Top scores</h4>
-          <div id="beauty-public-rankings" aria-live="polite" style="display:grid;gap:.45rem;color:#16213c;font-size:.9rem;">Loading rankings…</div>
-        </section>
       </section>
     </div>
   </section>
@@ -555,6 +569,36 @@
   <script src="game-experience.js"></script>
   <script src="home-lobby.js"></script>
   <script>
+    // Load the public Evangelism leaderboard beneath its open-game card.
+    async function loadEvangelismRankings() {
+      const list = document.getElementById('evangelism-rankings-list'); if (!list) return;
+      try {
+        const configText = await fetch('/config.js').then(r => r.text());
+        const url = configText.match(/SUPABASE_URL\s*=\s*['\"]([^'\"]+)['\"]/), key = configText.match(/SUPABASE_ANON_KEY\s*=\s*['\"]([^'\"]+)['\"]/);
+        if (!url || !key) throw new Error('Leaderboard configuration unavailable');
+        if (window.supabase?.createClient) {
+          const liveClient=window.supabase.createClient(url[1],key[1],{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}});
+          const liveChannel=liveClient.channel('evangelism-live').on('presence',{event:'sync'},()=>{
+            const presence=liveChannel.presenceState(),count=Object.keys(presence).reduce((n,k)=>n+(presence[k]||[]).length,0),node=document.getElementById('evangelism-live-players');
+            if(node)node.textContent=count===0?'No players online right now. Be the first to play!':count===1?'1 player is playing now.':count+' players are playing now.';
+          }).subscribe();
+          window.addEventListener('beforeunload',()=>{liveChannel.unsubscribe();liveClient.removeAllChannels()},{once:true});
+        }
+        const response = await fetch(url[1] + '/functions/v1/evangelism-ranking', {method:'POST', headers:{'Content-Type':'application/json','apikey':key[1],'Authorization':'Bearer '+key[1]}, body:JSON.stringify({action:'leaderboard'})});
+        const data = await response.json(); if (!response.ok || !data.ok) throw new Error(data.error || 'Could not load rankings');
+        list.replaceChildren();
+        if (!data.rankings.length) { list.textContent = 'No completed scores yet. Be the first to play.'; return; }
+        data.rankings.slice(0,10).forEach((row,i) => {
+          const line=document.createElement('div'); line.className='rank-row'; line.style.animationDelay=(i*.06)+'s';
+          const rank=document.createElement('span'); rank.className='rank-pos'+(i===0?' top-one':i===1?' top-two':i===2?' top-three':''); rank.textContent=String(i+1); rank.setAttribute('aria-label','Rank '+(i+1));
+          const avatar=document.createElement('span'); avatar.className='rank-avatar'; avatar.textContent=String(row.nickname||'?').trim().charAt(0).toUpperCase()||'?'; avatar.setAttribute('aria-hidden','true');
+          const name=document.createElement('span'); name.className='rank-name'; name.textContent=row.nickname||'Quiz player';
+          const score=document.createElement('strong'); score.className='rank-score'; score.append(document.createTextNode(String(Number(row.score)||0)+' ')); const total=document.createElement('small'); total.textContent='/ '+(Number(row.total_questions)||25); score.appendChild(total);
+          line.append(rank,avatar,name,score); list.append(line);
+        });
+      } catch (_) { list.textContent='Rankings are temporarily unavailable. Please check again soon.'; }
+    }
+    loadEvangelismRankings();
     // Carousel navigation
     const track = document.getElementById('carousel-track');
     if (track) {
